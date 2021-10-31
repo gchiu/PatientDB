@@ -2,8 +2,8 @@ Rebol []
 
 ; read all the files into the files database
 
-digit: charset [#"0"-#"9"]
-alpha: charset [#"a"-"z" #"A"-#"Z"]
+digit: charset [#"0"- #"9"]
+alpha: charset [#"a" - "z" #"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
 filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 
