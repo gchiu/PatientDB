@@ -12,4 +12,32 @@ https://sourceforge.net/projects/firebird/files/firebird-ODBC-driver/2.0.5-Relea
 
 Install with default settings
 
+Create the database using the Firebird commandline tool isql
+
+https://firebirdsql.org/manual/qsg10-creating.html
+
+In my install it was found here C:\Program Files\Firebird\Firebird_4_0>isql.exe
+
+  C:\Program Files\Firebird\Firebird_4_0>isql  
+  Use CONNECT or CREATE DATABASE to specify a database  
+  SQL> CREATE DATABASE 'd:\patients.fdb' page_size 8192  
+  CON> user 'SYSDBA' password 'masterkey';  
+  SQL> QUIT; 
+
 Create odbc connection named patients
+
+Create the ODBC user
+
+Stop the server service from services/standard tab
+And from an elevated command prompt.  Choose a strong password instead of 'masterkey'
+
+    D:\>C:isql -user sysdba PATIENTS.FDB  
+    Database: PATIENTS.FDB, User: SYSDBA  
+    SQL> CREATE USER SYSDBA PASSWORD 'masterkey';  
+    SQL> QUIT;  
+
+Restart the server service
+
+Create odbc connection named patients and test, it should work
+
+
