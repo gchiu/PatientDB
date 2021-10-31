@@ -16,7 +16,7 @@ foreach file letters: read %patients/ [
     ffile: form file
     if parse ffile filename-rule [
         print ffile
-        insert port {select * from files where filename =(?) ffile}
+        insert port [{select * from files where filename =(?)} ffile]
         if none? pick port 1 [
             insert port [{insert into files (filename) values (?)} ffile]
         ]
