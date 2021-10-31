@@ -40,4 +40,11 @@ Restart the server service
 
 Create odbc connection named patients and test, it should work
 
+Download Rebol eg. from https://metaeducation.s3.amazonaws.com/travis-builds/0.3.40/r3-f148260.exe
 
+and save it as r3.exe in the same directory as the patients.fdb files
+
+save the test odbc script to confirm it's all working
+
+    >> write %odbc-test.reb read https://raw.githubusercontent.com/metaeducation/rebol-odbc/master/tests/odbc-test.reb  
+    == #[port! [...] [...]]
