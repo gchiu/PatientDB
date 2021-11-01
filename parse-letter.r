@@ -71,7 +71,7 @@ foreach record copy port [
                             ?? line
                             either parse/all line [uc some name-rule ", " copy fname some name-rule opt [" " copy sname to end] end ][
                                 ; we have surnames, and first names
-                                parse line [copy surname to ","]
+                                parse/all line [copy surname to ","]
                                 ?? surname ?? fname ?? sname
                                 surname: uppercase surname
                                 fname: uppercase fname
