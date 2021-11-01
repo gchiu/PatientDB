@@ -106,9 +106,6 @@ foreach record copy port [
                                     mode: 'fp ;' got the FP name
                                 ]
 
-                                parse line ["M: " copy mobile to end][]
-
-                                parse/all line [["P" | "Ph"] ": " copy phone to end][]
                                 parse line [some [phone-rule | mobile-rule]][
                                     ?? mobile
                                     ?? phone
