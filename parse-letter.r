@@ -22,6 +22,7 @@ digit: charset [#"0"- #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
 filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
+months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 
 insert port [{select id, filename from files where done = (?)} false]
 foreach record copy port [
@@ -43,9 +44,26 @@ foreach record copy port [
             ldate: to date! rejoin [day "-" month "-" year]
             print reform ["clinician id is " current-doc]
             print reform ["clinic letter date is " ldate]
+            longdate: rejoin [day " " months/month " " year]
             ; now read the letter to parse the contents
             contents: read join dir filename
             probe contents
+            ck: checksum/secure contents
+            lines: deline/lines contents ; split into lines and parse each line
+            header: name: dob: false
+            foreach line lines [
+                trim/head/tail line
+                if not empty? line [
+                    if find line longdate [
+                        ; now we are in the header
+                        header: true
+                    ]
+                    if header [
+                        ; need a state machine here
+
+                    ]
+                ]
+            ]
             halt
         ][
             ; no doc found, skip this letter
