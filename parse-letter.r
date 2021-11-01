@@ -76,7 +76,7 @@ foreach record copy port [
                                 if sname [sname: uppercase sname]
                                 mode: 'nhi ;'
                             ][
-                                print "can't find name"\
+                                print ["can't find name in line " line ]
                             ]
                         ]
 
