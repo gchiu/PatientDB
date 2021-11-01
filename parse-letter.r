@@ -106,7 +106,7 @@ foreach record copy port [
 
                                 parse line ["M: " copy mobile to end]
 
-                                parse line ["P" opt "h" ": " copy phone to end]
+                                parse/all line [["P" | "Ph"] ": " copy phone to end]
                                 
                                 find line "@" [email: copy line]
 
