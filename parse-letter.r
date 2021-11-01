@@ -52,7 +52,7 @@ foreach record copy port [
             probe contents
             ck: checksum/secure contents
             lines: deline/lines contents ; split into lines and parse each line
-            surname: fname: sname: none
+            surname: fname: sname: mobile: phone: dob: fp: email: none
             address: copy []
             mode: 'date ;'
             foreach line lines [
