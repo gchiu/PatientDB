@@ -76,7 +76,9 @@ if none? pick port 1 [
             phone varchar(15),
             mobile varchar(15),
             gp integer,
-            gpcentre integer
+            gpcentre integer,
+            deceased boolean default false,
+            discharged boolean default false
         )
     }
 
@@ -176,7 +178,8 @@ if none? pick port 1 [
             created timestamp default current_timestamp,
             nhi integer,
             diagnosis varchar(256),
-            icd10am char(7)
+            icd10am char(7),
+            about varchar(512)
         )
     }
 ]
