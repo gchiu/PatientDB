@@ -126,10 +126,10 @@ foreach record copy port [
                             ]
 
                             fp [; extract fp address
-                                either "Dear" = copy/part 4 line [
+                                either find/part line "Dear" 4 [
                                     mode: 'diagnosis ;'
                                 ][
-                                    either find line fp [][
+                                    if not find line fp [
                                         append fpaddress line
                                     ]
                                 ]
