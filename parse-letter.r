@@ -118,8 +118,8 @@ foreach record copy port [
                                     ; get area code out
                                     rline: reverse copy line
                                     if parse rline [copy areacode areacode-rule space copy line to end][
-                                        reverse areacode
-                                        reverse line
+                                        areacode: reverse areacode
+                                        line: reverse line
                                     ]
                                     append/only address line
                                 ]
