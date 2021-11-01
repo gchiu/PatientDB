@@ -46,7 +46,7 @@ foreach record copy port [
             ldate: to date! rejoin [day "-" month "-" year]
             print reform ["clinician id is " current-doc]
             print reform ["clinic letter date is " ldate]
-            longdate: rejoin [day " " pickk months month " " year]
+            longdate: rejoin [day " " pick months month " " year]
             ; now read the letter to parse the contents
             contents: read join dir filename
             probe contents
