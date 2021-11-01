@@ -21,6 +21,7 @@ probe clinicians
 digit: charset [#"0"- #"9"]
 dob-rule: [2 digit "." 2 digit "." 4 digit]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
+name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'"]
 uc: charset [#"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
 filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
@@ -68,7 +69,7 @@ foreach record copy port [
 
                         name [ ;look for patient name next eg. XXXX, XXXX XXXX 
                             ?? line
-                            either parse line [uc some alpha ", " copy fname some alpha opt [" " copy sname to end] end ][
+                            either parse line [uc some name-rule ", " copy fname some name-rule opt [" " copy sname to end] end ][
                                 ; we have surnames, and first names
                                 parse line [surname copy some alpha]
                                 surname: uppercase surname
