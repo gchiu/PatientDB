@@ -55,7 +55,7 @@ foreach record copy port [
             probe contents
             ck: checksum/secure contents
             lines: deline/lines contents ; split into lines and parse each line
-            surname: fname: sname: mobile: phone: dob: fp: email: none
+            surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
             address: copy []
             mode: 'date ;'
             foreach line lines [
@@ -114,6 +114,12 @@ foreach record copy port [
                                 find line "@" [email: copy line]
 
                                 true [; just address lines
+                                    ; get area code out
+                                    rline: reverse copy line
+                                    if parse rline [areacode: copy 4 digit space copy line to end][
+                                        reverse areacode
+                                        reverse line
+                                    ]
                                     append/only address line
                                 ]
                             ]
@@ -128,6 +134,7 @@ foreach record copy port [
             ?? fname
             ?? sname
             ?? address
+            ?? areacode
             ?? mobile
             ?? phone
             ?? email
