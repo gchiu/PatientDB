@@ -69,10 +69,10 @@ foreach record copy port [
 
                         name [ ;look for patient name next eg. XXXX, XXXX XXXX 
                             ?? line
-                            either parse line [uc some name-rule ", " copy fname some name-rule opt [" " copy sname to end] end ][
+                            either parse line [uc some name-rule ", " copy fname some name-rule [" " copy sname to end] end ][
                                 ; we have surnames, and first names
-                                parse line [copy surname to " "]
-                                ?? surname
+                                parse line [copy surname to ","]
+                                ?? surname ?? fname ?? sname
                                 surname: uppercase surname
                                 fname: uppercase fname
                                 if sname [sname: uppercase sname]
