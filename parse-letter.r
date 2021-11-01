@@ -114,6 +114,16 @@ foreach record copy port [
                     ]
                 ]
             ]
+            ?? nhi
+            ?? surname
+            ?? fname
+            ?? sname
+            ?? address
+            ?? mobile
+            ?? phone
+            ?? email
+            ?? fp
+            ?? current-doc
             halt
         ][
             ; no doc found, skip this letter
