@@ -19,6 +19,7 @@ probe clinicians
 
 space: #" "
 digit: charset [#"0"- #"9"]
+areacode-rule: [4 digit]
 dob-rule: [2 digit "." 2 digit "." 4 digit]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'"]
@@ -116,7 +117,7 @@ foreach record copy port [
                                 true [; just address lines
                                     ; get area code out
                                     rline: reverse copy line
-                                    if parse rline [areacode: copy 4 digit space copy line to end][
+                                    if parse rline [copy areacode areacode-rule space copy line to end][
                                         reverse areacode
                                         reverse line
                                     ]
