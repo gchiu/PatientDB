@@ -59,14 +59,14 @@ foreach record copy port [
                 trim/head/tail line
                 if not empty? line [
                     switch mode [
-                        'date [ ;'
+                        date [
                             if find line longdate [
                                 ; now we are in the header
                                 mode: 'name ;'
                             ]
                         ]
 
-                        'name [ ;'look for patient name next eg. XXXX, XXXX XXXX 
+                        name [ ;look for patient name next eg. XXXX, XXXX XXXX 
                             ?? line
                             either parse line [uc some alpha ", " copy fname some alpha opt [" " copy sname to end] end ][
                                 ; we have surnames, and first names
@@ -80,7 +80,7 @@ foreach record copy port [
                             ]
                         ]
 
-                        'nhi [;' confirm nhi matches that from the filename
+                        nhi [; confirm nhi matches that from the filename
                             if parse line ["NHI: " copy letter-nhi nhi-rule][
                                 either letter-nhi <> nhi [
                                     print "Mismatch on file NHI and Letter NHI"
@@ -91,7 +91,7 @@ foreach record copy port [
                             ]
                         ]
 
-                        'address [;' start capturing address lines and dob mixed in together, terminated by finding GP:
+                        address [; start capturing address lines and dob mixed in together, terminated by finding GP:
                             case [
                                 parse line ["DOB: " copy dob dob-rule][
                                     replace/all dob "." "-"
