@@ -57,11 +57,11 @@ foreach record copy port [
             ck: checksum/secure contents
             lines: deline/lines contents ; split into lines and parse each line
             surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
-            address: copy []
+            address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy []
             mode: 'date ;'
             foreach line lines [
                 trim/head/tail line
-                if not empty? line [
+                either not empty? line [
                     switch mode [
                         date [
                             if find line longdate [
@@ -124,8 +124,36 @@ foreach record copy port [
                                     append/only address line
                                 ]
                             ]
+
+                            fp [; extract fp address
+                                either "Dear" = copy/part 4 line [
+                                    mode: 'diagnosis ;'
+                                ][
+                                    either find line fp [][
+                                        append fpaddress line
+                                    ]
+                                ]
+                            ]
+
+                            diagnosis [
+                                either find/part line "Diagnos" 7 [
+                                    ; skip this line
+                                ][
+                                    either find/part line "Medication" 10 [
+                                        mode: 'medication ;'
+                                    ][
+                                        append diagnoses line
+                                    ]
+                                ]
+                            ]
+
+                            medication [
+                                append medications line
+                            ]
                         ]
                     ]
+                ][
+                    if mode = 'medication [mode: 'finish]
                 ]
             ]
             ?? mode
@@ -141,6 +169,9 @@ foreach record copy port [
             ?? email
             ?? fp
             ?? current-doc
+            ?? fpaddress
+            ?? medications
+            ?? diagnoses
             halt
         ][
             ; no doc found, skip this letter
