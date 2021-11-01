@@ -30,10 +30,13 @@ months: ["January" "February" "March" "April" "May" "June" "July" "August" "Sept
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
 
+cnt: 0
+
 insert port [{select id, filename from files where done = (?)} false]
 foreach record copy port [
 	fileid: record/1
 	filename: record/2
+	?? filename
 	nhi: uppercase copy/part filename 7
 	current-doc: none
 	if parse filename [NHI "-" copy clinician some alpha thru "-" copy ldate 8 digit "-" to ".TXT" to end] [
@@ -53,11 +56,10 @@ foreach record copy port [
 			longdate: rejoin [day " " pick months to integer! month " " year]
 			; now read the letter to parse the contents
 			contents: read join dir filename
-			probe contents
 			ck: checksum/secure contents
 			lines: deline/lines contents ; split into lines and parse each line
 			surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
-			address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy []
+			address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
 			mode: 'date ;'
 			foreach line lines [
 				trim/head/tail line
@@ -103,14 +105,11 @@ foreach record copy port [
 									dob: to date! dob
 								]
 
-								parse line ["GP:" copy fp to end] [
+								parse/all line ["GP: " copy fp to end] [
 									mode: 'fp ;' got the FP name
 								]
 
-								parse/all line [some [phone-rule | mobile-rule | space] end] [
-									?? mobile
-									?? phone
-								]
+								parse/all line [some [phone-rule | mobile-rule | space] end] []
 
 								find line "@" [email: copy line]
 
@@ -124,37 +123,48 @@ foreach record copy port [
 									append/only address line
 								]
 							]
+						]
 
-							fp [; extract fp address
-								either find/part line "Dear" 4 [
-									mode: 'diagnosis ;'
-									print "switched to diagnosis mode"
-								] [
-									if not find line fp [
-										append fpaddress line
-									]
+						fp [; extract fp address
+							either find/part line "Dear" 4 [
+								mode: 'diagnosis ;'
+							] [
+								if not find line fp [
+									append fpaddress line
 								]
 							]
+						]
 
-							diagnosis [
-								either find/part line "Diagnos" 7 [
-									; skip this line
+						diagnosis [
+							either find/part line "Diagnos" 7 [
+								; skip this line
+							] [
+								either find/part line "Medication" 10 [
+									mode: 'medication ;'
 								] [
-									either find/part line "Medication" 10 [
-										mode: 'medication ;'
-									] [
-										append diagnoses line
-									]
+									append diagnoses line
 								]
 							]
+						]
 
-							medication [
+						medication [
+							either find line "DMARDS" [
+								mode: 'dmards ;'
+							] [
 								append medications line
 							]
 						]
+
+						dmards [
+							append dmards line
+						]
+
+						; finish [halt]
 					]
+
 				] [
 					if mode = 'medication [mode: 'finish]
+					if mode = 'dmards [mode: 'finish]
 				]
 			]
 			?? mode
@@ -173,7 +183,10 @@ foreach record copy port [
 			?? fpaddress
 			?? medications
 			?? diagnoses
-			halt
+			?? dmards
+			++ cnt
+			if cnt > 2 [halt]
+			print "================================================="
 		] [
 			; no doc found, skip this letter
 		]
