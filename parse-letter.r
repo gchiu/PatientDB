@@ -67,13 +67,16 @@ foreach record copy port [
                         ]
 
                         'name [ ;'look for patient name next eg. XXXX, XXXX XXXX 
-                            if parse line [uc some alpha ", " copy fname some alpha opt [" " copy sname to end] end ][
+                            ?? line
+                            either parse line [uc some alpha ", " copy fname some alpha opt [" " copy sname to end] end ][
                                 ; we have surnames, and first names
                                 parse line [surname copy some alpha]
                                 surname: uppercase surname
                                 fname: uppercase fname
                                 if sname [sname: uppercase sname]
                                 mode: 'nhi ;'
+                            ][
+                                print "can't find name"\
                             ]
                         ]
 
@@ -113,6 +116,7 @@ foreach record copy port [
                     ]
                 ]
             ]
+            ?? mode
             ?? longdate
             ?? nhi
             ?? surname
