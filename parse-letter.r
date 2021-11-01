@@ -128,6 +128,7 @@ foreach record copy port [
                             fp [; extract fp address
                                 either find/part line "Dear" 4 [
                                     mode: 'diagnosis ;'
+                                    print "switched to diagnosis mode"
                                 ][
                                     if not find line fp [
                                         append fpaddress line
