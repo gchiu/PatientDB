@@ -26,8 +26,8 @@ uc: charset [#"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
 filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
-phone-rule: [["P:" | "Ph:"] copy phone some digit]
-mobile-rule: ["M:" copy mobile some digit]
+phone-rule: [["P:" | "Ph:"] space copy phone some digit]
+mobile-rule: ["M:" space copy mobile some digit]
 
 insert port [{select id, filename from files where done = (?)} false]
 foreach record copy port [
@@ -109,7 +109,10 @@ foreach record copy port [
                                 parse line ["M: " copy mobile to end][]
 
                                 parse/all line [["P" | "Ph"] ": " copy phone to end][]
-                                parse line [some [phone-rule | mobile-rule]][]
+                                parse line [some [phone-rule | mobile-rule]][
+                                    ?? mobile
+                                    ?? phone
+                                ]
                                 
                                 find line "@" [email: copy line]
 
