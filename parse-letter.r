@@ -106,7 +106,7 @@ foreach record copy port [
                                     mode: 'fp ;' got the FP name
                                 ]
 
-                                parse line [some [phone-rule | mobile-rule | space] end ][
+                                parse/all line [some [phone-rule | mobile-rule | space] end ][
                                     ?? mobile
                                     ?? phone
                                 ]
