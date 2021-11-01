@@ -17,7 +17,7 @@ foreach c copy port [
 ; Chiu 1 Elasir 2
 probe clinicians
 
-
+space: #" "
 digit: charset [#"0"- #"9"]
 dob-rule: [2 digit "." 2 digit "." 4 digit]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
