@@ -52,7 +52,7 @@ foreach record copy port [
             probe contents
             ck: checksum/secure contents
             lines: deline/lines contents ; split into lines and parse each line
-            header: name: dob: false
+            surname: fname: sname: none
             address: copy []
             mode: 'date ;'
             foreach line lines [
@@ -67,7 +67,6 @@ foreach record copy port [
                         ]
 
                         'name [ ;'look for patient name next eg. XXXX, XXXX XXXX 
-                            surname: fname: sname: none
                             if parse line [uc some alpha ", " copy fname some alpha opt [" " copy sname to end] end ][
                                 ; we have surnames, and first names
                                 parse line [surname copy some alpha]
@@ -114,6 +113,7 @@ foreach record copy port [
                     ]
                 ]
             ]
+            ?? longdate
             ?? nhi
             ?? surname
             ?? fname
