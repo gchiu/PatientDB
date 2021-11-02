@@ -162,6 +162,11 @@ foreach record copy port [
 
 									true [
 										if not find line fpname [
+											; if there are tabs in the line, it's from a copy to someone else
+											; eg {Kauri HealthCare^-^-^-^Whanganui Hospital} ;'
+											if find line #"^-" [
+												parse line [copy line to #"^-"]
+											]
 											append fpaddress line
 										]
 									]
