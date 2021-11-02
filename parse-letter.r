@@ -60,7 +60,7 @@ foreach record copy port [
 			lines: deline/lines contents ; split into lines and parse each line
 			surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
 			address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
-			diagnosis-detail: none
+			diagnosis-detail: copy ""
 			mode: 'date ;'
 			foreach line lines [
 				trim/head/tail line
