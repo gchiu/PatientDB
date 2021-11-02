@@ -18,6 +18,7 @@ foreach c copy port [
 probe clinicians
 
 space: #" "
+whitespace: charset [#" " #"^-"]
 digit: charset [#"0" - #"9"]
 areacode-rule: [4 digit]
 dob-rule: [2 digit "." 2 digit "." 4 digit]
@@ -165,13 +166,13 @@ foreach record copy port [
 								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 								?? line
 								case [
-									parse/all line [some digit "." any space copy line to end | copy line to end ] [
-										submode: 'gotdx ;'
+									parse/all line [some digit "." any whitespace copy line to end | copy line to end ] [
+										; submode: 'gotdx ;'
 										trim/head/tail line
 										append diagnoses line
 									]
-									parse/all line [any space "-" any space copy dline to end |
-										any space alpha ")" any space copy dline to end ; a), b)^-
+									parse/all line [any whitespace "-" any whitespace copy dline to end |
+										any whitespace alpha ")" any whitespace copy dline to end ; a), b)^-
 									] [
 										if line [
 											trim/head/tail dline
