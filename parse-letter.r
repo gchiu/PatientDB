@@ -31,7 +31,11 @@ filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
-diagnosis-rule: union union [some alpha] [some digit] [any space]
+; diagnosis-rule: union union [some alpha] [some digit] [any space]
+diagnosis-rule: complement charset [#"^-"]
+; Anti-CCP +ve rheumatoid arthritis 
+; Chickenpox pneumonia (age 31 years) with residual granulomata seen on chest x-ray 
+
 
 cnt: 0
 
@@ -166,16 +170,10 @@ foreach record copy port [
 								mode: 'medication ;'
 							] [
 								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
+								; 1. 	Psoriatic Arthritis
+								; Anti-CCP +ve rheumatoid arthritis 
 								?? line
 								case [
-									parse/all line [
-										some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
-										copy line diagnosis-rule to end 
-									] [
-										; submode: 'gotdx ;'
-										trim/head/tail line
-										append diagnoses line
-									]
 									parse/all line [any whitespace "-" any whitespace copy dline to end |
 										any whitespace alpha ")" any whitespace copy dline to end ; a), b)^-
 									] [
@@ -183,6 +181,14 @@ foreach record copy port [
 											trim/head/tail dline
 											append diagnosis-detail join dline newline
 										]
+									]
+									parse/all line [
+										some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
+										copy line diagnosis-rule to end 
+									] [
+										; submode: 'gotdx ;'
+										trim/head/tail line
+										append diagnoses line
 									]
 								]
 								; append diagnoses line
