@@ -197,7 +197,7 @@ foreach record copy port [
 			?? diagnosis-detail
 			?? dmards
 			++ cnt
-			if cnt > 2 [halt]
+			if cnt > 10 [halt]
 			print "================================================="
 		] [
 			; no doc found, skip this letter
