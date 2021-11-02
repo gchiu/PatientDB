@@ -58,7 +58,7 @@ foreach record copy port [
 			contents: read join dir filename
 			ck: checksum/secure contents
 			lines: deline/lines contents ; split into lines and parse each line
-			surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
+			surname: fname: sname: mobile: phone: dob: fp: email: areacode: fpname: none
 			address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
 			diagnosis-detail: copy ""
 			mode: 'date ;'
@@ -107,6 +107,7 @@ foreach record copy port [
 								]
 
 								parse/all line ["GP: " copy fp to end] [
+									fpname: last parse fp none
 									mode: 'fp ;' got the FP name
 								]
 
@@ -131,7 +132,9 @@ foreach record copy port [
 								mode: 'end-salutation ;'
 							] [
 								if not find line fp [
-									append fpaddress line
+									if not find line fpname [
+										append fpaddress line
+									]
 								]
 							]
 						]
