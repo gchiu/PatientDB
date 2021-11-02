@@ -167,10 +167,12 @@ foreach record copy port [
 								case [
 									parse/all line [some digit "." any space copy line to end | copy line to end ] [
 										submode: 'gotdx ;'
+										trim/head/tail line
 										append diagnoses line
 									]
 									parse/all line [any space "-" any space copy dline to end] [
 										if line [
+											trim/head/tail dline
 											append diagnosis-detail join dline newline
 										]
 									]
