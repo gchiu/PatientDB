@@ -190,6 +190,7 @@ foreach record copy port [
 						]
 
 						medication [
+							?? line
 							either find line "DMARDS" [
 								mode: 'dmards ;'
 							] [
@@ -202,7 +203,7 @@ foreach record copy port [
 						]
 
 						finish [
-							print "break out of lines"
+							print "break out of lines as no diagnosis or medications in this letter"
 							break
 						]
 					]
