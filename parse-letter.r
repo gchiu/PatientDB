@@ -138,29 +138,29 @@ foreach record copy port [
 
 						end-salutation [
 							if find/part line "Diagnos" 7 [
-								mode: 'diagnosis
+								mode: 'diagnosis ;'
 							]
 						]
 
 						diagnosis [
-								either find/part line "Medication" 10 [
-									mode: 'medication ;'
-								] [
-									; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
-									?? line
-									case [
-										parse/all line [some digit "." any space copy line to end][
-												submode: 'gotdx ;'
-												append diagnoses line
-										]
-										parse/all line [any space "-" any space copy dline to end][
-											if line [
-												append diagnosis-detail join dline newline
-											]
+							either find/part line "Medication" 10 [
+								mode: 'medication ;'
+							] [
+								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
+								?? line
+								case [
+									parse/all line [some digit "." any space copy line to end] [
+										submode: 'gotdx ;'
+										append diagnoses line
+									]
+									parse/all line [any space "-" any space copy dline to end] [
+										if line [
+											append diagnosis-detail join dline newline
 										]
 									]
-									append diagnoses line
 								]
+								append diagnoses line
+							]
 						]
 
 						medication [
