@@ -196,8 +196,8 @@ foreach record copy port [
 										; Anti-CCP +ve rheumatoid arthritis 
 										?? line
 										case [
-											parse/all line [any whitespace "-" any whitespace copy dline to end |
-												any whitespace alpha ")" any whitespace copy dline to end ; a), b)^-
+											parse/all line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
+												any whitespace alpha ")" any whitespace copy dline to end ; a), b)^- ; so is this
 											] [
 												if dline [
 													trim/head/tail dline
@@ -210,11 +210,12 @@ foreach record copy port [
 											] [
 												; submode: 'gotdx ;'
 												trim/head/tail line
+												append diagnoses line
+												; now add the details as a block
 												if not empty? diagnosis-detail [
 													append/only diagnoses reduce [trim/tail diagnosis-detail]
 													diagnosis-detail: copy ""
 												]
-												append diagnoses line
 											]
 										]
 										; append diagnoses line
