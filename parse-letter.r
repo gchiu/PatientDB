@@ -184,7 +184,7 @@ foreach record copy port [
 									]
 									parse/all line [
 										some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
-										copy line diagnosis-rule to end 
+										copy line some diagnosis-rule to end 
 									] [
 										; submode: 'gotdx ;'
 										trim/head/tail line
