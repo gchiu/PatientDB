@@ -144,6 +144,7 @@ foreach record copy port [
 								mode: 'diagnosis ;'
 							]
 							if find/part line "INTERNAL" 8 [
+								print "internal referral"
 								mode: 'finish ;'
 							] 
 						]
@@ -181,7 +182,10 @@ foreach record copy port [
 							append dmards line
 						]
 
-						finish [break]
+						finish [
+							print "break out of lines"
+							break
+						]
 					]
 
 				] [
