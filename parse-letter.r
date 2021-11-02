@@ -143,6 +143,9 @@ foreach record copy port [
 							if find/part line "Diagnos" 7 [
 								mode: 'diagnosis ;'
 							]
+							if find/part line "INTERNAL" 8 [
+								mode: 'finish ;'
+							] 
 						]
 
 						diagnosis [
@@ -178,7 +181,7 @@ foreach record copy port [
 							append dmards line
 						]
 
-						; finish [halt]
+						finish [break]
 					]
 
 				] [
