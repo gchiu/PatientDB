@@ -209,8 +209,11 @@ foreach record copy port [
 					]
 
 				] [
-					if mode = 'medication and empty? medications [mode: 'finish]
-					if mode = 'dmards and empty? dmards [mode: 'finish]
+					if all [mode = 'medication not empty? medications] [
+						print "empty line, in medication mode, and not empty medications"
+						mode: 'finish
+					]
+					if all [mode = 'dmards not empty? dmards ][mode: 'finish]
 				]
 			]
 			?? mode
