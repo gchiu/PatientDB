@@ -210,12 +210,12 @@ foreach record copy port [
 											] [
 												; submode: 'gotdx ;'
 												trim/head/tail line
-												append diagnoses line
 												; now add the details as a block
 												if not empty? diagnosis-detail [
 													append/only diagnoses reduce [trim/tail diagnosis-detail]
 													diagnosis-detail: copy ""
 												]
+												append diagnoses line
 											]
 										]
 										; append diagnoses line
