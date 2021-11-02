@@ -22,7 +22,7 @@ digit: charset [#"0" - #"9"]
 areacode-rule: [4 digit]
 dob-rule: [2 digit "." 2 digit "." 4 digit]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
-name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'"]
+name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'" #" "]
 uc: charset [#"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
 filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
@@ -73,7 +73,7 @@ foreach record copy port [
 							]
 						]
 
-						name [;look for patient name next eg. XXXX, XXXX XXXX 
+						name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
 							?? line
 							either parse/all line [uc some name-rule ", " copy fname some name-rule opt [" " copy sname to end] end] [
 								; we have surnames, and first names
@@ -85,6 +85,7 @@ foreach record copy port [
 								mode: 'nhi ;'
 							] [
 								print ["can't find name in line " line]
+								halt
 							]
 						]
 
