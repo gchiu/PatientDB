@@ -128,14 +128,25 @@ foreach record copy port [
 						]
 
 						fp [; extract fp address
-							either find/part line "Dear" 4 [
-								mode: 'end-salutation ;'
-							] [
-								if not find line fp [
+							case [
+								find/part line "Dear" 4 [
+									mode: 'end-salutation ;'
+								]
+
+								find/part line "INTERNAL" 8 [
+									; internal referral
+									mode: 'finish ;'
+								]
+
+								true [
+if not find line fp [
 									if not find line fpname [
 										append fpaddress line
 									]
 								]
+
+								]
+
 							]
 						]
 
