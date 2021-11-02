@@ -128,7 +128,7 @@ foreach record copy port [
 
 						fp [; extract fp address
 							either find/part line "Dear" 4 [
-								mode: 'diagnosis ;'
+								mode: 'end-salutation ;'
 							] [
 								if not find line fp [
 									append fpaddress line
@@ -136,10 +136,13 @@ foreach record copy port [
 							]
 						]
 
+						end-salutation [
+							if find/part line "Diagnos" 7 [
+								mode: 'diagnosis
+							]
+						]
+
 						diagnosis [
-							either find/part line "Diagnos" 7 [
-								; skip this line
-							] [
 								either find/part line "Medication" 10 [
 									mode: 'medication ;'
 								] [
@@ -158,7 +161,6 @@ foreach record copy port [
 									]
 									append diagnoses line
 								]
-							]
 						]
 
 						medication [
