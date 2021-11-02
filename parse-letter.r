@@ -74,7 +74,7 @@ foreach record copy port [
 
 				; now read the letter to parse the contents
 				contents: read join dir filename
-				ck: checksum/secure contents ; we have the checksum to prevent us from processing the same file twice
+				ck: form checksum/secure contents ; we have the checksum to prevent us from processing the same file twice
 				either find checks ck [
 					; should never happen as there is a unique constraint on the filename column
 					print "checksum duplicate!"
@@ -82,6 +82,9 @@ foreach record copy port [
 				] [
 					append checks ck
 				]
+				; now check to see if the letters database has this letter or not
+				insert port [{select id from letter where checksum = (?)} ck]
+				if none? pick port 1 [; okay not done yet
 				mode: 'date ;' we look for the date first to start the processing
 				foreach line deline/lines contents [; split into lines and parse each line
 					trim/head/tail line
@@ -266,6 +269,9 @@ foreach record copy port [
 				; ++ cnt
 				; if cnt > 100 [halt]
 				print "================================================="
+				][
+					print "letter already in database"
+				]
 			] [
 				; no doc found, skip this letter
 			]
