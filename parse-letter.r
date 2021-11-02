@@ -83,7 +83,7 @@ foreach record copy port [
 					append checks ck
 				]
 				; now check to see if the letters database has this letter or not
-				insert port [{select id from letter where checksum = (?)} ck]
+				insert port [{select id from letters where checksum = (?)} ck]
 				either none? pick port 1 [; okay not done yet
 				mode: 'date ;' we look for the date first to start the processing
 				foreach line deline/lines contents [; split into lines and parse each line
