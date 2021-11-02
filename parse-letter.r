@@ -177,7 +177,7 @@ foreach record copy port [
 									parse/all line [any whitespace "-" any whitespace copy dline to end |
 										any whitespace alpha ")" any whitespace copy dline to end ; a), b)^-
 									] [
-										if line [
+										if dline [
 											trim/head/tail dline
 											append diagnosis-detail join dline newline
 										]
