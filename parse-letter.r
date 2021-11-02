@@ -209,8 +209,8 @@ foreach record copy port [
 					]
 
 				] [
-					if mode = 'medication [mode: 'finish]
-					if mode = 'dmards [mode: 'finish]
+					if mode = 'medication and empty? medications [mode: 'finish]
+					if mode = 'dmards and empty? dmards [mode: 'finish]
 				]
 			]
 			?? mode
