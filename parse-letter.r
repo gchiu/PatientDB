@@ -188,6 +188,9 @@ foreach record copy port [
 									] [
 										; submode: 'gotdx ;'
 										trim/head/tail line
+										if not empty? diagnosis-detail [
+											append/only diagnoses reduce [diagnosis-detail]
+										]
 										append diagnoses line
 									]
 								]
