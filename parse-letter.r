@@ -7,7 +7,8 @@ dbase: open odbc://patients
 port: first dbase
 
 ; dir: %2021/2021/October/
-dir: %test-parser/
+; dir: %test-parser/
+dir: %2021/2021/September/
 
 ; get all the clinicians first
 insert port {select id, surname from clinicians}
@@ -190,13 +191,20 @@ foreach record copy port [
 								diagnosis [
 									either find line "Medicat" [
 										mode: 'medication ;'
+												if not empty? diagnosis-detail [ ; catch end of list issue
+													append/only diagnoses reduce [trim/tail diagnosis-detail]
+													diagnosis-detail: copy ""
+												]
 									] [
 										; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 										; 1. 	Psoriatic Arthritis
+										; 		a. CCP+ve
+										;		b) RF-ve
 										; Anti-CCP +ve rheumatoid arthritis 
 										?? line
 										case [
 											parse/all line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
+												any whitespace some alpha "." any whitespace copy dline to end | ; so is this
 												any whitespace alpha ")" any whitespace copy dline to end ; a), b)^- ; so is this
 											] [
 												if dline [
