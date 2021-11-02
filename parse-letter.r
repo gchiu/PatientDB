@@ -184,7 +184,7 @@ foreach record copy port [
 										]
 									]
 								]
-								append diagnoses line
+								; append diagnoses line
 							]
 						]
 
