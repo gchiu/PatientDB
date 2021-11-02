@@ -146,11 +146,13 @@ foreach record copy port [
 									; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 									case [
 										parse/all line [some digit "." any space copy line to end][
-												submode: 'gotdx
+												submode: 'gotdx ;'
 												append diagnoses line
 										]
 										parse/all line [any space "-" any space copy line to end][
-											append diagnosis-detail join line newline
+											if line [
+												append diagnosis-detail join line newline
+											]
 										]
 									]
 									append diagnoses line
