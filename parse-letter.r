@@ -139,12 +139,9 @@ foreach record copy port [
 								]
 
 								true [
-if not find line fp [
 									if not find line fpname [
 										append fpaddress line
 									]
-								]
-
 								]
 
 							]
@@ -157,7 +154,7 @@ if not find line fp [
 							if find/part line "INTERNAL" 8 [
 								print "internal referral"
 								mode: 'finish ;'
-							] 
+							]
 						]
 
 						diagnosis [
@@ -167,7 +164,7 @@ if not find line fp [
 								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 								?? line
 								case [
-									parse/all line [some digit "." any space copy line to end] [
+									parse/all line [some digit "." any space copy line to end | copy line to end ] [
 										submode: 'gotdx ;'
 										append diagnoses line
 									]
