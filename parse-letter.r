@@ -30,7 +30,7 @@ filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
-diagnosis-rule: union union alpha-rule [some digit] space
+diagnosis-rule: union union [some alpha] [some digit] [any space]
 
 cnt: 0
 
