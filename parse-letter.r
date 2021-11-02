@@ -60,6 +60,7 @@ foreach record copy port [
 			lines: deline/lines contents ; split into lines and parse each line
 			surname: fname: sname: mobile: phone: dob: fp: email: areacode: none
 			address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
+			diagnosis-detail: none
 			mode: 'date ;'
 			foreach line lines [
 				trim/head/tail line
@@ -142,6 +143,16 @@ foreach record copy port [
 								either find/part line "Medication" 10 [
 									mode: 'medication ;'
 								] [
+									; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
+									case [
+										parse/all line [some digit "." any space copy line to end][
+												submode: 'gotdx
+												append diagnoses line
+										]
+										parse/all line [any space "-" any space copy line to end][
+											append diagnosis-detail join line newline
+										]
+									]
 									append diagnoses line
 								]
 							]
@@ -183,6 +194,7 @@ foreach record copy port [
 			?? fpaddress
 			?? medications
 			?? diagnoses
+			?? diagnosis-detail
 			?? dmards
 			++ cnt
 			if cnt > 2 [halt]
