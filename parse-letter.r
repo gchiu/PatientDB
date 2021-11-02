@@ -212,6 +212,10 @@ foreach record copy port [
 							append dmards line
 						]
 
+						parse/all line ["Vitals" to end][
+							mode: 'finish ;'
+						]
+
 						finish [
 							print "break out of lines as no diagnosis or medications in this letter"
 							break
