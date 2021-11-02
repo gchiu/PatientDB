@@ -190,6 +190,7 @@ foreach record copy port [
 										trim/head/tail line
 										if not empty? diagnosis-detail [
 											append/only diagnoses reduce [diagnosis-detail]
+											diagnosis-detail: copy ""
 										]
 										append diagnoses line
 									]
