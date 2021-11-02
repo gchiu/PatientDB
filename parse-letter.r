@@ -30,6 +30,7 @@ filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
+diagnosis-rule: union union alpha-rule [some digit] space
 
 cnt: 0
 
@@ -166,7 +167,10 @@ foreach record copy port [
 								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 								?? line
 								case [
-									parse/all line [some digit "." any whitespace copy line to end | copy line to end ] [
+									parse/all line [
+										some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
+										copy line diagnosis-rule to end 
+									] [
 										; submode: 'gotdx ;'
 										trim/head/tail line
 										append diagnoses line
