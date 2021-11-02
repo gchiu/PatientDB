@@ -77,7 +77,7 @@ foreach record copy port [
 
 						name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
 							?? line
-							either parse/all line [uc some name-rule ", " copy fname some name-rule opt [" " copy sname to end] end] [
+							either parse/all line [uc some name-rule ", " copy fname some alpha opt [" " copy sname to end] end] [
 								; we have surnames, and first names
 								parse/all line [copy surname to ","]
 								?? surname ?? fname ?? sname
