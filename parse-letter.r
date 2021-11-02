@@ -162,7 +162,7 @@ foreach record copy port [
 						]
 
 						diagnosis [
-							either find/part line "Medication" 10 [
+							either find/part line "Medicat" 7 [
 								mode: 'medication ;'
 							] [
 								; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
