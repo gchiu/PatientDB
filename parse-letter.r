@@ -349,6 +349,28 @@ foreach record copy port [
 						mode: 'abandon ;'
 
 					]
+					if mode <> 'abandon [
+						; nhiid, fpid, fpcentreid
+						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
+						; address [line1 [line2] town]
+						; so let's see if this person is in the database of patients
+						insert port [{select id from patients where id = (?)} nhiid]
+						either result: pick port 1 [
+							; patient already in database
+						][
+							dob: to date! dob
+							attemmpt [areacode: to integer! areacode]
+							if 2 = length? address [insert skip address 1 copy ""]
+							insert port [{insert into patients (nhi, clinicians, dob, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid clinician dob address/1 address/2 address/3 areacode email phone mobile gpid gpcentreid]
+							insert port [{select id from patients where nhi=(?)} nhi]
+							result: pick port 1
+							patientid: result/1
+
+						]
+
+
+
+					]
 
 					print "================================================="
 				] [
