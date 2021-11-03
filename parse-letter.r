@@ -43,16 +43,23 @@ cnt: 1 ; number of iterations in the current directory
 checks: copy []
 records: copy []
 
+; get all the filenames where the file has not yet been processed
 insert port [{select id, filename from files where done = (?)} false]
+; collect all the filenames
 foreach record copy port [
+	append records record
+]
+
+foreach record records [
 	fileid: record/1
 	filename: record/2
 	if exists? to file! join dir filename [
-		append/only records record
+		; append/only records record
 		print reform ["files:" ++ cnt]
 		print reform ["Processing" filename]
 		nhi: uppercase copy/part filename 7
 		current-doc: none
+		; see if it matches the current filename format
 		if parse filename [NHI "-" copy clinician some alpha thru "-" copy ldate 8 digit "-" to ".TXT" to end] [
 			; GChiu, Elasir
 			foreach [doc id] clinicians [
@@ -423,8 +430,9 @@ foreach record copy port [
 					print "letter already in database"
 				]
 			] [
+				print "this clinician not found, skipping letter"
 				; no doc found, skip this letter
 			]
-		]
+		] ; end of did meet filename format
 	]
-]
+] ; end of looping through all filenames
