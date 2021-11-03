@@ -325,6 +325,8 @@ foreach record copy port [
 							if none? fpaddress/3 [ append fpaddress copy ""]
 							insert port [{insert into gpcentre (centrename, street, town) values (?, ?, ?)} fpaddress/1 fpaddress/2 fpaddress/3]
 							insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
+							result: pick port 1
+							?? result
 							fpcentreid: result/1
 						]
 					]
