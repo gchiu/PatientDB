@@ -223,7 +223,7 @@ foreach record copy port [
 												either not empty? diagnosis-detail [
 													append/only diagnoses reduce [trim/tail diagnosis-detail]
 													diagnosis-detail: copy ""
-												][ if not empty? diagnoses [ append/only diagnoses copy [""]]]
+												] [if not empty? diagnoses [append/only diagnoses copy [""]]]
 												append diagnoses line
 											]
 										]
@@ -350,8 +350,8 @@ foreach record copy port [
 						mode: 'abandon ;'
 
 					]
-					if any [none? surname none? dob][mode: 'abandon] ;' failed to parse this letter
-					if mode <> 'abandon [ ;'
+					if any [none? surname none? dob] [mode: 'abandon] ;' failed to parse this letter
+					if mode <> 'abandon [;'
 						; nhiid, fpid, fpcentreid
 						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
 						; address [line1 [line2] town]
@@ -359,7 +359,7 @@ foreach record copy port [
 						insert port [{select id from patients where nhi = (?)} nhiid]
 						either result: pick port 1 [
 							print "patient already in database..."
-						][
+						] [
 							print "about to check patient details"
 							?? dob
 							dob: to date! dob
@@ -387,7 +387,7 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "T" 
+										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "T"
 									]
 								]
 							]
@@ -398,17 +398,17 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "F" 
+										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "F"
 									]
 								]
 							]
-							; now add the diagnoses
-							if not empty? diagnoses [
-								insert port [{select * from diagnoses where nhi =(?)} nhiid]
-								if none? result: pick port 1 [
-									foreach [medication detail] medications [ 
-										insert port [{insert into diagnoses (nhi, diagnosis, detail) values (?, ?, ?)} nhiid medication detail/1] 
-									]
+						]
+						; now add the diagnoses
+						if not empty? diagnoses [
+							insert port [{select * from diagnoses where nhi =(?)} nhiid]
+							if none? pick port 1 [
+								foreach [medication detail] medications [
+									insert port [{insert into diagnoses (nhi, diagnosis, detail) values (?, ?, ?)} nhiid medication detail/1]
 								]
 							]
 						]
