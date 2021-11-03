@@ -436,7 +436,7 @@ foreach record records [
 						]
 					]
 					; finished the work, now update the letters table
-					insert port [{insert into letters (clinicians, cdate, dictation, checksum) values (?, ?, ?, ?)} current-doc ldate contents ck]
+					insert port [{insert into letters (clinicians, nhi, cdate, dictation, checksum) values (?, ?, ?, ?, ?)} current-doc nhiid ldate contents ck]
 					insert port [{update files set done = (?) where id =(?)} true fileid]
 
 					print "================================================="
