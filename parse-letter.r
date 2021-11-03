@@ -358,7 +358,7 @@ foreach record copy port [
 						; so let us see if this person is in the database of patients
 						insert port [{select id from patients where nhi = (?)} nhiid]
 						either result: pick port 1 [
-							; patient already in database
+							printi "patient already in database..."
 						][
 							print "about to check patient details"
 							?? dob
@@ -378,6 +378,7 @@ foreach record copy port [
 						; if there are medications, we will just skip rather than update
 						insert port [{select * from medications where nhi=(?)} nhiid]
 						if none? result: pick port 1 [
+							print "adding medications"
 							; let us start adding medications by name and not code
 							if not empty? medications [
 								foreach drug medications [
