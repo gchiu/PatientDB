@@ -358,7 +358,7 @@ foreach record copy port [
 						; so let us see if this person is in the database of patients
 						insert port [{select id from patients where nhi = (?)} nhiid]
 						either result: pick port 1 [
-							printi "patient already in database..."
+							print "patient already in database..."
 						][
 							print "about to check patient details"
 							?? dob
