@@ -2,6 +2,11 @@ Rebol []
 
 ; read all the files into the files database
 
+if not value? 'dir [ ;'
+    print "Need to set dir, the directory to process"
+    halt
+]
+
 digit: charset [#"0"- #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
@@ -10,7 +15,14 @@ filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 dbase: open odbc://patients
 port: first dbase
 
-foreach file letters: read %patients/ [
+; path: %2021/2021/October/
+;path: %2021/2021/September/
+;path: %2021/2021/January/
+;path: %test-parser/
+; dir: %2021/2021/October/
+
+foreach file read dir [
+	?? file
     ; if the filename matches the filename-rule, then check to see if it is in the database
     ; if not, then add it
     ffile: form file
