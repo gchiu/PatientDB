@@ -350,8 +350,8 @@ foreach record copy port [
 						mode: 'abandon ;'
 
 					]
-					if any [none? surname none? dob][mode: 'abandon]
-					if mode <> 'abandon [
+					if any [none? surname none? dob][mode: 'abandon] ;' failed to parse this letter
+					if mode <> 'abandon [ ;'
 						; nhiid, fpid, fpcentreid
 						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
 						; address [line1 [line2] town]
