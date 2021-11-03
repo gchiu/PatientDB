@@ -370,6 +370,7 @@ foreach record copy port [
 							;]
 							insert port [{insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid current-doc dob surname fname sname address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
 						]
+						; now add the medications
 					]
 
 					print "================================================="
