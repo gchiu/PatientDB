@@ -359,6 +359,8 @@ foreach record copy port [
 						either result: pick port 1 [
 							; patient already in database
 						][
+							print "about to check patient details"
+							?? dob
 							dob: to date! dob
 							areacode: to integer! areacode
 							if 2 = length? address [insert skip address 1 copy ""]
