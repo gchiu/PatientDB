@@ -178,8 +178,8 @@ if none? pick port 1 [
             created timestamp default current_timestamp,
             nhi integer,
             diagnosis varchar(256),
-            icd10am char(7),
-            about varchar(512)
+            detail varchar(512),
+            icd10am char(7)
         )
     }
 ]
