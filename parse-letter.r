@@ -223,7 +223,7 @@ foreach record copy port [
 												either not empty? diagnosis-detail [
 													append/only diagnoses reduce [trim/tail diagnosis-detail]
 													diagnosis-detail: copy ""
-												][  append/only diagnoses copy [""]]
+												][ if not empty? diagnoses [ append/only diagnoses copy [""]]]
 												append diagnoses line
 											]
 										]
