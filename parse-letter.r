@@ -51,6 +51,8 @@ foreach record copy port [
 	append/only records record
 ]
 
+print reform ["Number of files needed to process:" length? records]
+
 foreach record records [
 	fileid: record/1
 	filename: record/2
