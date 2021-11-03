@@ -68,6 +68,8 @@ if none? pick port 1 [
             dob date,
             gender char(1),
             pronoun char(4),
+            fname varchar(128),
+            sname varchar(128),
             street varchar(256),
             street2 varchar(256),
             town varchar(256),
