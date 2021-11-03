@@ -7,7 +7,7 @@ debug: false
 dbase: open odbc://patients
 port: first dbase
 
-dir: %2021/2021/October/
+; dir: %2021/2021/October/
 ; dir: %test-parser/
 ; dir: %2021/2021/September/
 
