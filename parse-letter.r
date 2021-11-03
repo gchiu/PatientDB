@@ -277,6 +277,34 @@ foreach record copy port [
 					?? dmards
 					; ++ cnt
 					; if cnt > 100 [halt]
+					; now we have all the data, need to start adding 
+					; FP - record the ID
+					; Medical Centre - record the ID
+					; patient NHI - record the ID
+					; patient details - record the ID
+					; patient diagnoses
+					; patient medications
+
+					;; FP "Dr A J Greenway"
+					if fp [
+						fpblock: parse fp none
+						fpsurname: copy last fpblock
+						fptitle: copy first fpblock
+						parse fp [fptitle copy fpinits to fpsurname (trim/head/tail fpinits) to end]
+						; are they already in the database
+						insert port [{select id, fname, surname from fps where surname =(?) and fname = (?)} fpsurname fpinits]
+						result: pick port 1
+						either result [
+							fpid: result/1
+						][
+							; not there, so insert
+							insert port [{insert into fps (title, fname, surname) values (?, ?, ?)} fptitle fpinits fpsurname]
+							insert port [{select id, fname, surname from fps where surname =(?) and fname = (?)} fpsurname fpinits]
+							result: pick port 1
+							fpid: result/1
+							print "Added FP"
+						]
+					]
 					print "================================================="
 				] [
 					print "letter already in database"
