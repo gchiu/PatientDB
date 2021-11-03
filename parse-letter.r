@@ -47,7 +47,7 @@ records: copy []
 insert port [{select id, filename from files where done = (?)} false]
 ; collect all the filenames
 foreach record copy port [
-	append records record
+	append/only records record
 ]
 
 foreach record records [
