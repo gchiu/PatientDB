@@ -387,8 +387,7 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active )} 
-										values (?, ?, ?, ?) ] nhiid drugname dosing "T" 
+										{insert into medications (nhi, name, dosing, active )} values (?, ?, ?, ?) ] nhiid drugname dosing "T" 
 									]
 								]
 							]
@@ -399,8 +398,7 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active )} 
-										values (?, ?, ?, ?) ] nhiid drugname dosing "F" 
+										{insert into medications (nhi, name, dosing, active )} values (?, ?, ?, ?) ] nhiid drugname dosing "F" 
 									]
 								]
 							]
