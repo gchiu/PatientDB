@@ -350,12 +350,12 @@ foreach record copy port [
 						mode: 'abandon ;'
 
 					]
-					if none? surname [mode: 'abandon]
+					if any [none? surname none? dob][mode: 'abandon]
 					if mode <> 'abandon [
 						; nhiid, fpid, fpcentreid
 						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
 						; address [line1 [line2] town]
-						; so let's see if this person is in the database of patients
+						; so let us see if this person is in the database of patients
 						insert port [{select id from patients where id = (?)} nhiid]
 						either result: pick port 1 [
 							; patient already in database
