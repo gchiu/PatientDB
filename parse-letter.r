@@ -407,8 +407,9 @@ foreach record copy port [
 						if not empty? diagnoses [
 							insert port [{select * from diagnoses where nhi =(?)} nhiid]
 							if none? pick port 1 [
-								foreach [medication detail] medications [
-									insert port [{insert into diagnoses (nhi, diagnosis, detail) values (?, ?, ?)} nhiid medication detail/1]
+								if odd? length? diagnoses [append/only diagnoses [""]]
+								foreach [diagnosis detail] diagnoses [
+									insert port [{insert into diagnoses (nhi, diagnosis, detail) values (?, ?, ?)} nhiid diagnosis detail/1]
 								]
 							]
 						]
