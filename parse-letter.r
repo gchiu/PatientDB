@@ -33,6 +33,7 @@ filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
+drugname-rule: [some [some alpha opt space]]
 
 diagnosis-rule: complement charset [#"^-"]
 ; Anti-CCP +ve rheumatoid arthritis 
@@ -371,6 +372,27 @@ foreach record copy port [
 							insert port [{insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid current-doc dob surname fname sname address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
 						]
 						; now add the medications
+						; if there are medications, we will just skip rather than update
+						insert port [{select * from medications where nhi=(?)} nhiid]
+						if none? result: pick port 1 [
+							; let us start adding medications by name and not code
+							if not empty? medications [
+								foreach drug medications [
+									parse drug [copy drugname drugname-rule copy dosing to end]
+									dosing: any [dosing copy ""]
+									?? drugname ?? dosing
+									; insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "T" ]
+								]
+							]
+							if not empty? dmards [
+								foreach drug dmards [
+									parse drug [copy drugname drugname-rule copy dosing to end]
+									dosing: any [dosing copy ""]
+									?? drugname ?? dosing
+									; insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "F" ]
+								]
+							]
+						]
 					]
 
 					print "================================================="
