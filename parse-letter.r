@@ -235,13 +235,15 @@ foreach record records [
 												copy line some diagnosis-rule to end
 											] [
 												; submode: 'gotdx ;'
-												trim/head/tail line
-												; now add the details as a block
-												either not empty? diagnosis-detail [
+												if line [ ; sometimes blank after a number!
+												 trim/head/tail line
+												 ; now add the details as a block
+												 either not empty? diagnosis-detail [
 													append/only diagnoses reduce [trim/tail diagnosis-detail]
 													diagnosis-detail: copy ""
-												] [if not empty? diagnoses [append/only diagnoses copy [""]]]
-												append diagnoses line
+												 ] [if not empty? diagnoses [append/only diagnoses copy [""]]]
+												 append diagnoses line
+												]
 											]
 										]
 										; append diagnoses line
