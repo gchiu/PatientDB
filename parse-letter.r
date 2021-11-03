@@ -56,6 +56,8 @@ print reform ["Number of files needed to process:" length? records]
 foreach record records [
 	fileid: record/1
 	filename: record/2
+	print reform ["processing" filename]
+	
 	if exists? to file! join dir filename [
 		; append/only records record
 		print reform ["files:" ++ cnt]
