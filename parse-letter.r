@@ -364,7 +364,7 @@ foreach record copy port [
 							email: any [email copy ""]
 							phone: any [phone copy ""]
 							mobile: any [mobile copy ""]
-							foreach v [nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid][
+							foreach v reduce [nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid][
 								?? V
 							]
 							insert port [{insert into patients (nhi, clinicians, dob, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
