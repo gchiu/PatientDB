@@ -290,9 +290,9 @@ foreach record copy port [
 						fpblock: parse fp none
 						fpblockrev: reverse copy fpblock
 						case/all [
-							fpblockrev/2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev]]
-							fpblockrev/2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev]]
-							all [fpblockrev/3 = "van" fpblockrev/3 = "der"][remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1] ]
+							fpblockrev/2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev/1]]
+							fpblockrev/2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev/1]]
+							all [fpblockrev/3 = "van" fpblockrev/2 = "der"][remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1] ]
 						]
 						fpblock: reverse copy fpblockrev
 						fpsurname: copy last fpblock
