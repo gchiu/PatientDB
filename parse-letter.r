@@ -331,6 +331,25 @@ foreach record copy port [
 						]
 					]
 
+					; Get NHI
+					either any [not none? nhi nhi][
+						; we have a parsed nhi
+						uppercase NHI
+						insert port [{select id from NHILOOKUP where nhi=(?)} nhi]
+						either result: pick port 1 [
+							nhiid: result/1
+						][
+							insert port [{insert into NHILOOKUP (NHI) values (?)} NhI]
+							insert port [{select id from NHILOOKUP where nhi=(?)} nhi]
+							result: pick port 1
+							nhiid: result/1
+						]
+					][; no NHI so need to abandon this letter
+						print "No NHI"
+						mode: 'abandon
+
+					]
+
 					print "================================================="
 				] [
 					print "letter already in database"
