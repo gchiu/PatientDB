@@ -378,6 +378,7 @@ foreach record copy port [
 							; let us start adding medications by name and not code
 							if not empty? medications [
 								foreach drug medications [
+									?? drug
 									parse drug [copy drugname drugname-rule copy dosing to end]
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
@@ -386,6 +387,7 @@ foreach record copy port [
 							]
 							if not empty? dmards [
 								foreach drug dmards [
+									?? drug
 									parse drug [copy drugname drugname-rule copy dosing to end]
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
