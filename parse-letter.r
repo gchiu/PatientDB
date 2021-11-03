@@ -350,6 +350,7 @@ foreach record copy port [
 						mode: 'abandon ;'
 
 					]
+					if none? surname [mode: 'abandon]
 					if mode <> 'abandon [
 						; nhiid, fpid, fpcentreid
 						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
