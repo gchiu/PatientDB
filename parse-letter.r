@@ -285,9 +285,16 @@ foreach record copy port [
 					; patient diagnoses
 					; patient medications
 
-					;; FP "Dr A J Greenway"
+					;; FP "Dr A J Greenway" "Dr C van Hutten" "Dr E Van der Merwe" "Dr D V Le Page"
 					if fp [
 						fpblock: parse fp none
+						fpblockrev: reverse copy fpblock
+						case/all [
+							fpblockrev/2 = "Le" [remove/skip fpblockrev 1 poke fpblockrev 1 rejoin ["Le " fpblockrev]]
+							fpblockrev/2 = "van" [remove/skip fpblockrev 1 poke fpblockrev 1 rejoin ["van " fpblockrev]]
+							all [fpblockrev/3 = "van" fpblockrev/3 = "der"][remove/skip/part fpblockrev 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1] ]
+						]
+						fpblock: reverse copy fpblockrev
 						fpsurname: copy last fpblock
 						fptitle: copy first fpblock
 						parse fp [fptitle copy fpinits to fpsurname (trim/head/tail fpinits) to end]
