@@ -356,7 +356,7 @@ foreach record copy port [
 						; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
 						; address [line1 [line2] town]
 						; so let us see if this person is in the database of patients
-						insert port [{select id from patients where id = (?)} nhiid]
+						insert port [{select id from patients where nhi = (?)} nhiid]
 						either result: pick port 1 [
 							; patient already in database
 						][
