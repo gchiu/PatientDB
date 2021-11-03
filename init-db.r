@@ -43,7 +43,7 @@ if none? pick port 1 [
 ; add consults
 ; id int, clinician id, date timestamp, text blob_e, checksum 
 
-insert port ['tables "letters"] ;'
+insert port ['tables "letters"] ;' use the checksum to make sure letter not done twice
 if none? pick port 1 [
     insert port {
         create table letters (
@@ -51,7 +51,8 @@ if none? pick port 1 [
             clinicians integer,
             cdate date,
             dictation blob sub_type text,
-            checksum char(43)
+            checksum char(43),
+            unique(checksum)
         )
     }
 ]
