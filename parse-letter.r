@@ -321,7 +321,7 @@ foreach record copy port [
 							fpcentreid: result/1
 						][
 							probe fpaddress
-							insert port [{insert into gpcentre (centrename, street, town) values (?, ?, ?)} fpaddress/1 any [fpaddress/2 copy ""] any [fpaddress/3 copy ""]
+							insert port [{insert into gpcentre (centrename, street, town) values (?, ?, ?)} fpaddress/1 any [fpaddress/2 copy ""] any [fpaddress/3 copy ""]]
 							insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
 							fpcentreid: result/1
 						]
