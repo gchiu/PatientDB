@@ -387,7 +387,7 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "T"
+										{insert into medications (nhi, letter, name, dosing, active ) values (?, ?, ?, ?, ?)} nhiid ldate drugname dosing "T"
 									]
 								]
 							]
@@ -398,7 +398,7 @@ foreach record copy port [
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									insert port [
-										{insert into medications (nhi, name, dosing, active ) values (?, ?, ?, ?)} nhiid drugname dosing "F"
+										{insert into medications (nhi, letter, name, dosing, active ) values (?, ?, ?, ?, ?)} nhiid ldate drugname dosing "F"
 									]
 								]
 							]
@@ -409,11 +409,13 @@ foreach record copy port [
 							if none? pick port 1 [
 								if odd? length? diagnoses [append/only diagnoses [""]]
 								foreach [diagnosis detail] diagnoses [
-									insert port [{insert into diagnoses (nhi, diagnosis, detail) values (?, ?, ?)} nhiid diagnosis detail/1]
+									insert port [{insert into diagnoses (nhi, letter, diagnosis, detail) values (?, ?, ?, ?)} nhiid ldate diagnosis detail/1]
 								]
 							]
 						]
 					]
+					; finished the work, now update the letters table
+					insert port [{insert into letters (clinicians, cdate, dictation, checksum) values (?, ?, ?, ?)} current-doc ldate contents ck]
 
 					print "================================================="
 				] [
