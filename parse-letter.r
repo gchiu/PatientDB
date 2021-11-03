@@ -210,7 +210,7 @@ foreach record copy port [
 											] [
 												if dline [
 													trim/head/tail dline
-													append diagnosis-detail join dline newline
+													append diagnosis-detail join dline space
 												]
 											]
 											parse/all line [
