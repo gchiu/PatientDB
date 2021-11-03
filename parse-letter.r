@@ -361,7 +361,7 @@ foreach record copy port [
 							dob: to date! dob
 							areacode: to integer! areacode
 							if 2 = length? address [insert skip address 1 copy ""]
-							insert port [{insert into patients (nhi, clinicians, dob, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid clinician dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
+							insert port [{insert into patients (nhi, clinicians, dob, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
 							insert port [{select id from patients where nhi=(?)} nhi]
 							result: pick port 1
 							patientid: result/1
