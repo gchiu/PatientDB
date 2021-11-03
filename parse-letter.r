@@ -312,6 +312,20 @@ foreach record copy port [
 							print "Added FP"
 						]
 					]
+					; add or get medical centre
+					; fpaddress
+					if not empty? fpaddress [
+						insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
+						result: pick port 1
+						either result [
+							fpcentreid: result/1
+						][
+							insert port [{insert into gpcentre (centrename, street, town)} fpaddress/1 fpaddress/2 fpaddress/3]
+							insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
+							fpcentreid: result/1
+						]
+					]
+
 					print "================================================="
 				] [
 					print "letter already in database"
