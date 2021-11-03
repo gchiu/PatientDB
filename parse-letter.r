@@ -3,6 +3,7 @@ Rebol [
 	notes: {parse the letters to extract name, nhi, drug information etc}
 ]
 
+debug: false
 dbase: open odbc://patients
 port: first dbase
 
@@ -265,6 +266,7 @@ foreach record records [
 							if all [mode = 'dmards not empty? dmards] [mode: 'finish]
 						]
 					]
+					if debug [
 					?? mode
 					?? longdate
 					?? nhi
@@ -283,6 +285,7 @@ foreach record records [
 					?? diagnoses
 					?? diagnosis-detail
 					?? dmards
+					]
 					; ++ cnt
 					; if cnt > 100 [halt]
 					; now we have all the data, need to start adding 
