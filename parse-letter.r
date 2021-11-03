@@ -191,10 +191,10 @@ foreach record copy port [
 								diagnosis [
 									either find line "Medicat" [
 										mode: 'medication ;'
-												if not empty? diagnosis-detail [ ; catch end of list issue
-													append/only diagnoses reduce [trim/tail diagnosis-detail]
-													diagnosis-detail: copy ""
-												]
+										if not empty? diagnosis-detail [; catch end of list issue
+											append/only diagnoses reduce [trim/tail diagnosis-detail]
+											diagnosis-detail: copy ""
+										]
 									] [
 										; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
 										; 1. 	Psoriatic Arthritis
@@ -292,7 +292,7 @@ foreach record copy port [
 						case/all [
 							fpblockrev/2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev/1]]
 							fpblockrev/2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev/1]]
-							all [fpblockrev/3 = "van" fpblockrev/2 = "der"][remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1] ]
+							all [fpblockrev/3 = "van" fpblockrev/2 = "der"] [remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1]]
 						]
 						fpblock: reverse copy fpblockrev
 						fpsurname: copy last fpblock
@@ -303,7 +303,7 @@ foreach record copy port [
 						result: pick port 1
 						either result [
 							fpid: result/1
-						][
+						] [
 							; not there, so insert
 							insert port [{insert into fps (title, fname, surname) values (?, ?, ?)} fptitle fpinits fpsurname]
 							insert port [{select id, fname, surname from fps where surname =(?) and fname = (?)} fpsurname fpinits]
@@ -319,10 +319,10 @@ foreach record copy port [
 						result: pick port 1
 						either result [
 							fpcentreid: result/1
-						][
+						] [
 							probe fpaddress
-							if none? fpaddress/2 [ append fpaddress copy ""]
-							if none? fpaddress/3 [ append fpaddress copy ""]
+							if none? fpaddress/2 [append fpaddress copy ""]
+							if none? fpaddress/3 [append fpaddress copy ""]
 							insert port [{insert into gpcentre (centrename, street, town) values (?, ?, ?)} fpaddress/1 fpaddress/2 fpaddress/3]
 							insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
 							result: pick port 1
@@ -332,21 +332,21 @@ foreach record copy port [
 					]
 
 					; Get NHI
-					either any [not none? nhi nhi][
+					either any [not none? nhi nhi] [
 						; we have a parsed nhi
 						uppercase NHI
 						insert port [{select id from NHILOOKUP where nhi=(?)} nhi]
 						either result: pick port 1 [
 							nhiid: result/1
-						][
+						] [
 							insert port [{insert into NHILOOKUP (NHI) values (?)} NhI]
 							insert port [{select id from NHILOOKUP where nhi=(?)} nhi]
 							result: pick port 1
 							nhiid: result/1
 						]
-					][; no NHI so need to abandon this letter
+					] [; no NHI so need to abandon this letter
 						print "No NHI"
-						mode: 'abandon
+						mode: 'abandon ;'
 
 					]
 
