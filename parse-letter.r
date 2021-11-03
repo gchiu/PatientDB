@@ -386,7 +386,7 @@ foreach record copy port [
 									parse drug [copy drugname drugname-rule copy dosing to end]
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
-									; insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "T" ]
+									insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "T" ]
 								]
 							]
 							if not empty? dmards [
@@ -395,7 +395,7 @@ foreach record copy port [
 									parse drug [copy drugname drugname-rule copy dosing to end]
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
-									; insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "F" ]
+									insert port [{insert into medications (nhi, name, dosing, active )} nhiid drugname dosing "F" ]
 								]
 							]
 						]
