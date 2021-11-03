@@ -96,7 +96,7 @@ foreach record records [
 				either find checks ck [
 					; should never happen as there is a unique constraint on the filename column
 					print "checksum duplicate!"
-					halt
+					; halt
 				] [
 					append checks ck
 				]
