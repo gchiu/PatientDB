@@ -3,6 +3,10 @@ Rebol [
 	notes: {parse the letters to extract name, nhi, drug information etc}
 ]
 
+if not value? 'dir [;'
+	print "need to set dir, the path for processing eg. dir: %2021/2021/October/"
+	halt
+]
 debug: false
 dbase: open odbc://patients
 port: first dbase
