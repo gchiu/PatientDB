@@ -318,7 +318,7 @@ foreach record copy port [
 						insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
 						result: pick port 1
 						either result [
-							fpcentreid: result/1
+							gpcentreid: result/1
 						] [
 							probe fpaddress
 							if none? fpaddress/2 [append fpaddress copy ""]
@@ -327,7 +327,7 @@ foreach record copy port [
 							insert port [{select id from gpcentre where centrename = (?)} fpaddress/1]
 							result: pick port 1
 							?? result
-							fpcentreid: result/1
+							gpcentreid: result/1
 						]
 					]
 
