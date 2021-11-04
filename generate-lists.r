@@ -16,7 +16,7 @@ foreach biologic biologics [
     insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join biologic "%"]
     foreach record copy port [
         append record biologic
-        append/only patients-ids record
+        append/only patient-ids record
     ]
 ]
 
