@@ -45,3 +45,13 @@ foreach record patient-ids [
     append/only patients rec
 ]
 
+; XXX2622 DAVID XXXXX NN Pxxx Road R D nn Foxton 9-Jul-2021 Mycophenolate Mofetil  250mg BD
+
+ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Medication | Dose^/}]
+
+foreach rec patients [
+    append sheet rejoin [ rec/1 "| " rec/2 "| ""| "  rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 ]
+    append sheet newline
+]
+
+write %biologics.csv ssheet
