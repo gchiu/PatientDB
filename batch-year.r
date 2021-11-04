@@ -1,5 +1,10 @@
 Rebol [
-
+	date: 4-Nov-2021
+	author: "Graham Chiu"
+	purpose: {Setup all the 3 years directories with all the docx files already converted to txt and then calls
+		read-files to grab all the file names, and then parse-letter to extract all the information in the letters
+		which is then uploaded to the database
+	}
 ]
 
 y2021: ["October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
