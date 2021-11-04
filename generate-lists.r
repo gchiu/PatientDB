@@ -170,20 +170,20 @@ show-consults: func [ id
     dob: form rec/3
 
     consults: copy [] dates: copy []
-        insert port [{select cdate, dictation, clinicians from letters where nhi = (?)} id]
+        insert port [{select cdate, clinicians, dictation from letters where nhi = (?)} id]
         foreach record copy port [
-            append consults record
+            append consults record ; cdate clinicians dictation
             append dates record/1
         ]
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
             label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
-            dates: text-list data dates [
+            dates: text-list 80x650 data dates [
                 sdate: first dates/picked 
-                txt: select consults sdate 
+                txt: next find consults sdate 
                 letter/text: txt show letter
-                clinician: next find consults cdate
+                clinician: select consults sdate
                 clin/text: clinician
                 show clin
             ]
