@@ -131,16 +131,17 @@ foreach rec mtx-lef-patients [
 write %metho-lef.csv ssheet
 
 show-consults: func [ id
-    /local consults dates lo
+    /local consults dates lo fname surname nhilabel clin
 ][
     attempt [id: to integer! id]
-    if not integer? id [
+    either not integer? id [
         ; passed as word! string!
         id: uppercase form id
         if 7 <> length? id [
             print "invalid NHI number"
             halt
         ]
+        nhiid: id
         insert port [{select id from NHILOOKUP where nhi = (?)} id]
         id: pick port 1
         either none? id [
@@ -149,19 +150,35 @@ show-consults: func [ id
         ][
             id: id/1
         ]
+    ][
+        insert port [{select nhi from NHILOOKUP where id = (?)} id]
+        if none? rec: pick port 1 [
+            print "Patient not found"
+            halt
+        ]
+        nhiid: rec/1
     ]
 
+    insert port [{select fname, surname, dob from patients where nhi =(?) id}]
+    if none? rec: pick port 1 [
+        print "Patient not found"
+        halt
+    ]
+    fname: rec/1
+    surname: rec/2
+    dob: form rec/3
+
     consults: copy [] dates: copy []
-    if integer? id [
         insert port [{select clinicians, cdate, dictation from letters where nhi = (?)} id]
         foreach record copy port [
             append consults record
             append dates record/2
         ]
         lo: layout [across 
+            label "FirstName:" fnamefld: field fname label "Surname:" surnamefld: field surname 
+            label "DOB:" dobfld: field dob label "NHI:" nhilabel: field nhiid label "Clinician:" clin: field "" return
             dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
             letter: area "" wrap 800x700]
         view lo
-    ]
 ]
 
