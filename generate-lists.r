@@ -84,4 +84,18 @@ foreach id copy port [
 
 MTX-LEF: unique intersect leflunomide methotrexate
 
-probe length? MTX-LEF
+mtx-lef-patients: copy []
+
+; now get the people 
+foreach record MTX-LEF [
+    probe record
+    insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record]
+    rec: pick port 1
+    ; append rec reduce [record/2 record/3 record/4]
+    ; now fetch their actual NHI
+    insert port [{select NHI from NHILOOKUP where id = (?)} record]
+    rec2: pick port 1
+    insert rec rec2/1
+    append/only mtx-lef-patients rec
+]
+
