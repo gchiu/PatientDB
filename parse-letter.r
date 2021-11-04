@@ -253,7 +253,7 @@ foreach record records [
 								medication [
 									?? line
 									case [
-										if any [
+										any [
 											find line "MARDS"
 											find line "Previous Medications"
 											find line "Previous Medication"
