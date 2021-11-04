@@ -38,6 +38,7 @@ if none? pick port 1 [
     insert port {insert into clinicians ( surname, fname, clintype) values ('Elasir', 'Haitham', 1)}
     insert port {insert into clinicians ( surname, fname, clintype) values ('Porten', 'Lauren', 2)}
     insert port {insert into clinicians ( surname, fname, clintype) values ('Sawyers', 'Stephen', 1)}
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Hawke', 'Sonia', 1)}
 ]
 
 ; add consults
