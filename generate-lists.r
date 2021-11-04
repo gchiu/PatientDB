@@ -159,7 +159,7 @@ show-consults: func [ id
         nhiid: rec/1
     ]
 
-    insert port [{select fname, surname, dob from patients where nhi =(?) id}]
+    insert port [{select fname, surname, dob from patients where nhi =(?)} id]
     if none? rec: pick port 1 [
         print "Patient not found"
         halt
@@ -176,9 +176,10 @@ show-consults: func [ id
         ]
         lo: layout [across 
             label "FirstName:" fnamefld: field fname label "Surname:" surnamefld: field surname 
-            label "DOB:" dobfld: field dob label "NHI:" nhilabel: field nhiid label "Clinician:" clin: field "" return
+            label "DOB:" dobfld: field dob 10 label "NHI:" nhilabel: field nhiid 10 label "Clinician:" clin: field "" return
             dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
             letter: area "" wrap 800x700]
+            slider 10x700
         view lo
 ]
 
