@@ -10,7 +10,7 @@ if not value? 'dir [ ;'
 digit: charset [#"0"- #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
-filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
+filename-rule: [nhi-rule "-" some alpha "-20" 6 digit "-" digit ".txt"] ; only do from year 2000 onwards
 
 dbase: open odbc://patients
 port: first dbase
