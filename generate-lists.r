@@ -173,7 +173,7 @@ show-consults: func [ id
         insert port [{select cdate, dictation, clinicians from letters where nhi = (?)} id]
         foreach record copy port [
             append consults record
-            append dates record/2
+            append dates record/1
         ]
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
