@@ -25,7 +25,7 @@ immunos: ["Cyclophosphamde" "Cellcept" "Mycophenolate"]
 foreach drug immunos [
     insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
-        append record biologic
+        append record drug
         append/only patient-ids record
     ]
 ]
