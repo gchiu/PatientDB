@@ -127,7 +127,7 @@ foreach record records [
 										mode: 'nhi ;'
 									] [
 										print ["can't find name in line " line]
-										halt
+										mode: 'abandon ;' maybe try alternate name parser
 									]
 								]
 
