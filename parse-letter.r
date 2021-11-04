@@ -262,7 +262,10 @@ foreach record records [
 											find line "Previous MARDS"
 											find line "DMARDS"
 											find line "DMARD History"
-										][mode: 'dmards] ;'
+											find line "Previous DMARD History"
+										][		print "**************Found DMARD line**************"
+												mode: 'dmards
+										] ;'
 										
 										true [
 											append medications line
