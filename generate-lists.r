@@ -144,7 +144,7 @@ show-consults: func [ id
         ]
         lo: layout [across 
             dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
-            letter: area "" 800x600]
+            letter: area "" wrap 800x700]
         view lo
     ]
 ]
