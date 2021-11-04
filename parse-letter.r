@@ -278,7 +278,7 @@ foreach record records [
 								]
 
 								finish [
-									print "break out of lines as no diagnosis or medications in this letter"
+									print "Finished processing or no diagnoses/medications in this letter"
 									break
 								]
 							]
