@@ -134,6 +134,22 @@ show-consults: func [ id
     /local consults dates lo
 ][
     attempt [id: to integer! id]
+    if not integer? id [
+        ; passed as word! string!
+        id: uppercase form id
+        if 7 <> length? id [
+            print "invalid NHI number"
+            halt
+        ]
+        insert port [{select id from NHILOOKUP where nhi = (?)} id]
+        id: pick port 1
+        either none? id [
+            print "NHI not found"
+            halt
+        ][
+            id: id/1
+        ]
+    ]
 
     consults: copy [] dates: copy []
     if integer? id [
