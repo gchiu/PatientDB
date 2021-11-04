@@ -109,7 +109,7 @@ foreach record MTX-LEF [
 ]
 
 
-ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Methotrexate | Dose | Leflnomide | dose ^/}]
+ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Methotrexate | Dose | Leflunomide | dose ^/}]
 
 foreach rec mtx-lef-patients [
     if not find unique-list rec/1 [
