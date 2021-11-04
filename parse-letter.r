@@ -255,7 +255,9 @@ foreach record records [
 									case [
 										if any [
 											find line "MARDS"
-											find line "Previous"
+											find line "Previous Medications"
+											find line "Previous Medication"
+											find line "Previous DMARDS"
 											find line "DMARDS"
 										][mode: 'dmards] ;'
 										
