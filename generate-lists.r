@@ -179,13 +179,17 @@ show-consults: func [ id
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
             label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
-            dates: text-list 80x650 data dates [
+            dates: text-list 120x650 data dates [
                 sdate: first dates/picked 
-                txt: next find consults sdate 
+                txt: first next next find consults sdate 
                 letter/text: txt show letter
                 clinician: select consults sdate
-                clin/text: clinician
+                insert port [{select surname from clinicians where id = (?)} clinician]
+                rec: pick port 1
+                clin/text: form rec/1
                 show clin
+                clindatefld/text: sdate
+                show clindatefld
             ]
             letter: area "" wrap 800x650
             slider 20x650
