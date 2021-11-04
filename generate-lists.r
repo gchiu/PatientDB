@@ -1,6 +1,9 @@
 Rebol [
-    notes: {pull up all patients on a certain drug}
-
+    author: "Graham Chiu"
+    date: 4-Nov-2021
+    notes: {pullls patient details on certain drugs or drug combinations and generates pipe delimited files which can be read into
+        Excel or OpenOffice. Use these spreadsheets to generate letters to patients.
+    }
 ]
 
 ; NHI Clinic-Date First-Name Surname Street1 Street2 Town Drug1 Dose1 Drug2 Dose2
