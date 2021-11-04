@@ -36,7 +36,8 @@ foreach drug immunos [
 patients: copy []
 
 foreach record patient-ids [
-    insert port [{select (fname, surname, street, street2, town) from patients where nhi =(?)} record/1]
+    probe record
+    insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record/1]
     rec: pick port 1
     append rec [record/2 record/3]
     append/only patients rec
