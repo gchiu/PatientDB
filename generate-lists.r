@@ -108,3 +108,15 @@ foreach record MTX-LEF [
     append/only mtx-lef-patients rec
 ]
 
+
+ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Methotrexate | Dose | Leflnomide | dose ^/}]
+
+foreach rec patients [
+    if not find unique-list rec/1 [
+        append unique-list rec/1
+        append ssheet rejoin [ rec/1 "| " rec/2 "| " rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 "| " rec/10 "| " rec/11]
+        append ssheet newline
+    ]
+]
+
+write %metho-lef.csv ssheet
