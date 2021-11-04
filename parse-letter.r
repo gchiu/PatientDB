@@ -252,7 +252,7 @@ foreach record records [
 
 								medication [
 									?? line
-									either find line "DMARDS" [
+									either find line "MARDS" [; yes, a typist has put MARDS instead of DMARDs
 										mode: 'dmards ;'
 									] [
 										append medications line
