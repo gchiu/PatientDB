@@ -11,6 +11,13 @@ Rebol [
 dbase: open odbc://patients
 port: first dbase
 
+; enter an id, and then brings up the last consult letter
+dispconsult: func [id [integer!]][
+    insert port [{select dictation from letters where nhi =(?)} id]
+    rec: pick port 1
+    probe rec
+]
+
 patient-ids: copy []
 
 biologics: ["Upadacitinib" "Rinvoq" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
