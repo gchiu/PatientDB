@@ -13,7 +13,7 @@ patient-ids: copy []
 biologics: ["Updacit" "Rinvoq" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
 
 foreach drug biologics [
-    insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join drug "%"]
+    insert port [{select nhi, letter, dosing from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
         append record drug
         append/only patient-ids record
@@ -23,7 +23,7 @@ foreach drug biologics [
 immunos: ["Cyclophosphamde" "Cellcept" "Mycophenolate"]
 
 foreach drug immunos [
-    insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join drug "%"]
+    insert port [{select nhi, letter, dosing from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
         append record drug
         append/only patient-ids record
@@ -31,7 +31,7 @@ foreach drug immunos [
 ]
 
 ; now we need to generate ; NHI Clinic-Date First-Name Surname Street1 Street2 Town Drug1 Dose1 Drug2 Dose2
-; patient-ids [ [id clinicdate medication]]
+; patient-ids [ [id clinicdate medication dosing]]
 
 patients: copy []
 
@@ -39,7 +39,7 @@ foreach record patient-ids [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record/1]
     rec: pick port 1
-    append rec reduce [record/2 record/3]
+    append rec reduce [record/2 record/3 record/4]
     ; now fetch their actual NHI
     insert port [{select NHI from NHILOOKUP where id = (?)} record/1]
     rec2: pick port 1
