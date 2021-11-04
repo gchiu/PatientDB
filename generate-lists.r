@@ -133,6 +133,7 @@ write %metho-lef.csv ssheet
 show-consults: func [ id
     /local consults dates lo fname surname nhilabel clin
 ][
+    dates: copy [] lo: none fname: copy "" surname: copy "" nhilabel: copy "" clin: copy ""
     attempt [id: to integer! id]
     either not integer? id [
         ; passed as word! string!
@@ -141,8 +142,8 @@ show-consults: func [ id
             print "invalid NHI number"
             halt
         ]
-        nhiid: id
-        insert port [{select id from NHILOOKUP where nhi = (?)} id]
+        nhiid: id ;keep that
+        insert port [{select id from NHILOOKUP where nhi = (?)} nhiid]
         id: pick port 1
         either none? id [
             print "NHI not found"
@@ -169,7 +170,7 @@ show-consults: func [ id
     dob: form rec/3
 
     consults: copy [] dates: copy []
-        insert port [{select clinicians, cdate, dictation from letters where nhi = (?)} id]
+        insert port [{select cdate, dictation, clinicians from letters where nhi = (?)} id]
         foreach record copy port [
             append consults record
             append dates record/2
@@ -177,8 +178,15 @@ show-consults: func [ id
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
-            label black "Clinician:" clin: field "" return
-            dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
+            label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
+            dates: text-list data dates [
+                sdate: first dates/picked 
+                txt: select consults sdate 
+                letter/text: txt show letter
+                clinician: next find consults cdate
+                clin/text: clinician
+                show clin
+            ]
             letter: area "" wrap 800x650
             slider 20x650
         ]
