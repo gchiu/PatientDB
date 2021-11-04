@@ -1,6 +1,7 @@
 Rebol [
-
-	notes: {parse the letters to extract name, nhi, drug information etc}
+	author: "Graham Chiu"
+	date: 4-Nov-2021
+	notes: {parse the letters (file names stored in files database) to extract name, nhi, drug information, GP etc}
 ]
 
 if not value? 'dir [;'
