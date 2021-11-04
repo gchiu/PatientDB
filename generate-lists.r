@@ -40,6 +40,10 @@ foreach record patient-ids [
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record/1]
     rec: pick port 1
     append rec reduce [record/2 record/3]
+    ; now fetch their actual NHI
+    insert port [{select NHI from NHILOOKUP where id = (?)} record/1]
+    rec2: pick port 1
+    insert rec rec2/1
     append/only patients rec
 ]
 
