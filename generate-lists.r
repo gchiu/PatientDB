@@ -12,10 +12,10 @@ patient-ids: copy []
 
 biologics: ["Updacit" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
 
-foreach biologic biologics [
-    insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join biologic "%"]
+foreach drug biologics [
+    insert port [{select nhi, letter from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
-        append record biologic
+        append record drug
         append/only patient-ids record
     ]
 ]
