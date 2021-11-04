@@ -129,3 +129,20 @@ foreach rec mtx-lef-patients [
 ]
 
 write %metho-lef.csv ssheet
+
+show-consults: func [ id
+    /local consults dates
+][
+    attempt [id: to integer! id]
+
+    consults: copy [] dates: copy []
+    if integer? id [
+        insert port [{select clinician, cdate, dictation from letters where nhi = (?)} id]
+        foreach record copy port [
+            append consults record
+            append dates record/2
+        ]
+        lo: layout [across dates: text-list data dates letter: area "" ]
+    ]
+]
+
