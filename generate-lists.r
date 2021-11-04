@@ -91,11 +91,20 @@ foreach record MTX-LEF [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record]
     rec: pick port 1
-    ; append rec reduce [record/2 record/3 record/4]
     ; now fetch their actual NHI
     insert port [{select NHI from NHILOOKUP where id = (?)} record]
     rec2: pick port 1
     insert rec rec2/1
+    ; get their clinic date for the mtx
+    insert port [{select letter, name, dosing from medications where nhi =() and active = 'T' and name like 'Metho%'} record]
+    rec2: pick port 1
+    append rec rec2
+    insert port [{select name, dosing from medications where nhi =() and active = 'T' and name like 'Leflu%'} record]
+    rec2: pick port 1
+    append rec rec2
+    insert port [{select name, dosing from medications where nhi =() and active = 'T' and name like 'Arava%'} record]
+    rec2: pick port 1
+    append rec rec2
     append/only mtx-lef-patients rec
 ]
 
