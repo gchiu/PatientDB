@@ -39,7 +39,7 @@ foreach record patient-ids [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record/1]
     rec: pick port 1
-    append rec [record/2 record/3]
+    repend rec [record/2 record/3]
     append/only patients rec
 ]
 
