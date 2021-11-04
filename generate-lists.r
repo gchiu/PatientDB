@@ -48,6 +48,8 @@ foreach record patient-ids [
 ; XXX2622 DAVID XXXXX NN Pxxx Road R D nn Foxton 9-Jul-2021 Mycophenolate Mofetil  250mg BD
 
 ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Medication | Dose^/}]
+
+; do not send out more than one letter - contains formal NHIs
 unique-list: copy []
 
 foreach rec patients [
@@ -80,6 +82,6 @@ foreach id copy port [
     append Leflunomide id
 ]
 
-MTX-LEF: intersect leflunomide methotrexate
+MTX-LEF: unique intersect leflunomide methotrexate
 
 probe length? MTX-LEF
