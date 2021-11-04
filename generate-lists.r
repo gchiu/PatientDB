@@ -131,7 +131,7 @@ foreach rec mtx-lef-patients [
 write %metho-lef.csv ssheet
 
 show-consults: func [ id
-    /local consults dates
+    /local consults dates lo
 ][
     attempt [id: to integer! id]
 
@@ -142,7 +142,10 @@ show-consults: func [ id
             append consults record
             append dates record/2
         ]
-        lo: layout [across dates: text-list data dates letter: area "" 800x800]
+        lo: layout [across 
+            dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
+            letter: area "" 800x600]
+        view lo
     ]
 ]
 
