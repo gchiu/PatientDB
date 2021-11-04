@@ -261,6 +261,7 @@ foreach record records [
 											find line "Previous DMARDS"
 											find line "Previous MARDS"
 											find line "DMARDS"
+											find line "DMARD History"
 										][mode: 'dmards] ;'
 										
 										true [
