@@ -1,4 +1,8 @@
-Rebol []
+Rebol [
+    date: 4-Nov-2021
+    author: "Graham Chiu"
+    purpose: {sets up all the databases to be used}
+]
 
 dbase: open odbc://patients
 port: first dbase
