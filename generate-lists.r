@@ -80,6 +80,6 @@ foreach id copy port [
     append Leflunomide id
 ]
 
-MTX-LEF: union leflunomide methotrexate
+MTX-LEF: intersect leflunomide methotrexate
 
 probe length? MTX-LEF
