@@ -69,4 +69,17 @@ foreach id copy port [
     append methotrexate id
 ]
 
-probe methotrexate
+Leflunomide: copy []
+insert port [{select nhi from medications where name like 'Leflu%' and ACTIVE = 'T'}]
+foreach id copy port [
+    append Leflunomide id
+]
+
+insert port [{select nhi from medications where name like 'Arava%' and ACTIVE = 'T'}]
+foreach id copy port [
+    append Leflunomide id
+]
+
+MTX-LEF: union leflunomide methotrexate
+
+probe length? MTX-LEF
