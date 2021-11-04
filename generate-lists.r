@@ -37,6 +37,7 @@ foreach record patient-ids [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record/1]
     rec: pick port 1
+    insert rec record/1
     append rec reduce [record/2 record/3 record/4]
     ; now fetch their actual NHI
     insert port [{select NHI from NHILOOKUP where id = (?)} record/1]
@@ -47,7 +48,7 @@ foreach record patient-ids [
 
 ; XXX2622 DAVID XXXXX NN Pxxx Road R D nn Foxton 9-Jul-2021 Mycophenolate Mofetil  250mg BD
 
-ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Medication | Dose^/}]
+ssheet: copy [{NHI | IntID | FirstName | Surname | Street | Street2 | Town | ClinicDate | Medication | Dose^/}]
 
 ; do not send out more than one letter - contains formal NHIs
 unique-list: copy []
@@ -55,7 +56,7 @@ unique-list: copy []
 foreach rec patients [
     if not find unique-list rec/1 [
         append unique-list rec/1
-        append ssheet rejoin [ rec/1 "| " rec/2 "| " rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 ]
+        append ssheet rejoin [ rec/1 "| " rec/2 "| " rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 "| " rec/10]
         append ssheet newline
     ]
 ]
@@ -91,6 +92,7 @@ foreach record MTX-LEF [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record]
     rec: pick port 1
+    insert rec record
     ; now fetch their actual NHI
     insert port [{select NHI from NHILOOKUP where id = (?)} record]
     rec2: pick port 1
@@ -109,12 +111,12 @@ foreach record MTX-LEF [
 ]
 
 
-ssheet: copy [{NHI | FirstName | Surname | Street | Street2 | Town | ClinicDate | Methotrexate | Dose | Leflunomide | dose ^/}]
+ssheet: copy [{NHI | IntID | FirstName | Surname | Street | Street2 | Town | ClinicDate | Methotrexate | Dose | Leflunomide | dose ^/}]
 
 foreach rec mtx-lef-patients [
     if not find unique-list rec/1 [
         append unique-list rec/1
-        append ssheet rejoin [ rec/1 "| " rec/2 "| " rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 "| " rec/10 "| " rec/11]
+        append ssheet rejoin [ rec/1 "| " rec/2 "| " rec/3 "| " rec/4 "| " rec/5 "| " rec/6 "| " rec/7 "| " rec/8 "| " rec/9 "| " rec/10 "| " rec/11 "| " rec/12]
         append ssheet newline
     ]
 ]
