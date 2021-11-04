@@ -258,6 +258,7 @@ foreach record records [
 											find line "Previous Medications"
 											find line "Previous Medication"
 											find line "Previous DMARDS"
+											find line "Previous MARDS"
 											find line "DMARDS"
 										][mode: 'dmards] ;'
 										
