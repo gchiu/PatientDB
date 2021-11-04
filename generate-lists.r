@@ -11,13 +11,6 @@ Rebol [
 dbase: open odbc://patients
 port: first dbase
 
-; enter an id, and then brings up the last consult letter
-dispconsult: func [id [integer!]][
-    insert port [{select dictation from letters where nhi =(?)} id]
-    rec: pick port 1
-    probe rec
-]
-
 patient-ids: copy []
 
 biologics: ["Upadacitinib" "Rinvoq" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
@@ -82,16 +75,20 @@ foreach id copy port [
     append methotrexate id
 ]
 
+; let's convert all the ARAVA patients to LEFLUNOMIDE ;'
+
+insert port {update medications set name = 'Leflunomide' where name like '%Arava%'}
+
 Leflunomide: copy []
 insert port [{select nhi from medications where name like 'Leflu%' and ACTIVE = 'T'}]
 foreach id copy port [
     append Leflunomide id
 ]
 
-insert port [{select nhi from medications where name like 'Arava%' and ACTIVE = 'T'}]
-foreach id copy port [
-    append Leflunomide id
-]
+; insert port [{select nhi from medications where name like 'Arava%' and ACTIVE = 'T'}]
+; foreach id copy port [
+;    append Leflunomide id
+; ]
 
 MTX-LEF: unique intersect leflunomide methotrexate
 
