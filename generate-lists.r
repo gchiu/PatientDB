@@ -175,12 +175,12 @@ show-consults: func [ id
             append dates record/2
         ]
         lo: layout [across 
-            label "FirstName:" fnamefld: field fname label "Surname:" surnamefld: field surname 
-            label "DOB:" dobfld: field dob 150 label "NHI:" return
-            nhilabel: field nhiid 100 label "Clinician:" clin: field "" return
+            label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
+            label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
+            label black "Clinician:" clin: field "" return
             dates: text-list data dates [sdate: first dates/picked txt: select consults sdate letter/text: txt show letter]
-            letter: area "" wrap 800x700
-            slider 20x700
+            letter: area "" wrap 800x650
+            slider 20x650
         ]
         view lo
 ]
