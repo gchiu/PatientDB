@@ -59,3 +59,14 @@ foreach rec patients [
 ]
 
 write %biologics.csv ssheet
+
+; now lets get the patients taking Leflunomide, Arava and Methotrexate together
+
+methotrexate: copy []
+
+insert port [{select nhi from medications where name like 'Metho%' and ACTIVE = 'T'}]
+foreach id copy port [
+    append methotrexate id
+]
+
+probe methotrexate
