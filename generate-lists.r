@@ -10,12 +10,11 @@ port: first dbase
 
 patient-ids: copy []
 
-biologics: ["Updacit" "Rinvoq" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
+biologics: ["Upadacitinib" "Rinvoq" "Enbrel" "Etanercept" "Humira" "Adalimumab" "Rituximab" "Secukinumab" "Cosentyx" "Infliximab" "Remicade" "Tocilizumab"]
 
 foreach drug biologics [
-    insert port [{select nhi, letter, dosing from medications where name like (?) and active = 'T'} join drug "%"]
+    insert port [{select nhi, letter, name, dosing from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
-        append record drug
         append/only patient-ids record
     ]
 ]
@@ -23,9 +22,8 @@ foreach drug biologics [
 immunos: ["Cyclophosphamde" "Cellcept" "Mycophenolate"]
 
 foreach drug immunos [
-    insert port [{select nhi, letter, dosing from medications where name like (?) and active = 'T'} join drug "%"]
+    insert port [{select nhi, letter, name, dosing from medications where name like (?) and active = 'T'} join drug "%"]
     foreach record copy port [
-        append record drug
         append/only patient-ids record
     ]
 ]
