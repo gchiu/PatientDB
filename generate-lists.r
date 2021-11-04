@@ -192,7 +192,7 @@ show-consults: func [ id
                 show clindatefld
             ]
             letter: area "" wrap 800x650
-            slider 20x650
+            sf: scroller 20x650 sf letter
         ]
         view lo
 ]
