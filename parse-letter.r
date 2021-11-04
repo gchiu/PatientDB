@@ -35,7 +35,7 @@ name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'" #" "]
 fname-rule: [some alpha #"-" some alpha | some alpha]
 uc: charset [#"A" - #"Z"]
 nhi-rule: [3 alpha 4 digit]
-filename-rule: [nhi-rule "-" some alpha "-202" 5 digit "-" digit ".txt"]
+filename-rule: [nhi-rule "-" some alpha "-20" 6 digit "-" digit ".txt"] ; 2019, 2020, 2021
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some digit]
