@@ -134,6 +134,7 @@ show-consults: func [ id
     /local consults dates lo fname surname nhilabel clin
 ][
     dates: copy [] lo: none fname: copy "" surname: copy "" nhilabel: copy "" clin: copy ""
+    sf: none
     attempt [id: to integer! id]
     either not integer? id [
         ; passed as word! string!
@@ -192,7 +193,7 @@ show-consults: func [ id
                 show clindatefld
             ]
             letter: area "" wrap 800x650
-            sf: scroller 20x650 sf letter
+            ; sf: scroller 20x650 sf letter
         ]
         view lo
 ]
