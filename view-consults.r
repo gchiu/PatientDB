@@ -51,6 +51,11 @@ show-consults: func [ id
             append consults record ; cdate clinicians dictation
             append dates record/1
         ]
+        insert port [{select diagnosis from diagnoses where nhi =(?)} id]
+        dxdata: copy []
+        foreach record copy port [
+            append dxdata record/1
+        ]
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
@@ -71,7 +76,9 @@ show-consults: func [ id
             ; sf: scroller 20x650 sf letter
             panel [
                 below
-                dx: text-list 250x305 data "" 
+                label black "Diagnoses"
+                dx: text-list 250x305 data dxdata
+                label black "Medications"
                 rx: text-list 250x350 data ""
 
             ]
