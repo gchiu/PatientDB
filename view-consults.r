@@ -56,6 +56,13 @@ show-consults: func [ id
         foreach record copy port [
             append dxdata record/1
         ]
+        insert port [{select name, active from medications where nhi =(?)} id]
+        rxdata: copy []
+        olddata: copy []
+        foreach record copy port [
+            if none? record [break]
+            either record/2 = "F" [append olddata record/1] [append rxdata record/1]
+        ]
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
@@ -79,9 +86,9 @@ show-consults: func [ id
                 label black "Diagnoses"
                 dx: text-list 250x150 data dxdata
                 label black "Medications"
-                rx: text-list 250x300 data ""
+                rx: text-list 250x300 data rxdata
                 label black "Old DMARDS"
-                old: text-list 250x100
+                old: text-list 250x100 data oldata
             ]
         ]
         view lo
