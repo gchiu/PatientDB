@@ -77,7 +77,7 @@ show-consults: func [ id
             panel [
                 below
                 label black "Diagnoses"
-                dx: text-list 150x305 data dxdata
+                dx: text-list 250x100 data dxdata
                 label black "Medications"
                 rx: text-list 250x350 data ""
                 label black "Old DMARDS"
