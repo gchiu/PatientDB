@@ -198,3 +198,4 @@ show-consults: func [ id
         view lo
 ]
 
+do %show-consults.r
