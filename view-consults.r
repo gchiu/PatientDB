@@ -71,7 +71,7 @@ show-consults: func [ id
             ; sf: scroller 20x650 sf letter
             panel [
                 below
-                dx: text-list 200x305 data "" return
+                dx: text-list 200x305 data "" 
                 rx: text-list 200x300 data ""
 
             ]
