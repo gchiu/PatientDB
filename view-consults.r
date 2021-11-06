@@ -88,7 +88,7 @@ show-consults: func [ id
                 label black "Medications"
                 rx: text-list 250x300 data rxdata
                 label black "Old DMARDS"
-                old: text-list 250x100 data oldata
+                old: text-list 250x100 data olddata
             ]
         ]
         view lo
