@@ -110,6 +110,10 @@ foreach record records [
 					oldmode: 'date ;'
 					foreach line deline/lines contents [; split into lines and parse each line
 						trim/head/tail line
+						if find/part line "VITALS:" 7 [
+							mode: 'finish
+						]
+
 						either not empty? line [
 							switch mode [
 								date [
