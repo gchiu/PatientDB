@@ -1,11 +1,13 @@
-Rebol [
-    date: 4-Nov-2021
-    author: "Graham Chiu"
-    purpose: {sets up all the databases to be used}
-]
+Rebol []
 
 dbase: open odbc://patients
 port: first dbase
+
+if answer: request "Delete all the data from patients database? " [ 
+	foreach table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre ][ '
+		insert port [{drop table (?)} form table]
+	]
+]
 
 ; we are not going to use the NHI as the id but a unique integer
 ; NHI format is 3 alpha 4 integer
