@@ -65,7 +65,9 @@ show-consults: func [ id
         ]
         lo: layout [across 
             label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
-            label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
+            label black "DOB:" dobfld: field dob 80 
+            label black "DBID:" dbifld: field id 20
+            label black "NHI:" nhilabel: field nhiid 80 return
             label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
             dates: text-list 120x650 data dates [
                 sdate: first dates/picked 
