@@ -107,7 +107,7 @@ foreach record records [
 					mode: 'date ;' we look for the date first to start the processing
 					;==============parser starts
 
-oldmode: 'date
+oldmode: 'date ;'
 foreach line deline/lines contents [; split into lines and parse each line
 	trim/head/tail line
 	either not empty? line [
@@ -261,7 +261,7 @@ NHI: XXXXNNN
 				print reform ["In mode: " mode]
 				?? line
 				if find/part line "NHI:" 4 [
-					mode: 'medication
+					mode: 'medication ;'
 					oldmode: 'page-2-medications ;'
 				]
 			]
@@ -272,7 +272,7 @@ NHI: XXXXNNN
 				case [
 					find line "Page 2" [
 						print "switching to page-2-medications"
-						mode: 'page-2-medications
+						mode: 'page-2-medications ;'
 					]
 
 					any [
@@ -314,7 +314,7 @@ NHI: XXXXNNN
 				mode: 'page-2-medications ;'
 			]
 		]
-		if all [mode = 'dmards not empty? dmards] [mode: 'finish];'
+		if all [mode = 'dmards not empty? dmards] [mode: 'finish] 
 	]
 ]
 
