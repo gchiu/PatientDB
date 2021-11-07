@@ -39,7 +39,11 @@ longdate: rejoin [day " " month " " year]
 oldmode: 'date
 foreach line deline/lines contents [; split into lines and parse each line
 	trim/head/tail line
-	either not empty? line [
+	either not empty? line [		
+		if find/part line "VITALS:" 7 [
+			mode: 'finish
+		]
+
 		switch mode [
 			date [
 				if find line longdate [
