@@ -134,7 +134,7 @@ foreach record records [
 
 						] [; not an empty line	
 
-							if find/part line "VITALS:" 7 [
+							if find/part line "VITALS" 6 [
 								mode: 'finish
 							]
 
@@ -267,7 +267,7 @@ Diagnoses:
 										print "switching to page-2-diagnoses"
 										mode: 'page-2-diagnoses
 									]
-									either find line "Medicat" [
+									either find/part line "Medicat" 7 [
 										mode: 'medication ;'
 										if not empty? diagnosis-detail [; catch end of list issue
 											append/only diagnoses reduce [trim/tail diagnosis-detail]
@@ -410,7 +410,7 @@ NHI: XXXXNNN
 
 							] [; not an empty line	
 
-								if find/part line "VITALS:" 7 [
+								if find/part line "VITALS" 6 [
 									mode: 'finish
 								]
 
