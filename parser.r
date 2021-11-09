@@ -3,7 +3,7 @@ Rebol []
 ;contents: read to-rebol-file filename: "2021\2021\October\GJS2525-HElasir-20211006-1.txt"
 contents: read to-rebol-file filename: "2021\2021\October\DLV5219-GChiu-20211030-1.txt"
 
-mode: 'date
+mode: 'date ;'
 nhi: "DLV5219" ; "GJS2525"
 address: copy []
 fpaddress: copy []
@@ -36,7 +36,7 @@ longdate: rejoin [day " " month " " year]
 
 ;=======parser starts
 
-oldmode: 'date
+oldmode: 'date 
 foreach line deline/lines contents [; split into lines and parse each line
 	trim/head/tail line
 	either not empty? line [		
@@ -142,6 +142,10 @@ foreach line deline/lines contents [; split into lines and parse each line
 			]
 
 			diagnosis [
+				if find line "Page 2" [
+						print "switching to page-2-diagnoses"
+						mode: 'page-2-diagnoses
+				]
 				either find line "Medicat" [
 					mode: 'medication ;'
 					if not empty? diagnosis-detail [; catch end of list issue
@@ -199,6 +203,13 @@ NHI: XXXXNNN
 				]
 			]
 
+			page-2-diagnoses [
+				if find/part line "NHI:" 4 [
+					mode: 'diagnoses ;'
+					oldmode: 'page-2-diagnoses ;
+				]
+			]
+
 			medication [
 				; medications can spill into the next page
 				?? line
@@ -245,6 +256,11 @@ NHI: XXXXNNN
 			either oldmode: 'page-2-medications [][
 				print "empty line, in medication mode, and not empty medications"
 				mode: 'page-2-medications
+			]
+		]
+		if all [mode: 'diagnoses not empty? diagnoses][
+			either oldmode: 'page-2-diagnoses [][
+				mode: 'page-2-diagnoses
 			]
 		]
 		if all [mode = 'dmards not empty? dmards] [mode: 'finish]
