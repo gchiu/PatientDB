@@ -807,8 +807,6 @@ NHI: XXXXNNN
 					insert port [{update files set done = (?) where id =(?)} true fileid]
 
 					print "================================================="
-
-					halt
 				] [
 					print "letter already in database"
 				]
