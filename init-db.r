@@ -40,11 +40,13 @@ if none? pick port 1 [
         registration int  
     )}
     ; real rheumatology data
-    insert port {insert into clinicians ( surname, fname, clintype) values ('Chiu', 'Graham', 1)}
-    insert port {insert into clinicians ( surname, fname, clintype) values ('Elasir', 'Haitham', 1)}
-    insert port {insert into clinicians ( surname, fname, clintype) values ('Porten', 'Lauren', 2)}
-    insert port {insert into clinicians ( surname, fname, clintype) values ('Sawyers', 'Stephen', 1)}
-    insert port {insert into clinicians ( surname, fname, clintype) values ('Hawke', 'Sonia', 1)}
+    cns: 2 dr: 1
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Chiu', 'Graham', dr)}
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Elasir', 'Haitham', dr)}
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Porten', 'Lauren', cns)}
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Sawyers', 'Stephen', dr)}
+    insert port {insert into clinicians ( surname, fname, clintype) values ('Hawke', 'Sonia', cns)}
+    unset [cns dr]
 ]
 
 ; add consults
