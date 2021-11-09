@@ -91,6 +91,8 @@ if none? pick port 1 [
             mobile varchar(15),
             gp integer,
             gpcentre integer,
+            gpname varchar(128),
+            gpcentname varchar(128),
             deceased boolean default false,
             discharged boolean default false
         )
