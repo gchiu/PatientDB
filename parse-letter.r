@@ -107,7 +107,6 @@ foreach record records [
 				either none? pick port 1 [; okay not done yet
 					mode: 'date ;' we look for the date first to start the processing
 					;==============parser starts
-
 					mode: 'date
 					foreach line deline/lines contents [; split into lines and parse each line
 						trim/head/tail line
@@ -115,7 +114,9 @@ foreach record records [
 							case [
 
 								all [mode = 'medication not empty? medications] [
-									either oldmode: 'page-2-medications [] [
+									either oldmode = 'page-2-medications [
+
+									] [
 										print "empty line, in medication mode, and not empty medications"
 										mode: 'page-2-medications
 									]
@@ -263,7 +264,7 @@ Diagnoses:
 								]
 
 								diagnosis [
-									if find line "Page 2" [
+									if any [find/part line "Page " 5 find/part line "…" 1] [
 										print "switching to page-2-diagnoses"
 										mode: 'page-2-diagnoses
 									]
@@ -317,10 +318,16 @@ NHI: XXXXNNN
 }
 								page-2-medications [
 									print reform ["In mode: " mode]
-									?? line
-									if find/part line "NHI:" 4 [
-										mode: 'medication
-										oldmode: 'page-2-medications ;'
+									; ?? line
+									case [
+										find/part line "NHI:" 4 [
+											mode: 'medication
+											oldmode: 'page-2-medications ;'
+										]
+
+										all [50 < length? line not find line "mg"][
+											mode: 'finish
+										] 
 									]
 								]
 
@@ -333,9 +340,9 @@ NHI: XXXXNNN
 
 								medication [
 									; medications can spill into the next page
-									?? line
+									; ?? line
 									case [
-										find line "Page 2" [
+										any [find/part line "Page " 5 find/part line "…" 1][ 
 											print "switching to page-2-medications"
 											mode: 'page-2-medications
 										]
@@ -374,7 +381,6 @@ NHI: XXXXNNN
 
 						]
 					]
-
 					;==========parser ends
 
 					if debug [
