@@ -106,6 +106,7 @@ foreach record records [
 				insert port [{select id from letters where checksum = (?)} ck]
 				either none? pick port 1 [; okay not done yet
 					mode: 'date ;' we look for the date first to start the processing
+					oldmode: none
 					;==============parser starts
 					mode: 'date
 					foreach line deline/lines contents [; split into lines and parse each line
