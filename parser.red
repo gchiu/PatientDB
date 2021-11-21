@@ -2,13 +2,12 @@ Red [
 	title: "letter parser"
 ]
 
-parse-contents: func [source
+parse-contents: func [source [string!] debug [logic!]
 	/local mode address fpaddress diagnosis-detail diagnoses dmards medications
 	space whitespace digit areacode-rule dob-rule name-rule
 	fname-rule uc nhi-rule filename-rule months phone-rule mobile-rule drugname-rule diagnosis-rule
-	rfn oldmode longdate contents patient-o mobile phone email sname debug
+	rfn oldmode longdate contents patient-o mobile phone email sname dateline
 ] [
-	debug: false
 	; contents: read rfn: to-red-file filename: filename: "D:\2020\2020\November\CLU3365-HElasir-20201124-1.txt"
 	; nhi: "CLU3365" ;"DLV5219" ; "GJS2525"
 
@@ -69,14 +68,15 @@ parse-contents: func [source
 	non-day-rule: complement day-rule
 
 	; quit the parser if can not find the date
-	either parse contents/1 [ any alpha any space any alpha any space opt ":" any space
-		copy day 1 2 digit space copy month some alpha space copy year 4 digit to end][
-		longdate: rejoin [day " " month " " year]
+	dateline: trim/head/tail reverse copy contents/1
+
+	either parse dateline [copy year 4 digit some space copy month some alpha some space copy day 2 digit to end][
+		longdate: rejoin [reverse day " " reverse month " " reverse year]
 		patient-o/clinicdate: load rejoin [day "-" copy/part month 3 "-" year]
 	][
 		; ?? firstline
-		print "unable to parse date out"
-		return false
+		; "unable to parse date out"
+		return "unable to parse date out"
 	]
 
 	;=======parser starts
@@ -96,6 +96,7 @@ parse-contents: func [source
 					] [
 						; print "empty line, in medication mode, and not empty medications"
 						mode: 'page-2-medications
+						; mode: 'dmards
 					]
 				]
 
@@ -315,6 +316,19 @@ NHI: XXXXNNN
 					; print reform ["In mode: " mode]
 					; ?? line
 					case [
+						any [
+							find line "MARDS"
+							find line "Previous Medications"
+							find line "Previous Medication"
+							find line "Previous DMARDS"
+							find line "Previous MARDS"
+							find line "DMARDS"
+							find line "DMARD History"
+							find line "Previous DMARD History"
+						] [ ;print "**************Found DMARD line**************"
+							mode: 'dmards
+						] ;'
+						
 						find/part line "NHI:" 4 [
 							mode: 'medication
 							oldmode: 'page-2-medications ;'
@@ -338,7 +352,9 @@ NHI: XXXXNNN
 					; ?? line
 					case [
 						any [find/part line "Page " 5 find/part line "…" 1] [
-							; print "switching to page-2-medications"
+							if debug [
+								print "switching to page-2-medications"
+							]
 							mode: 'page-2-medications ;'
 						]
 
