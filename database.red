@@ -107,10 +107,10 @@ lay: layout [
 						label "Clinic" 40 clinicfld: field 80
 						label "Clinician" 50 clinfld: field 80
 						label "FP" 30 gpfld: field 150
-						label "Centre" 50 gpcentfld: field 200
+						label "Centre" 50 gpcentfld: field 180
 						button "Parse" 45 green [
 							if not none? consultation/text [
-								p-obj: mold parse-contents consultation/text
+								p-obj: mold parse-contents consultation/text debugck/data
 								view parselo: layout [ 
 									title "Parsed Letter" 
 									below
@@ -128,6 +128,7 @@ lay: layout [
 							agefld/text: copy ""
 						]
 						hideck: check "?" 10 true [show-demogs face/data]
+						debugck: check "??" 10 false 
 					] return
 					panel [
 						clindates: text-list 80x600 [
