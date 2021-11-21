@@ -9,8 +9,8 @@
 # Unfortunately, color schemes can't be adjusted.  So the only viable option is
 # to disable syntax highlighting entirely.
 #
-*.r linguist-language=text
-*.reb linguist-language=text
-*.test.reb linguist-language=text
-*.red linguist-language=text
+*.r gitlab-language=text
+*.reb gitlab-language=text
+*.test.reb gitlab-language=text
+*.red gitlab-language=text
 
