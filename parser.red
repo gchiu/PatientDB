@@ -6,9 +6,9 @@ parse-contents: func [source
 	/local mode address fpaddress diagnosis-detail diagnoses dmards medications
 	space whitespace digit areacode-rule dob-rule name-rule
 	fname-rule uc nhi-rule filename-rule months phone-rule mobile-rule drugname-rule diagnosis-rule
-	rfn oldmode longdate contents patient-o mobile phone email
+	rfn oldmode longdate contents patient-o mobile phone email sname debug
 ] [
-
+	debug: false
 	; contents: read rfn: to-red-file filename: filename: "D:\2020\2020\November\CLU3365-HElasir-20201124-1.txt"
 	; nhi: "CLU3365" ;"DLV5219" ; "GJS2525"
 
@@ -22,7 +22,7 @@ parse-contents: func [source
 
 	;; charsets and parse rules
 
-	mobile: phone: areacode: street: town: none
+	sname: mobile: phone: areacode: street: town: none
 
 	space: #" "
 	whitespace: charset [#" " #"^-"]
@@ -69,10 +69,13 @@ parse-contents: func [source
 	non-day-rule: complement day-rule
 
 	; quit the parser if can not find the date
-	either parse contents/1 [any non-day-rule copy day 1 2 digit space copy month some alpha space copy year 4 digit to end][
+	either parse contents/1 [ any alpha any space any alpha any space opt ":" any space
+		copy day 1 2 digit space copy month some alpha space copy year 4 digit to end][
 		longdate: rejoin [day " " month " " year]
 		patient-o/clinicdate: load rejoin [day "-" copy/part month 3 "-" year]
 	][
+		; ?? firstline
+		print "unable to parse date out"
 		return false
 	]
 
@@ -80,8 +83,10 @@ parse-contents: func [source
 	mode: 'date
 	foreach line contents [; split into lines and parse each line
 		trim/head/tail line
-		; ?? line
-		; ?? mode
+		if debug [
+			?? line
+			?? mode
+		]
 		either empty? line [
 			case [
 
