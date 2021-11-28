@@ -9,7 +9,7 @@ Red [
 spreadsheet: "C:\Program Files\LibreOffice\program\scalc.exe "
 jaks: ["Tofacitinib" "Rinvoq" "Upadacinitib"]
 tnfs: ["Infliximab" "Remicade" "Humira" "Adalimumab" "Etanercept" "Enbrel"]
-cyto: ["Cyclophosphamide" "Mycophenolate" "Prednisone"]
+cyto: ["Cyclophosphamide" "Mycophenolate" "Cyclosporin" "Prednisone"]
 dmards: ["Azathioprine" "6-Mercaptopurine" "Methotrexate" "Leflunomide" "Arava" "Salazopyrin" "Sulfasalazine" "Hydroxychloroquine" "Plaquenil"]
 infus: ["Rituximab" "Actemra" "Tocilizumab"]
 inters: ["Cosentyx" "Secukinumab" "Stelara" "Ustekinumab"]
@@ -39,9 +39,10 @@ get-clinician: func [id] [
 webroot: http://localhost:8888/
 
 show-demogs: func [val
-	/local d dob
+	/local d dob txt p1 words email2 source
 	"show or hide personal data"
 ][
+	source: consultation/text
 	agefld/visible?: dobfld/visible?:
 	fnamefld/visible?: 
 	surnamefld/visible?: val
@@ -65,6 +66,22 @@ show-demogs: func [val
 		replace/all consultation/text "*SURNAME*" surnamefld/text
 		replace/all consultation/text "*FIRSTNAME*" fnamefld/text
 	][
+
+											txt: copy/part source index? find source "Dear"
+											if p1: find txt "@" [
+												txt: copy/part skip txt (-15 + index? p1) 30
+												words: split txt "^/"
+												foreach w words [
+													if find w "@" [
+														email2: w
+														break
+													]
+												]
+												replace/all source email2 "email@somewhere.co.nz"
+											]
+
+
+
 		if d [replace/all consultation/text d "*DOB*"]
 		if patient-o/phone [
 			replace/all consultation/text patient-o/phone "*phone*"
@@ -110,12 +127,12 @@ lay: layout [
 						label "Centre" 50 gpcentfld: field 180
 						button "Parse" 45 green [
 							if not none? consultation/text [
-								p-obj: mold parse-contents consultation/text debugck/data
+								p-obj: mold parse-contents replace/all copy consultation/text "*" "" debugck/data
 								view parselo: layout [ 
 									title "Parsed Letter" 
 									below
 									area 1000x600 wrap p-obj
-									button "Close" [unview/only parselo]
+									button "Close" font [color: red] [unview/only parselo]
 									; button "See" [probe p-obj]
 								]
 							]
@@ -159,6 +176,7 @@ lay: layout [
 				return
 				pattl: text-list 200x650 data history [
 					p: pick history face/selected
+					clear-fields
 					nhi: copy/part p find p " "
 					nhifld/text: copy nhi
 					show nhifld
