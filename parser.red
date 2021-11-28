@@ -1,12 +1,13 @@
 Red [
 	title: "letter parser"
+	purpose: {used to parse a letter inside the GUI for testing}
 ]
 
 parse-contents: func [source [string!] debug [logic!]
 	/local mode address fpaddress diagnosis-detail diagnoses dmards medications
 	space whitespace digit areacode-rule dob-rule name-rule
 	fname-rule uc nhi-rule filename-rule months phone-rule mobile-rule drugname-rule diagnosis-rule
-	rfn oldmode longdate contents patient-o mobile phone email sname dateline
+	rfn oldmode longdate contents patient-o mobile phone email sname dateline txt
 ] [
 	; contents: read rfn: to-red-file filename: filename: "D:\2020\2020\November\CLU3365-HElasir-20201124-1.txt"
 	; nhi: "CLU3365" ;"DLV5219" ; "GJS2525"
@@ -26,9 +27,11 @@ parse-contents: func [source [string!] debug [logic!]
 	space: #" "
 	whitespace: charset [#" " #"^-"]
 	digit: charset [#"0" - #"9"]
+	non-digit: complement digit
 	areacode-rule: [4 digit]
 	dob-rule: [2 digit "." 2 digit "." 4 digit]
 	alpha: charset [#"a" - #"z" #"A" - #"Z"]
+	non-alphanumeric: complement union alpha digit
 	name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'" #" "]
 	fname-rule: [some alpha #"-" some alpha | some alpha]
 	uc: charset [#"A" - #"Z"]
@@ -56,25 +59,25 @@ parse-contents: func [source [string!] debug [logic!]
 		]
 	]
 
-
-
 	; contents: read rfn: to-red-file filename: filename: "D:\2020\2020\November\CLU3365-HElasir-20201124-1.txt"
-	; first line contains the date
-
-	contents: split trim/head/tail copy consultation/text "^/"
+	; first non-blank line contains the date
+	parse source [any non-alphanumeric copy txt to end] ; get rid of all the leading whitespace
+	contents: split txt "^/"
 	; get the long date out - do we really need to though?
 
 	day-rule: charset [#"1" - #"3"] ; look for first digit in a day of the month
 	non-day-rule: complement day-rule
 
 	; quit the parser if can not find the date
-	dateline: trim/head/tail reverse copy contents/1
+	dateline: trim/head/tail copy contents/1
+	if debug [?? dateline]
 
-	either parse dateline [copy year 4 digit some space copy month some alpha some space copy day 2 digit to end][
-		longdate: rejoin [reverse day " " reverse month " " reverse year]
+	either parse dateline [any non-digit copy day some digit any space copy month some alpha any space copy year 4 digit to end][
+		; longdate: rejoin [reverse day " " reverse month " " reverse year]
+		longdate: rejoin [day " " month " " year]
 		patient-o/clinicdate: load rejoin [day "-" copy/part month 3 "-" year]
 	][
-		; ?? firstline
+		;?? firstline
 		; "unable to parse date out"
 		return "unable to parse date out"
 	]
@@ -410,5 +413,3 @@ NHI: XXXXNNN
 	return patient-o
 	; probe patient-o
 ]
-
-
