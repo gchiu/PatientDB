@@ -1,10 +1,13 @@
-Rebol []
+Red [
+	title: "letter parser"
+	notes: {used in a batch script to parse all letters in the database}
+]
 
-;contents: read to-rebol-file filename: "2021\2021\October\GJS2525-HElasir-20211006-1.txt"
-contents: read to-rebol-file filename: "2021\2021\October\DLV5219-GChiu-20211030-1.txt"
-
+; contents: read to-rebol-file filename: "2021\2021\October\GJS2525-HElasir-20211006-1.txt"
+; contents: read rfn: to-rebol-file filename: filename: "2021\2021\October\DLV5219-GChiu-20211030-1.txt"
+contents: read rfn: to-rebol-file filename: filename: "D:\2020\2020\November\CLU3365-HElasir-20201124-1.txt"
 mode: 'date ;'
-nhi: "DLV5219" ; "GJS2525"
+; nhi: "CLU3365" ;"DLV5219" ; "GJS2525"
 address: copy []
 fpaddress: copy []
 diagnosis-detail: copy ""
@@ -31,16 +34,44 @@ drugname-rule: [some [some alpha opt space]]
 
 diagnosis-rule: complement charset [#"^-"]
 
-parse filename [thru "\" thru "\" copy month to "\" thru "-" thru "-" copy year 4 digit 2 skip copy day 2 digit (day: to integer! day) to end]
+parse filename [thru "\" thru "\" thru "\" copy month to "\" 1 skip copy nhi to "-" thru "-" thru "-" copy year 4 digit 2 skip copy day
+	2 digit (day: to integer! day) to end]
+
 longdate: rejoin [day " " month " " year]
+?? longdate
+el: 1
+oldmode: none
 
 ;=======parser starts
-
-oldmode: 'date 
+mode: 'date
 foreach line deline/lines contents [; split into lines and parse each line
 	trim/head/tail line
-	either not empty? line [		
-		if find/part line "VITALS:" 7 [
+	either empty? line [
+		case [
+
+			all [mode = 'medication not empty? medications] [
+				either oldmode = 'page-2-medications [
+
+				] [
+					print "empty line, in medication mode, and not empty medications"
+					mode: 'page-2-medications
+				]
+			]
+
+			all [mode = 'diagnoses not empty? diagnoses] [
+				either oldmode = 'page-2-diagnoses [] [
+					mode: 'page-2-diagnoses
+				]
+			]
+
+			mode = 'name []
+
+			all [mode = 'dmards not empty? dmards] [mode: 'finish]
+		]
+
+	] [; not an empty line	
+
+		if find/part line "VITALS" 6 [
 			mode: 'finish
 		]
 
@@ -51,6 +82,13 @@ foreach line deline/lines contents [; split into lines and parse each line
 					mode: 'name ;'
 				]
 			]
+
+			comment {
+
+BLOGGS, SIMON PETER
+NHI: DLV9215
+}
+
 
 			name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
 				either parse/all line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
@@ -78,7 +116,15 @@ foreach line deline/lines contents [; split into lines and parse each line
 				]
 			]
 
+			comment {
+Flat ..
+
+GP: Dr A E Hughes
+
+}
+
 			address [; start capturing address lines and dob mixed in together, terminated by finding GP:
+				line: copy/part line 60 ; let us trim anything to the right
 				case [
 					parse line ["DOB: " copy dob dob-rule] [
 						replace/all dob "." "-"
@@ -106,6 +152,13 @@ foreach line deline/lines contents [; split into lines and parse each line
 				]
 			]
 
+			comment {
+Dr A E Hughes	cc:	ENT Department, PNH 
+Otaihape Health
+PO Box 123
+TAIHAPE
+}
+
 			fp [; extract fp address
 				case [
 					find/part line "Dear" 4 [
@@ -131,6 +184,11 @@ foreach line deline/lines contents [; split into lines and parse each line
 				]
 			]
 
+			comment {
+Dear Colleague
+
+Diagnoses: 
+}
 			end-salutation [
 				if find/part line "Diagnos" 7 [
 					mode: 'diagnosis ;'
@@ -142,11 +200,11 @@ foreach line deline/lines contents [; split into lines and parse each line
 			]
 
 			diagnosis [
-				if find line "Page 2" [
-						print "switching to page-2-diagnoses"
-						mode: 'page-2-diagnoses
+				if any [find/part line "Page " 5 find/part line "…" 1] [
+					print "switching to page-2-diagnoses"
+					mode: 'page-2-diagnoses
 				]
-				either find line "Medicat" [
+				either find/part line "Medicat" 7 [
 					mode: 'medication ;'
 					if not empty? diagnosis-detail [; catch end of list issue
 						append/only diagnoses reduce [trim/tail diagnosis-detail]
@@ -189,17 +247,23 @@ foreach line deline/lines contents [; split into lines and parse each line
 				]
 			]
 
-comment {
+			comment {
 Page 2
 XXXXX, XXX XX
 NHI: XXXXNNN
 }
 			page-2-medications [
 				print reform ["In mode: " mode]
-				?? line
-				if find/part line "NHI:" 4 [
-					mode: 'medication
-					oldmode: 'page-2-medications ;'
+				; ?? line
+				case [
+					find/part line "NHI:" 4 [
+						mode: 'medication
+						oldmode: 'page-2-medications ;'
+					]
+
+					all [50 < length? line not find line "mg"] [
+						mode: 'finish
+					]
 				]
 			]
 
@@ -212,9 +276,9 @@ NHI: XXXXNNN
 
 			medication [
 				; medications can spill into the next page
-				?? line
+				; ?? line
 				case [
-					find line "Page 2" [
+					any [find/part line "Page " 5 find/part line "…" 1] [
 						print "switching to page-2-medications"
 						mode: 'page-2-medications
 					]
@@ -239,10 +303,10 @@ NHI: XXXXNNN
 			]
 
 			dmards [
-				either any [find line "DMARD" find line "Previous" find line "Medications"][
-				][
+				either any [find line "DMARD" find line "Previous" find line "Medications"] [
+				] [
 					append dmards line
-				] 
+				]
 			]
 
 			finish [
@@ -251,21 +315,9 @@ NHI: XXXXNNN
 			]
 		]
 
-	] [
-		if all [mode = 'medication not empty? medications] [
-			either oldmode: 'page-2-medications [][
-				print "empty line, in medication mode, and not empty medications"
-				mode: 'page-2-medications
-			]
-		]
-		if all [mode: 'diagnoses not empty? diagnoses][
-			either oldmode: 'page-2-diagnoses [][
-				mode: 'page-2-diagnoses
-			]
-		]
-		if all [mode = 'dmards not empty? dmards] [mode: 'finish]
 	]
 ]
+
 
 ;=============parser ends
 
