@@ -777,8 +777,8 @@ NHI: XXXXNNN
 						if not none? result: pick port 1 [
 							; we have old medications, so get the clinc date and see if it is older or newer
 							lastclinic: result/3
-							if ldate > lastclinic [
-								; this letter is newer so remove all old medications
+							if all [ldate > lastclinic not empty? medications] [
+								; this letter is newer, we have a new medication list, so remove all old medications
 								insert port [{delete from medications where nhi = (?)} nhiid]
 							]
 						]
@@ -812,8 +812,17 @@ NHI: XXXXNNN
 						; now add the diagnoses, removing any existing ones
 						; == should we check to see if this letter is newer or older than latest?? ==
 						if not empty? diagnoses [
-							insert port [{delete from diagnoses where nhi = (?)} nhiid]
-							; insert port [{select * from diagnoses where nhi =(?)} nhiid]
+							; see how many diagnoses there are
+							insert port [{select count(*) from diagnoses where nhi =(?)} nhiid]
+							result: pick port 1
+							if not none? result [
+								result: result/1
+								if result <= length? diagnoses [
+									;  existing diagnoses are fewer than we now have so lets delete existing
+									insert port [{delete from diagnoses where nhi = (?)} nhiid]
+								]
+							]
+							; do we have to look at the case where new diagnoses are less than existing?
 							if odd? length? diagnoses [append/only diagnoses [""]]
 							foreach [diagnosis detail] diagnoses [
 								insert port [{insert into diagnoses (nhi, letter, diagnosis, detail) values (?, ?, ?, ?)} nhiid ldate diagnosis detail/1]
