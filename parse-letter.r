@@ -1,7 +1,9 @@
 Rebol [
 	author: "Graham Chiu"
 	date: 4-Nov-2021
-	notes: {parse the letters (file names stored in files database) to extract name, nhi, drug information, GP etc}
+	notes: {parse the letters (file names stored in files database) to extract name, nhi, drug information, GP etc
+		30.11.202` since this uses `pick` we have to use rebol2 and not ren-c at present. Updated to update medications
+	}
 ]
 
 if not value? 'dir [;'
@@ -326,16 +328,16 @@ NHI: XXXXNNN
 											oldmode: 'page-2-medications ;'
 										]
 
-										all [50 < length? line not find line "mg"][
+										all [50 < length? line not find line "mg"] [
 											mode: 'finish
-										] 
+										]
 									]
 								]
 
 								page-2-diagnoses [
 									if find/part line "NHI:" 4 [
 										mode: 'diagnoses ;'
-										oldmode: 'page-2-diagnoses ;
+										oldmode: 'page-2-diagnoses ;'
 									]
 								]
 
@@ -343,7 +345,7 @@ NHI: XXXXNNN
 									; medications can spill into the next page
 									; ?? line
 									case [
-										any [find/part line "Page " 5 find/part line "…" 1][ 
+										any [find/part line "Page " 5 find/part line "…" 1] [
 											print "switching to page-2-medications"
 											mode: 'page-2-medications
 										]
@@ -602,7 +604,7 @@ NHI: XXXXNNN
 										print reform ["In mode: " mode]
 										; ?? line
 										if find/part line "NHI:" 4 [
-											mode: 'medication
+											mode: 'medication ;'
 											oldmode: 'page-2-medications ;'
 										]
 									]
@@ -610,7 +612,7 @@ NHI: XXXXNNN
 									page-2-diagnoses [
 										if find/part line "NHI:" 4 [
 											mode: 'diagnoses ;'
-											oldmode: 'page-2-diagnoses ;
+											oldmode: 'page-2-diagnoses ;'
 										]
 									]
 
@@ -620,7 +622,7 @@ NHI: XXXXNNN
 										case [
 											any [find line "Page 2" find line "….2"] [
 												print "switching to page-2-medications"
-												mode: 'page-2-medications
+												mode: 'page-2-medications ;'
 											]
 
 											any [
@@ -769,11 +771,19 @@ NHI: XXXXNNN
 							;]
 							insert port [{insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)} nhiid current-doc dob surname fname sname address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid]
 						]
-						; now add the medications
-						; if there are medications, we will just skip rather than update
-						insert port [{select * from medications where nhi=(?)} nhiid]
-						if none? result: pick port 1 [
-							print "adding medications"
+						; now add the medications if this list is newer than an old list
+						insert port [{select * from medications where nhi=(?) order by letter DESC} nhiid]
+						; remove all the old medications?
+						if not none? result: pick port 1 [
+							; we have old medications, so get the clinc date and see if it is older or newer
+							lastclinic: result/3
+							if ldate > lastclinic [
+								; this letter is newer so remove all old medications
+								insert port [{delete from medications where nhi = (?)} nhiid]
+							]
+						]
+						print "adding medications if there are none, or if this is a newer clinic letter"
+						if any [none? result ldate > lastclinic] [
 							; let us start adding medications by name and not code
 							if not empty? medications [
 								foreach drug medications [
@@ -798,14 +808,15 @@ NHI: XXXXNNN
 								]
 							]
 						]
-						; now add the diagnoses
+
+						; now add the diagnoses, removing any existing ones
+						; == should we check to see if this letter is newer or older than latest?? ==
 						if not empty? diagnoses [
-							insert port [{select * from diagnoses where nhi =(?)} nhiid]
-							if none? pick port 1 [
-								if odd? length? diagnoses [append/only diagnoses [""]]
-								foreach [diagnosis detail] diagnoses [
-									insert port [{insert into diagnoses (nhi, letter, diagnosis, detail) values (?, ?, ?, ?)} nhiid ldate diagnosis detail/1]
-								]
+							insert port [{delete from diagnoses where nhi = (?)} nhiid]
+							; insert port [{select * from diagnoses where nhi =(?)} nhiid]
+							if odd? length? diagnoses [append/only diagnoses [""]]
+							foreach [diagnosis detail] diagnoses [
+								insert port [{insert into diagnoses (nhi, letter, diagnosis, detail) values (?, ?, ?, ?)} nhiid ldate diagnosis detail/1]
 							]
 						]
 					]
