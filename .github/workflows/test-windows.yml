@@ -1,0 +1,249 @@
+#
+# %windows-test.yml
+#
+
+name: Windows Test
+
+
+on:
+  push:
+    branches: [
+      main
+    ]
+  pull_request:
+    branches: [
+      main
+    ]
+  workflow_dispatch:  # Allows running this workflow manually from Actions tab
+
+
+# We use bash by default in Ren-C workflows, even on Windows
+#
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+  windows-test:
+
+    runs-on: windows-latest
+
+    steps:
+
+  #====# CHECKOUT STEPS #=====================================================#
+
+    # GitHub CI checkout on Windows auto translates LF to CR/LF in files:
+    #
+    # https://github.com/actions/checkout/issues/135
+    #
+    # However, Ren-C is taking the long view on this and prohibiting CR/LF in
+    # source by default.
+    #
+    # https://forum.rebol.info/t/newlina-non-grata/1207
+    # https://forum.rebol.info/t/1264
+    #
+    - name: Disable LF to CRLF Auto Translation In Git
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+
+
+    # https://github.com/actions/checkout
+    #
+    # See README: Checkout Action
+    #
+    - uses: actions/checkout@v2  # See README: Trusted Actions
+
+
+  #====# INSTALL R3 INTERPRETER #=============================================#
+
+    - name: Download and Cache Ren-C Interpreter
+      uses: metaeducation/ren-c-action@release
+      with:
+        checked: true
+
+
+    # Rebol2 unfortunately has to be piped into something in order to see the
+    # output, otherwise it will spawn a window that won't show up in the
+    # GitHub Actions log.  Using --nowindow and doing piping with | can get
+    # the actual data.  In bash we could do `| cat`, but we can't launch a
+    # bash script with a convenient name .
+    #
+    # Instead we do a batch file.  We can't use TYPE as a substitute for piping
+    # for CAT because it doesn't take piped input.  Instead we use FIND and
+    # exclude any line that contains the word "voodoo".
+    #
+    # Note: Writing a line from cmd.exe that contains quotes like this is
+    # seemingly impossible...escaping with ^" or "" or \" just don't work.
+    # Bash may be ugly, but at least it doesn't have so many glaring holes.
+    #
+    - name: Download And Wrap Rebol2 Interpreter
+      run: |
+        curl -o rebol2-core.exe -L http://www.rebol.com/downloads/v278/rebol-core-278-3-1.exe
+        echo "rebol2-core.exe --nowindow %* | find /V \"voodoo\"" > rebol2.bat
+
+
+    - name: Add Current Directory to Path
+      run: |
+        echo "$(pwd)" >> $GITHUB_PATH
+
+
+    # Ren-C works with stdio by default, so the output of PRINT and similar
+    # will go to the log that you view from GitHub Actions.
+    #
+    - name: Demonstrate Ren-C Working
+      run: |
+        r3 --do "print {Hello from Ren-C}"
+
+
+    # See notes above about why Rebol2 is a batch file that does piping.
+    #
+    - name: Demonstrate Rebol2 Working
+      shell: cmd
+      run: |
+        rebol2 --do "print {Hello from Rebol2 Piping Batch Wrapper}"
+
+
+  #====# FIREBIRD INSTALLATION #==============================================#
+
+    # Firebird does not have an .msi file, but its .exe installer has modes for
+    # being "silent":
+    #
+    #   http://www.firebirdfaq.org/faq193/
+    #
+    # Default Administrative Account when installing like this:
+    #
+    #    -user sysdba
+    #    -password masterkey
+    #
+    - name: Install Firebird 4.0.0
+      shell: cmd  # !!! seems to hang if you use bash for Windows
+      run: |
+        curl -o firebird-4.0.0.exe -L https://github.com/FirebirdSQL/firebird/releases/download/v4.0.0/Firebird-4.0.0.2496-1-x64.exe
+        .\firebird-4.0.0.exe /VERYSILENT
+
+        del firebird-4.0.0.exe
+
+
+    # Historically Firebird had a bin directory, but it seems that is not true
+    # any more...files like isql.exe are in the top level Firebird_3_0 dir.
+    #
+    - name: Add Firebird's isql and tools to the path
+      run: |
+        echo "C:/Program Files/Firebird/Firebird_4_0/" >> $GITHUB_PATH
+
+
+    # This creates the file at D:\a\PatientDB\PatientDB\patients.fdb
+    #
+    - name: Create Test Database
+      run: |
+        echo "CREATE DATABASE \"patients.fdb\";" | isql -user sysdba -password masterkey
+        ls
+
+
+    # Here we also test connecting via the IP address to the server; on Linux
+    # there was trouble trying to use the embedded database while the server
+    # was running because it held the test.fdb file locked.
+    #
+    - name: Create Test User
+      run: |
+        echo "CREATE USER test PASSWORD 'test-password';" | isql -user sysdba -password masterkey "127.0.0.1:D:\\a\\PatientDB\\PatientDB\\patients.fdb"
+
+
+    - name: Grant Create Table Privilege To Test User
+      run: |
+        echo "GRANT CREATE TABLE TO USER test;" | isql -user sysdba -password masterkey "127.0.0.1:D:\\a\\PatientDB\\PatientDB\\patients.fdb"
+
+
+  #====# FIREBIRD ODBC DRIVER INSTALLATION #==================================#
+
+    # This installation process is a very abridged version of commands found
+    # in the PyODBC GitHub for installing and caching drivers on AppVeyor:
+    #
+    # https://github.com/mkleehammer/pyodbc/blob/master/appveyor/install.ps1
+
+    - name: Output Already Avaliable ODBC Drivers Before Installation
+      if: false  # This is slow, debug only
+      shell: pwsh  # It's a powershell command
+      run: |
+        Write-Output ""
+        Write-Output "*** Installed ODBC drivers:"
+        Get-OdbcDriver
+
+
+    # Apache Servers can be difficult to configure to serve .exe files
+    # Rather than figure out how to do that (and then have trouble again if the
+    # location changed to another server where it's beyond control), it's .gz
+    #
+    # Both the 32-bit and 64-bit ODBC drivers are installed, with the name:
+    #
+    #    "Firebird/InterBase(r) driver"
+    #
+    - name: Install Firebird ODBC
+      shell: cmd  # !!! Firebird's installers hang on bash for Windows!
+      run: |
+        curl -o firebird-odbc.exe.gz -L http://hostilefork.com/media/shared/firebird/Firebird_ODBC_2.0.5.156_x64.exe.gz
+        7z e firebird-odbc.exe.gz
+
+        rem Extracts Under the Original Compressed Name
+        .\Firebird_ODBC_2.0.5.156_x64.exe /VERYSILENT
+
+        del firebird-odbc.exe.gz
+        del Firebird_ODBC_2.0.5.156_x64.exe
+
+
+    - name: Output ODBC Drivers After Installation
+      if: false  # This is slow, debug only
+      shell: pwsh  # It's a powershell command
+      run: |
+        Write-Output ""
+        Write-Output "*** Installed ODBC drivers:"
+        Get-OdbcDriver
+
+
+    # ODBC DSN adding is done in PowerShell...an older tool called ODBCCONF.exe
+    # is deprecated:
+    #
+    # https://docs.microsoft.com/en-us/sql/odbc/odbcconf-exe
+    #
+    # Windows does not permit storing the UID or PWD in the DSN entry itself,
+    # so it must be provided by the connection.
+    #
+    # This had "ROLE=" and CHARSET=" in the Linux version, but on PowerShell
+    # it doesn't like blank entries.
+    #
+    - name: Register DSN Using PowerShell
+      shell: pwsh
+      run: |
+        Add-OdbcDsn `
+          -Name "rebol-firebird" `
+          -DriverName "Firebird/InterBase(r) driver" `
+          -Platform "64-bit" `
+          -DsnType "System" `
+          -SetPropertyValue @( `
+            "DBNAME=127.0.0.1:D:\a\PatientDB\PatientDB\patients.fdb", `
+            "READONLY=No", `
+            "NOWAIT=No" `
+          )
+
+
+  #====# TEST STEPS #==========================================================#
+
+    # The tests are designed to call QUIT and return 1 status on failure, with
+    # 0 returned on success.
+
+    # For starters, this is a basic insert and retrieve test of Rebol values.
+    # The goal is to store Rebol values into column types that can hold them,
+    # and then read the same value back out after writing it.
+    #
+    # This runs against the DSNs of the Firebird database created above.
+    #
+    - name: ODBC MySQL Insert And Retrieve Test
+      run: |
+        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird
+
+
+    - name: ODBC Test Without Closing Connection
+      run: |
+        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird --leave-connected
