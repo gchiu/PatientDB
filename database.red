@@ -13,7 +13,7 @@ cyto: ["Cyclophosphamide" "Mycophenolate" "Cyclosporin" "Prednisone"]
 dmards: ["Azathioprine" "6-Mercaptopurine" "Methotrexate" "Leflunomide" "Arava" "Salazopyrin" "Sulfasalazine" "Hydroxychloroquine" "Plaquenil"]
 infus: ["Rituximab" "Actemra" "Tocilizumab"]
 inters: ["Cosentyx" "Secukinumab" "Stelara" "Ustekinumab"]
-combos: ["Methotrexate+Leflunomide" "Methotrexate+Prednisone" "Leflunomide+Prednisone"]
+combos: ["Methotrexate+Leflunomide" "Methotrexate+Arava" "Methotrexate+Prednisone" "Leflunomide+Prednisone"]
 
 history: copy []
 if exists? %history.red [
@@ -205,10 +205,10 @@ lay: layout [
 				]
 			]
 
-			panel 150x120 [
+			panel 150x140 [
 				below
 				text bold "Cytotoxics/Other"
-				cytofld: text-list 120x65 data cyto [
+				cytofld: text-list 120x85 data cyto [
 					display-data face
 				]
 			]
@@ -235,10 +235,10 @@ lay: layout [
 					display-data face
 				]
 			]
-			panel 180x120 [
+			panel 180x130 [
 				below
 				text bold "Combinations"
-				combsfld: text-list 160x60 data combos [
+				combsfld: text-list 160x70 data combos [
 					display-data face
 				]
 			]

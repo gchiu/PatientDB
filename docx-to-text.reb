@@ -1,11 +1,10 @@
-#!/usr/bin/r3
-#
 Rebol [
   example: "r3 path/to/docx-to-text document.docx"
   notes: {will write the text file with the same filename but .txt extension}
 ]
 
-import 'markup ; maybe change to your location
+; import 'markup ; maybe change to your location
+import %markup.reb
 
 load-docx: function [
   docx [file!]
@@ -44,18 +43,25 @@ comment [
   ]
 ]
 
+comment [
 t: f: to-file system/script/args/1
+?? f
 t: load-docx t
+?? t
 d: copy ""
 
 ; extract text
 for-each [k v] t [
-  if k = 'text [write-stdout v
+  if k = 'text [
+    print "writing"
+    write-stdout v
     append d deline v  ;== remove CRLF pairs and replace with LF
   ]
   if all [k = 'vtag, block? v, v/1 = <w:tab>][
     write-stdout "^-"
-    append d "^-"
+    if #"^/" <> last d [
+      append d "^-"
+    ]
   ]
   if all [k = 'ctag, v = <w:p>] [
     print ""
@@ -63,10 +69,15 @@ for-each [k v] t [
   ]
 ]
 
-replace f %.docx %.txt
+?? f
+
+f: replace copy f %.docx %.txt
+
+?? f
 
 f: open/new f
 write/append f d
 close f
 
 ; vim: set syn=rebol et sw=2:
+]

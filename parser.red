@@ -279,8 +279,8 @@ Diagnoses:
 						; Anti-CCP +ve rheumatoid arthritis 
 						case [
 							; parse/all line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
-							parse line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
-								any whitespace some alpha "." any whitespace copy dline to end | ; so is this
+							parse line [any whitespace "-" any whitespace copy dline to end | ; this is diagn								any whitespace some alpha "•" any whitespace copy dline to end | ; so is thisosis detail
+								any whitespace "•" any whitespace copy dline to end | ; so is this
 								any whitespace some alpha ":" any whitespace copy dline to end | ; so is this
 								any whitespace alpha ")" any whitespace copy dline to end ; a), b)^- ; so is this
 							] [
@@ -413,3 +413,5 @@ NHI: XXXXNNN
 	return patient-o
 	; probe patient-o
 ]
+
+
