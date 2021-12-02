@@ -1,35 +1,35 @@
 Rebol [
-	file: %init-db.reb
-	purpose: {clears existing tables if present and then loads with some initial data ready for importing}
-	date: 3-Dec-2021
-	author: "Graham Chiu"
+    file: %init-db.reb
+    purpose: {clears existing tables if present and then loads with some initial data ready for importing}
+    date: 3-Dec-2021
+    author: "Graham Chiu"
 ]
 
 dbase: open odbc://test
 port: odbc-statement-of dbase
 
-if "Yes" = answer: ask ["Delete all the data from patients database? (Yes/No) " text!] [
-	foreach table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre] [
-		insert port [{drop table (?)} form table]
-	]
+if "Yes" = ask ["Delete all the data from patients database? (Yes/No) " text!] [
+    foreach table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre] [
+        insert port [{drop table (?)} form table]
+    ]
 ]
 
 find-table: func [p [port!] tablename [text!]] [
-	insert p {SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE (RDB$SYSTEM_FLAG <> 1 OR RDB$SYSTEM_FLAG IS NULL) AND RDB$VIEW_BLR IS NULL ORDER BY RDB$RELATION_NAME;}
-	for-each record copy p [
-		if tablename = trim record/1 [return true]
-	]
-	return false
+    insert p {SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE (RDB$SYSTEM_FLAG <> 1 OR RDB$SYSTEM_FLAG IS NULL) AND RDB$VIEW_BLR IS NULL ORDER BY RDB$RELATION_NAME;}
+    for-each record copy p [
+        if tablename = trim record/1 [return true]
+    ]
+    return false
 ]
 
 drop-table: func [p [port!] tablename [text!]] [
-	insert p [{drop table (?)} tablename]
+    insert p [{drop table (?)} tablename]
 ]
 
 drop-existing-table: func [p [port!] tablename [text!]] [
-	if find-table p tablename [
-		drop-table p tablename
-	]
+    if find-table p tablename [
+        drop-table p tablename
+    ]
 ]
 ; we are not going to use the NHI as the id but a unique integer
 ; NHI format is 3 alpha 4 integer
