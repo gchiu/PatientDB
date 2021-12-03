@@ -243,7 +243,7 @@ jobs:
       run: |
         r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird
 
-      name: init-db using renc
+    - name: init-db using renc
       run: |
         r3 init-db.reb < yes.txt
 
