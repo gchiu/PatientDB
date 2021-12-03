@@ -248,6 +248,7 @@ jobs:
         r3 init-db.reb < yes.txt
 
     - name: read-files.reb
+      run: |
         r3 read-files.reb
 
     - name: ODBC Test Without Closing Connection
