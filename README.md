@@ -48,3 +48,9 @@ save the test odbc script to confirm it's all working
 
     >> write %odbc-test.reb read https://raw.githubusercontent.com/metaeducation/rebol-odbc/master/tests/odbc-test.reb
     == #[port! [...] [...]]
+
+*Database Browser*
+
+I used IBOCONSOLE - https://iboconsole.software.informer.com/
+
+The setup is in Italian but after that it's useable in English.
