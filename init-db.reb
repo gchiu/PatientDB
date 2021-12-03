@@ -9,7 +9,7 @@ Rebol [
     }
 ]
 
-dbase: open odbc://test
+dbase: open odbc://rebol-firebird
 port: odbc-statement-of dbase
 show-sql?: true
 
