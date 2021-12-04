@@ -3,7 +3,7 @@ Rebol [
     exports: [sql-execute port dbase]
 ]
 
-dbase: open odbc://rebol-firebird
+dbase: open join odbc://rebol-firebird ";UID=test;PWD=test-password"
 port: odbc-statement-of dbase
 show-sql?: true
 
