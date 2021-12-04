@@ -7,7 +7,7 @@ earliest-year: 2018 ;  actually it's 2019
 years: []
 n: now/year
 
-until [insert years n n: me - 1 n = 2018]
+until [insert years n, n: me - 1, n = 2018]
 
 months: ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
 
