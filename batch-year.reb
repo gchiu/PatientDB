@@ -13,19 +13,19 @@ Rebol [
 
 years:  ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
 
-foreach cmonth years [
+for-each cmonth years [
 	dir: to file! unspaced [%2021/2021/ cmonth "/"]
 	do %read-files.reb
 	do %parse-letter.reb
 ]
 
-foreach cmonth years [
+for-each cmonth years [
 	dir: to file! unspaced [%2020/2020/ cmonth "/"]
 	do %read-files.reb
 	do %parse-letter.reb
 ]
 
-foreach cmonth years [
+for-each cmonth years [
 	dir: to file! unspaced [%2019/2019/ cmonth "/"]
 ?? dir
 	do %read-files.reb
