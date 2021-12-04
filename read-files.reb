@@ -35,7 +35,7 @@ for-each file read dir [
     if parse? ffile filename-rule [
         print ffile
         sql-execute unspaced [{select * from files where filename =(} ffile ")"]
-        if none? copy port [
+        if empty? copy port [
             sql-execute unspaced [{insert into files (filename) values (} ffile {)}]
         ]
     ]

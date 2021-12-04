@@ -16,7 +16,7 @@ years:  ["December" "November" "October" "September" "August" "July" "June" "May
 for-each cmonth years [
 	dir: to file! unspaced [%2021/2021/ cmonth "/"]
 	do %read-files.reb
-	do %parse-letter.reb
+	; do %parse-letter.reb
 ]
 
 for-each cmonth years [
