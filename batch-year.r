@@ -9,12 +9,15 @@ Rebol [
 
 y2021: ["October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
 years:  ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
+y2021: ["June"]
 
 foreach cmonth y2021 [
 	dir: rejoin [%2021/2021/ cmonth "/"]
 	do %read-files.r
 	do %parse-letter.r 
 ]
+
+halt
 
 foreach cmonth years [
 	dir: rejoin [%2020/2020/ cmonth "/"]

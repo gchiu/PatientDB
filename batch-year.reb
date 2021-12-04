@@ -11,23 +11,15 @@ Rebol [
     }
 ]
 
-years:  ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
+earliest-year: 2018 ;  actually it's 2019
+years: []
+n: now/year
 
-for-each cmonth years [
-	dir: to file! unspaced [%2021/2021/ cmonth "/"]
-	do %read-files.reb
+until [insert years n, n: me - 1, n = 2018]
+
+months:  ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
+
+for-each year years [
+	do/args %read-files.reb  to file! unspaced [year "/" year "/" cmonth "/"]
 	; do %parse-letter.reb
-]
-
-for-each cmonth years [
-	dir: to file! unspaced [%2020/2020/ cmonth "/"]
-	do %read-files.reb
-	do %parse-letter.reb
-]
-
-for-each cmonth years [
-	dir: to file! unspaced [%2019/2019/ cmonth "/"]
-?? dir
-	do %read-files.reb
-	do %parse-letter.reb
 ]
