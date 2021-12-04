@@ -251,9 +251,9 @@ jobs:
       run: |
         r3 init-db.reb < yes.txt
 
-    - name: read-files.reb
+    - name: import files into database
       run: |
-        r3 read-files.reb
+        r3 batch-year.reb
 
     - name: ODBC Test Without Closing Connection
       run: |
