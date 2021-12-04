@@ -23,5 +23,5 @@ for-each year years [
 ]
 
 ; let's confirm our test letters are here
-cd %2021/2021
+cd %2021/2021/October/
 ls 
