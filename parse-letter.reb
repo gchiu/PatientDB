@@ -9,7 +9,7 @@ Rebol [
 dir: system/script/args
 
 if not exists? dir [
-    fail spaced ["dir" dir "does not exist"]
+	fail spaced ["dir" dir "does not exist"]
 ]
 
 ; get all sql and obdc needed
@@ -791,55 +791,54 @@ NHI: XXXXNNN
 									dosing: any [dosing copy ""]
 									?? drugname ?? dosing
 									sql-execute reword
-										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$name', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
-									]
-								]
-							]
-							if not empty? dmards [
-								for-each drug dmards [
-									?? drug
-									parse drug [copy drugname drugname-rule copy dosing to end]
-									dosing: any [dosing copy ""]
-									?? drugname ?? dosing
-									sql-execute reword
-										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$dosing', 'F')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
-									]
+									{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$name', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
 								]
 							]
 						]
-
-						; now add the diagnoses, removing any existing ones
-						; == should we check to see if this letter is newer or older than latest?? ==
-						if not empty? diagnoses [
-							; see how many diagnoses there are
-							sql-execute replace {select count(*) from diagnoses where nhi = ?} "?" nhiid
-							result: copy port 
-							if not empty? result [
-								result: result/1
-								if result <= length-of diagnoses [
-									;  existing diagnoses are fewer than we now have so lets delete existing
-									sql-execute replace {delete from diagnoses where nhi = ?} "?" nhiid
-								]
-							]
-							; do we have to look at the case where new diagnoses are less than existing?
-							if odd? length-of diagnoses [append/only diagnoses [""]]
-							for-each [diagnosis detail] diagnoses [
-								sql-execute reword {insert into diagnoses (nhi, letter, diagnosis, detail) values ($nhi, $letter, '$diagnosis', '$detail')} reduce ['nhi nhiid 'letter ldate 'diagnosis diagnosis 'detail detail/1]
+						if not empty? dmards [
+							for-each drug dmards [
+								?? drug
+								parse drug [copy drugname drugname-rule copy dosing to end]
+								dosing: any [dosing copy ""]
+								?? drugname ?? dosing
+								sql-execute reword
+								{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$dosing', 'F')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
 							]
 						]
 					]
-					; finished the work, now update the letters table
-					sql-execute reword {insert into letters (clinicians, nhi, cdate, dictation, checksum) values ($clinicians, $nhi, $cdate, '$dictation', '$checksum')} reduce ['clinicians current-doc 'nhi nhiid 'cdate ldate 'dictation contents 'checksum ck]
-					sql-execute reword {update files set done = $done where id = $id} reduce ['done true 'id fileid]
-
-					print "================================================="
-				] [
-					print "letter already in database"
 				]
-			] [
-				print "this clinician not found, skipping letter"
-				; no doc found, skip this letter
+
+				; now add the diagnoses, removing any existing ones
+				; == should we check to see if this letter is newer or older than latest?? ==
+				if not empty? diagnoses [
+					; see how many diagnoses there are
+					sql-execute replace {select count(*) from diagnoses where nhi = ?} "?" nhiid
+					result: copy port
+					if not empty? result [
+						result: result/1
+						if result <= length-of diagnoses [
+							;  existing diagnoses are fewer than we now have so lets delete existing
+							sql-execute replace {delete from diagnoses where nhi = ?} "?" nhiid
+						]
+					]
+					; do we have to look at the case where new diagnoses are less than existing?
+					if odd? length-of diagnoses [append/only diagnoses [""]]
+					for-each [diagnosis detail] diagnoses [
+						sql-execute reword {insert into diagnoses (nhi, letter, diagnosis, detail) values ($nhi, $letter, '$diagnosis', '$detail')} reduce ['nhi nhiid 'letter ldate 'diagnosis diagnosis 'detail detail/1]
+					]
+				]
 			]
-		] ; end of did meet filename format
+			; finished the work, now update the letters table
+			sql-execute reword {insert into letters (clinicians, nhi, cdate, dictation, checksum) values ($clinicians, $nhi, $cdate, '$dictation', '$checksum')} reduce ['clinicians current-doc 'nhi nhiid 'cdate ldate 'dictation contents 'checksum ck]
+			sql-execute reword {update files set done = $done where id = $id} reduce ['done true 'id fileid]
+
+			print "================================================="
+		] [
+			print "letter already in database"
+		]
+	] [
+		print "this clinician not found, skipping letter"
+		; no doc found, skip this letter
 	]
-] ; end of looping through all filenames
+] ; end of did meet filename format
+]

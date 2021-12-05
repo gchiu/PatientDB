@@ -21,7 +21,7 @@ months:  ["December" "November" "October" "September" "August" "July" "June" "Ma
 
 for-each year years [
 	for-each cmonth months [
-		do/args %read-files.reb  to file! unspaced [year "/" year "/" cmonth "/"]
-	; do %parse-letter.reb
+		do/args %read-files.reb  dir: to file! unspaced [year "/" year "/" cmonth "/"]
+		do %parse-letter.reb dir
 	]
 ]
