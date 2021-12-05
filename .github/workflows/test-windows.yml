@@ -241,7 +241,7 @@ jobs:
     #
     - name: ODBC MySQL Insert And Retrieve Test
       run: |
-        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird
+        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird --show-sql
 
     - name: create directories
       run: |
