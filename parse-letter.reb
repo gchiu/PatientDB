@@ -54,7 +54,9 @@ checks: copy []
 records: copy []
 
 ; get all the filenames where the file has not yet been processed
-sql-execute unspaced [{select id, filename from files where done = } #[false] "}"]
+cmd: unspaced [{select id, filename from files where done = } #[false] "}"]
+?? cmd
+sql-execute cmd
 ; collect all the filenames
 for-each record copy port [
 	append/only records record
