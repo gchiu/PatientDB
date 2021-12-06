@@ -85,7 +85,7 @@ for-each record records [; records contains all id, filenames from files where f
 		nhi: uppercase copy/part filename 7
 		current-doc: _
 		; see if it matches the current filename format
-		if parse? filename [nhi "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end] [
+		if parse? filename compose [(nhi) "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end] [
 			; GChiu, Elasir
 			if integer? current-doc: find-clinician clinician [
 				; convert ldate to a proper date
