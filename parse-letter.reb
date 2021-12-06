@@ -74,8 +74,11 @@ find-clinician: func [clinician [text!]] [
 ]
 
 for-each record records [; records contains all id, filenames from files where flag done is false
+    ?? record
 	fileid: record/1
+    print spaced ["fileid" fileid]
 	filename: record/2
+    print spaced ["filename" filename]
 	print spaced ["processing" filename]
 
 	if exists? to file! join dir filename [
