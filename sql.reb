@@ -4,6 +4,7 @@ Rebol [
 ]
 
 dbase: open join odbc://rebol-firebird ";UID=test;PWD=test-password"
+; dbase: open odbc://test
 port: odbc-statement-of dbase
 show-sql?: true
 

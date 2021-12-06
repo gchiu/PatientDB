@@ -89,16 +89,18 @@ for-each record records [; records contains all id, filenames from files where f
 		current-doc: _
 		; see if it matches the current filename format
         if parse? filename filename-rule [
+            print spaced ["Filename passed rule" filename]
             parse filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
 			; GChiu, Elasir
 			if integer? current-doc: find-clinician clinician [
 				; convert ldate to a proper date
+                ?? ldate
 				parse ldate [copy year 4 digit copy month 2 digit copy day 2 digit]
-				ldate: to date! rejoin [day "-" month "-" year]
-				print unspaced ["clinician id is" current-doc]
-				print unspaced ["clinic letter date is" ldate]
-				longdate: rejoin [to integer! day " " pick months to integer! month " " year]
-				?? longdate
+				ldate: to date! unspaced [day "-" month "-" year]
+				print spaced ["clinician id is" current-doc]
+				print spaced ["clinic letter date is" ldate]
+				longdate: unspaced [to integer! day " " pick months to integer! month " " year]
+				dump longdate
 
 				surname: fname: sname: mobile: phone: dob: fp: email: areacode: fpname: _
 				address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
@@ -106,7 +108,7 @@ for-each record records [; records contains all id, filenames from files where f
 
 				; now read the letter to parse the contents
 				contents: read join dir filename
-				ck: form checksum 'md5 contents ; we have the checksum to prevent us from processing the same file content twice
+                ck: form checksum 'md5 contents ; we have the checksum to prevent us from processing the same file content twice
 				if find checks ck [
 					; meaning that another file has the same contents as this one during this run
 					print "checksum duplicate!"
@@ -117,10 +119,10 @@ for-each record records [; records contains all id, filenames from files where f
 					; letters table holds files we have already processed
 					sql-execute reword {select id from letters where checksum = '$checksum'} reduce ['checksum ck]
 					if empty? copy port [; okay not done yet so we can add it and then process it
-						mode: 'date ;' we look for the date first to start the processing
+                        print "aint done"
 						oldmode: _
 						;==============parser starts
-						mode: 'date
+						mode: 'date ;  date should always be found on the first line of each letter
 						for-each line deline/lines contents [; split into lines and parse each line
 							trim/head/tail line
 							if empty? line [
@@ -148,16 +150,16 @@ for-each record records [; records contains all id, filenames from files where f
 								if find/part line "VITALS" 6 [
 									mode: 'finish
 								]
-
 								switch mode [
-									date [
+
+									'date [
 										if find line longdate [
 											; now we are in the header
 											mode: 'name ;'
 										]
 									]
 
-									name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
+									'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
 										if parse? line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
 											; we have surnames, and first names
 											parse line [copy surname to ","]
@@ -172,7 +174,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									nhi [; confirm nhi matches that from the filename
+									'nhi [; confirm nhi matches that from the filename
 										if parse? line ["NHI: " copy letter-nhi nhi-rule] [
 											either letter-nhi <> nhi [
 												print "Mismatch on file NHI and Letter NHI"
@@ -237,7 +239,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									end-salutation [
+									'end-salutation [
 										if find/part line "Diagnos" 7 [
 											mode: 'diagnosis ;'
 										]
@@ -247,7 +249,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									diagnosis [
+									'diagnosis [
 										if any [find/part line "Page " 5 find/part line "…" 1] [
 											print "switching to page-2-diagnoses"
 											mode: 'page-2-diagnoses
@@ -296,7 +298,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									page-2-medications [
+									'page-2-medications [
 										print spaced ["In mode: " mode]
 										; ?? line
 										case [
@@ -311,14 +313,14 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									page-2-diagnoses [
+									'page-2-diagnoses [
 										if find/part line "NHI:" 4 [
 											mode: 'diagnoses ;'
 											oldmode: 'page-2-diagnoses ;'
 										]
 									]
 
-									medication [
+									'medication [
 										; medications can spill into the next page
 										; ?? line
 										case [
@@ -346,14 +348,14 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									dmards [
+									'dmards [
 										either any [find line "DMARD" find line "Previous" find line "Medications"] [
 										] [
 											append dmards line
 										]
 									]
 
-									finish [
+									'finish [
 										print "Finished processing or no diagnoses/medications in this letter"
 										break
 									]
@@ -401,13 +403,13 @@ for-each record records [; records contains all id, filenames from files where f
 									]
 
 									switch mode [
-										date [
+										'date [
 											if find line longdate [
 												; now we are in the header
 												mode: 'name ;'
 											]
 										]
-										name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
+										'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
 											either parse? line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
 												; we have surnames, and first names
 												parse line [copy surname to ","]
@@ -422,7 +424,7 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										nhi [; confirm nhi matches that from the filename
+										'nhi [; confirm nhi matches that from the filename
 											if parse? line ["NHI: " copy letter-nhi nhi-rule] [
 												either letter-nhi <> nhi [
 													print "Mismatch on file NHI and Letter NHI"
@@ -433,7 +435,7 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										address [; start capturing address lines and dob mixed in together, terminated by finding GP:
+										'address [; start capturing address lines and dob mixed in together, terminated by finding GP:
 											line: copy/part line 60 ; let us trim anything to the right
 											case [
 												parse? line ["DOB: " copy dob dob-rule] [
@@ -462,7 +464,7 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										fp [; extract fp address
+										'fp [; extract fp address
 											case [
 												find/part line "Dear" 4 [
 													mode: 'end-salutation ;'
@@ -487,7 +489,7 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										end-salutation [
+										'end-salutation [
 											if find/part line "Diagnos" 7 [
 												mode: 'diagnosis ;'
 											]
@@ -497,7 +499,7 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										diagnosis [
+										'diagnosis [
 											if any [find line "Page 2" find line "….2"] [
 												print "switching to page-2-diagnoses"
 												mode: 'page-2-diagnoses
@@ -539,7 +541,7 @@ for-each record records [; records contains all id, filenames from files where f
 												; append diagnoses line
 											]
 										]
-										page-2-medications [
+										'page-2-medications [
 											print spaced ["In mode: " mode]
 											; ?? line
 											if find/part line "NHI:" 4 [
@@ -548,14 +550,14 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										page-2-diagnoses [
+										'page-2-diagnoses [
 											if find/part line "NHI:" 4 [
 												mode: 'diagnoses ;'
 												oldmode: 'page-2-diagnoses ;'
 											]
 										]
 
-										medication [
+										'medication [
 											; medications can spill into the next page
 											?? line
 											case [
@@ -583,14 +585,14 @@ for-each record records [; records contains all id, filenames from files where f
 											]
 										]
 
-										dmards [
+										'dmards [
 											either any [find line "DMARD" find line "Previous" find line "Medications"] [
 											] [
 												append dmards line
 											]
 										]
 
-										finish [
+										'finish [
 											print "Finished processing or no diagnoses/medications in this letter"
 											break
 										]
@@ -672,13 +674,13 @@ for-each record records [; records contains all id, filenames from files where f
 						; Get NHI
 						either any [not blank? nhi nhi] [
 							; we have a parsed nhi
-							uppercase nhi
-							sql-execute replace {select id from NHILOOKUP where nhi=(?)} "(?)" nhi
+							uppercase nhi ;  Note NHI here is alphanumeric
+							sql-execute replace {select id from NHILOOKUP where nhi = '?'} "?" nhi
 							either not empty? result: copy port [
 								nhiid: result/1
 							] [
-								sql-execute replace {insert into NHILOOKUP (NHI) values (?)} "(?)" nhi
-								sql-execute replace {select id from NHILOOKUP where nhi=(?)} "(?)" nhi
+								sql-execute replace {insert into NHILOOKUP (NHI) values ('?')} "?" nhi
+								sql-execute replace {select id from NHILOOKUP where nhi= '?'} "?" nhi
 								result: copy port
 								nhiid: result/1
 							]
@@ -768,8 +770,10 @@ for-each record records [; records contains all id, filenames from files where f
 						]
 
 						; finished the work, now update the letters table
-						sql-execute reword {insert into letters (clinicians, nhi, cdate, dictation, checksum) values ($clinicians, $nhi, $cdate, '$dictation', '$checksum')} reduce ['clinicians current-doc 'nhi nhiid 'cdate ldate 'dictation contents 'checksum ck]
-						sql-execute reword {update files set done = $done where id = $id} reduce ['done true 'id fileid]
+						sql-execute reword {insert into letters (clinicians, nhi, cdate, dictation, checksum) values ($clinicians, $nhi, '$cdate', '$dictation', '$checksum')} reduce ['clinicians current-doc 'nhi nhiid 'cdate ldate 'dictation contents 'checksum ck]
+                        print "Inserted into letters the file contents"
+						sql-execute reword {update files set done = TRUE where id = $id} reduce ['id fileid]
+                        print "Updated done flag"
 
 						print "================================================="
 					] else [

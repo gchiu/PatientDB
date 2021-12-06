@@ -43,7 +43,7 @@ drop-existing-table: func [tablename [text!]] [
 
 if equal? "Yes" ask ["Delete all the data from patients database? (Yes/No) " text!] [
 	print "start deleting"
-	for-each table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre 'vaccinations] [
+	for-each table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre 'vaccinations 'notifications] [
 		; drop-existing-table form table
 		trap [
 			sql-execute join {drop table } table
