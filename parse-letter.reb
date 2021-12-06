@@ -29,7 +29,7 @@ for-each c copy port [
 ; Chiu 1 Elasir 2
 probe clinicians
 
-space: #" "
+; space: #" "
 whitespace: charset [#" " #"^-"]
 digit: charset [#"0" - #"9"]
 areacode-rule: [4 digit]
@@ -85,10 +85,11 @@ for-each record records [; records contains all id, filenames from files where f
 		; append/only records record
 		print spaced ["files:" cnt: me + 1]
 		print spaced ["Processing" filename]
-		nhi: uppercase copy/part filename 7
+		; nhi: uppercase copy/part filename 7
 		current-doc: _
 		; see if it matches the current filename format
-		if parse? filename compose [(nhi) "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end] [
+        if parse? filename filename-rule [
+            parse filename [copy nhi 7 alpha "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
 			; GChiu, Elasir
 			if integer? current-doc: find-clinician clinician [
 				; convert ldate to a proper date
