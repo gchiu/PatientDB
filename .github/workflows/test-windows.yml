@@ -261,4 +261,4 @@ jobs:
 
     - name: ODBC Test Without Closing Connection
       run: |
-        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb rebol-firebird --firebird --leave-connected
+        r3 odbc-test.reb rebol-firebird --firebird --leave-connected
