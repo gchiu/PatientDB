@@ -19,8 +19,8 @@ until [insert years n, n: me - 1, n = 2018]
 
 months:  ["December" "November" "October" "September" "August" "July" "June" "May" "April" "March" "February" "January"]
 
-;months: ["October"]
-;years: [2021]
+months: ["October"]
+years: [2021]
 
 for-each year years [
 	for-each cmonth months [
