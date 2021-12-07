@@ -7,10 +7,17 @@ Rebol [
 	}
 ]
 
-dir: system/script/args
-
-if not exists? dir [
-	fail spaced ["dir" dir "does not exist"]
+if any [blank? system/script/args empty? system/script/args] [
+    ; use this as the testing directory with no args
+    dir: %2021/2021/October/
+] else [
+    dir: dirize to file! system/script/args
+    if dir = %/ [
+        fail "Can't use in current directory"
+    ]
+    if not exists? dir [
+	    fail spaced ["dir" dir "does not exist"]
+    ]
 ]
 
 ; get all sql and obdc needed
@@ -125,6 +132,8 @@ for-each record records [; records contains all id, filenames from files where f
 						mode: 'date ;  date should always be found on the first line of each letter
 						for-each line deline/lines contents [; split into lines and parse each line
 							trim/head/tail line
+                            dump line
+                            dump mode
 							if empty? line [
 								case [
 									all [mode = 'medication not empty? medications] [
@@ -163,7 +172,7 @@ for-each record records [; records contains all id, filenames from files where f
 										if parse? line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
 											; we have surnames, and first names
 											parse line [copy surname to ","]
-											?? surname ?? fname ?? sname
+											dump surname dump fname dump sname
 											surname: uppercase surname
 											fname: uppercase fname
 											if sname [sname: uppercase sname]
@@ -185,7 +194,8 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									address [; start capturing address lines and dob mixed in together, terminated by finding GP:
+									'address [; start capturing address lines and dob mixed in together, terminated by finding GP:
+                                        print "In address mode of switch"
 										line: copy/part line 60 ; let us trim anything to the right
 										case [
 											parse? line ["DOB: " copy dob dob-rule] [
@@ -200,7 +210,10 @@ for-each record records [; records contains all id, filenames from files where f
 
 											parse? line [some [phone-rule | mobile-rule | space] end] []
 
-											find line "@" [email: copy line]
+											find line "@" [
+                                                email: copy line
+                                                dump email
+                                            ]
 
 											true [; just address lines
 												; get area code out
@@ -214,7 +227,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 									]
 
-									fp [; extract fp address
+									'fp [; extract fp address
 										case [
 											find/part line "Dear" 4 [
 												mode: 'end-salutation ;'
@@ -267,11 +280,11 @@ for-each record records [; records contains all id, filenames from files where f
 											;		b) RF-ve
 											; Anti-CCP +ve rheumatoid arthritis 
 											case [
-												parse? line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
-													any whitespace "•" any whitespace copy dline to end | ; so is this
-													any whitespace some alpha "." any whitespace copy dline to end | ; so is this
-													any whitespace some alpha ":" any whitespace copy dline to end | ; so is this
-													any whitespace alpha ")" any whitespace copy dline to end ; a), b)^- ; so is this
+												parse? line [while further whitespace "-" while further whitespace copy dline to end | ; this is diagnosis detail
+													while further whitespace "•" while further whitespace copy dline to end | ; so is this
+													while further whitespace some alpha "." while further whitespace copy dline to end | ; so is this
+													while further whitespace some alpha ":" while further whitespace copy dline to end | ; so is this
+													while further whitespace alpha ")" while further whitespace copy dline to end ; a), b)^- ; so is this
 												] [
 													if dline [
 														trim/head/tail dline
@@ -279,7 +292,7 @@ for-each record records [; records contains all id, filenames from files where f
 													]
 												]
 												parse? line [
-													some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
+													some digit "." while further whitespace copy line to end | ; where the diagnosis starts with a digit
 													copy line some diagnosis-rule to end
 												] [
 													; submode: 'gotdx ;'
@@ -465,6 +478,7 @@ for-each record records [; records contains all id, filenames from files where f
 										]
 
 										'fp [; extract fp address
+                                            print "Fp mode in switch" 
 											case [
 												find/part line "Dear" 4 [
 													mode: 'end-salutation ;'
@@ -512,10 +526,10 @@ for-each record records [; records contains all id, filenames from files where f
 												]
 											] [
 												case [
-													parse? line [any whitespace "-" any whitespace copy dline to end | ; this is diagnosis detail
-														any whitespace some alpha "." any whitespace copy dline to end | ; so is this
-														any whitespace some alpha ":" any whitespace copy dline to end | ; so is this
-														any whitespace alpha ")" any whitespace copy dline to end ; a), b)^- ; so is this
+													parse? line [while further whitespace "-" while further whitespace copy dline to end | ; this is diagnosis detail
+														while further whitespace some alpha "." while further whitespace copy dline to end | ; so is this
+														while further whitespace some alpha ":" while further whitespace copy dline to end | ; so is this
+														while further whitespace alpha ")" while further whitespace copy dline to end ; a), b)^- ; so is this
 													] [
 														if dline [
 															trim/head/tail dline
@@ -523,7 +537,7 @@ for-each record records [; records contains all id, filenames from files where f
 														]
 													]
 													parse? line [
-														some digit "." any whitespace copy line to end | ; where the diagnosis starts with a digit
+														some digit "." while further whitespace copy line to end | ; where the diagnosis starts with a digit
 														copy line some diagnosis-rule to end
 													] [
 														; submode: 'gotdx ;'
@@ -642,13 +656,13 @@ for-each record records [; records contains all id, filenames from files where f
 							sql-execute reword {select id, fname, surname from fps where surname ='$surname' and fname = '$fname'} reduce ['surname fpsurname 'fname fpinits]
 							result: copy port
 							either not empty? result [
-								fpid: result/1
+								fpid: result/1/1
 							] [
 								; not there, so insert
 								sql-execute reword {insert into fps (title, fname, surname) values ('$title', '$fname', '$surname')} reduce ['title fptitle 'fname fpinits 'surname fpsurname]
-								sql-execute reword {select id, fname, surname from fps where surname ='$surname' and fname = '$fname} reduce ['surname fpsurname 'fname fpinits]
+								sql-execute reword {select id, fname, surname from fps where surname ='$surname' and fname = '$fname'} reduce ['surname fpsurname 'fname fpinits]
 								result: copy port
-								fpid: result/1
+								fpid: result/1/1
 								print "Added FP"
 							]
 						]
@@ -664,10 +678,10 @@ for-each record records [; records contains all id, filenames from files where f
 								if blank? fpaddress/2 [append fpaddress copy ""]
 								if blank? fpaddress/3 [append fpaddress copy ""]
 								sql-execute reword {insert into gpcentre (centrename, street, town) values ('$centrename', '$street', '$town')} reduce ['centrename fpaddress/1 'street fpaddress/2 'town fpaddress/3]
-								sql-execute reword {select id from gpcentre where centrename = $centrename} reduce ['centrename fpaddress/1]
+								sql-execute reword {select id from gpcentre where centrename = '$centrename'} reduce ['centrename fpaddress/1]
 								result: copy port
 								?? result
-								gpcentreid: result/1
+								gpcentreid: result/1/1
 							]
 						]
 
@@ -677,12 +691,12 @@ for-each record records [; records contains all id, filenames from files where f
 							uppercase nhi ;  Note NHI here is alphanumeric
 							sql-execute replace {select id from NHILOOKUP where nhi = '?'} "?" nhi
 							either not empty? result: copy port [
-								nhiid: result/1
+								nhiid: result/1/1
 							] [
 								sql-execute replace {insert into NHILOOKUP (NHI) values ('?')} "?" nhi
 								sql-execute replace {select id from NHILOOKUP where nhi= '?'} "?" nhi
 								result: copy port
-								nhiid: result/1
+								nhiid: result/1/1
 							]
 						] [; no NHI so need to abandon this letter
 							print "No NHI"
@@ -710,40 +724,48 @@ for-each record records [; records contains all id, filenames from files where f
 								;for-each v reduce [nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid][
 								;	?? V
 								;]
-								sql-execute reword {insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values ($nhi, $clinicians, $dob, '$surname', '$fname', '$surname', '$street', '$street2', '$town', $areacode, '$email', '$phone', '$mobile', $gp, '$gpcentre')} reduce ['nhi nhiid 'clinicians current-doc 'dob dob 'surname surname 'fname fname 'surname sname 'street address/1 'street2 address/2 'town address/3 'areacode areacode 'email email 'phone phone 'mobile mobile 'gp fpid 'gpcentre gpcentreid]
+                                dump fpid
+                                dump gpcentreid
+                                dump sname
+								sql-execute reword {insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values ($nhi, $clinicians, '$dob', '$surname', '$fname', '$surname', '$street', '$street2', '$town', $areacode, '$email', '$phone', '$mobile', $gp, $cid)} reduce ['nhi nhiid 'clinicians current-doc 'dob dob 'surname surname 'fname fname 'sname sname 'street address/1 'street2 address/2 'town address/3 'areacode areacode 'email email 'phone phone 'mobile mobile 'gp fpid 'cid gpcentreid]
 							]
 							; now add the medications if this list is newer than an old list
 							sql-execute replace {select * from medications where nhi=? order by letter DESC} "?" nhiid
 							; remove all the old medications?
 							if not empty? result: copy port [
 								; we have old medications, so get the clinc date and see if it is older or newer
+                                print "Getting last clinic date"
+                                dump result
 								lastclinic: result/3
 								if all [ldate > lastclinic not empty? medications] [
 									; this letter is newer, we have a new medication list, so remove all old medications
 									sql-execute replace {delete from medications where nhi = ?} "?" nhiid
 								]
-							]
+							] else [lastclinic: 1-Jan-1900]
+                            dump lastclinic
 							print "adding medications if there are none, or if this is a newer clinic letter"
 							if any [blank? result ldate > lastclinic] [
 								; let us start adding medications by name and not code
 								if not empty? medications [
+                                    print "Adding medications"
 									for-each drug medications [
 										?? drug
 										parse drug [copy drugname drugname-rule copy dosing to end]
 										dosing: any [dosing copy ""]
-										?? drugname ?? dosing
+										dump drugname dump dosing
 										sql-execute reword
-										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$name', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
+										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, '$letter', '$name', '$dosing', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
 									]
 								]
 								if not empty? dmards [
+                                    print "Adding DMARDS"
 									for-each drug dmards [
 										?? drug
 										parse drug [copy drugname drugname-rule copy dosing to end]
 										dosing: any [dosing copy ""]
 										?? drugname ?? dosing
 										sql-execute reword
-										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, $letter, '$name', '$dosing', 'F')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
+										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, '$letter', '$name', '$dosing', 'F')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
 									]
 								]
 							]
@@ -756,7 +778,7 @@ for-each record records [; records contains all id, filenames from files where f
 							sql-execute replace {select count(*) from diagnoses where nhi = ?} "?" nhiid
 							result: copy port
 							if not empty? result [
-								result: result/1
+								result: result/1/1
 								if result <= length-of diagnoses [
 									;  existing diagnoses are fewer than we now have so lets delete existing
 									sql-execute replace {delete from diagnoses where nhi = ?} "?" nhiid
@@ -765,7 +787,7 @@ for-each record records [; records contains all id, filenames from files where f
 							; do we have to look at the case where new diagnoses are less than existing?
 							if odd? length-of diagnoses [append/only diagnoses [""]]
 							for-each [diagnosis detail] diagnoses [
-								sql-execute reword {insert into diagnoses (nhi, letter, diagnosis, detail) values ($nhi, $letter, '$diagnosis', '$detail')} reduce ['nhi nhiid 'letter ldate 'diagnosis diagnosis 'detail detail/1]
+								sql-execute reword {insert into diagnoses (nhi, letter, diagnosis, detail) values ($nhi, '$letter', '$diagnosis', '$detail')} reduce ['nhi nhiid 'letter ldate 'diagnosis diagnosis 'detail detail/1]
 							]
 						]
 

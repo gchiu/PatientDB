@@ -9,6 +9,20 @@ Rebol [
 
 import %sql.reb
 
+; lets see what files we have 
+
+sql-execute {select * from files}
+result: copy port
+for-each record result [
+    dump record
+]
+
+sql-execute {select id, clinicians, nhi, cdate, checksum from letters}
+result: copy port
+for-each record result [
+    dump record
+]
+
 comment [{ ; NHI ABC9931
 Psoriatic arthritis 
 - CCP > 300, RF +ve
@@ -32,10 +46,6 @@ result: copy port
 dump result
 for-each record result [
     nhi: record/1
-    sql-execute replace {select * from diagnoses where nhi = '?'} "?" nhi
-    results: copy port
-    dump results
-    sql-execute replace {select * from medications where nhi = '?'} "?" nhi
-    results: copy port
-    dump results
+    dump-table 'diagnoses
+    dump-table 'medications
 ]

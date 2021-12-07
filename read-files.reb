@@ -11,10 +11,17 @@ Rebol [
     }
 ]
 
-dir: system/script/args
-
-if not exists? dir [
-    fail spaced ["dir" dir "does not exist"]
+if any [blank? system/script/args empty? system/script/args] [
+    ; use this as the testing directory with no args
+    dir: %2021/2021/October/
+] else [
+    dir: dirize to file! system/script/args
+    if dir = %/ [
+        fail "Can't use in current directory" 
+    ]
+    if not exists? dir [
+	    fail spaced ["dir" dir "does not exist"]
+    ]
 ]
 
 ; get all sql and obdc needed

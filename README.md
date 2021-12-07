@@ -51,6 +51,5 @@ save the test odbc script to confirm it's all working
 
 *Database Browser*
 
-I used IBOCONSOLE - https://iboconsole.software.informer.com/
+I am using Flamerobin https://github.com/mariuz/flamerobin/releases
 
-The setup is in Italian but after that it's useable in English.
