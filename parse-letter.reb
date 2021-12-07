@@ -97,6 +97,7 @@ for-each record records [; records contains all id, filenames from files where f
 		; see if it matches the current filename format
         if parse? filename filename-rule [
             print spaced ["Filename passed rule" filename]
+            nhi: letter-nhi: _
             parse filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
 			; GChiu, Elasir
 			if integer? current-doc: find-clinician clinician [
@@ -184,9 +185,9 @@ for-each record records [; records contains all id, filenames from files where f
 									]
 
 									'nhi [; confirm nhi matches that from the filename
-										if parse? line ["NHI: " copy letter-nhi nhi-rule] [
+										if parse? line ["NHI:" while further space copy letter-nhi nhi-rule] [
 											either letter-nhi <> nhi [
-												print "Mismatch on file NHI and Letter NHI"
+												fail "Mismatch on file NHI and Letter NHI"
 												break
 											] [
 												mode: 'address ;'
@@ -686,19 +687,24 @@ for-each record records [; records contains all id, filenames from files where f
 						]
 
 						; Get NHI
-						either any [not blank? nhi nhi] [
+						if any [not blank? nhi nhi] [
 							; we have a parsed nhi
 							uppercase nhi ;  Note NHI here is alphanumeric
-							sql-execute replace {select id from NHILOOKUP where nhi = '?'} "?" nhi
-							either not empty? result: copy port [
+                            print "Going to see if we have the patient already"
+                            dump nhi
+                            dump letter-nhi
+							sql-execute replace copy {select id from NHILOOKUP where nhi = '?'} "?" nhi
+							if not empty? result: copy port [
+                                dump result
 								nhiid: result/1/1
-							] [
-								sql-execute replace {insert into NHILOOKUP (NHI) values ('?')} "?" nhi
-								sql-execute replace {select id from NHILOOKUP where nhi= '?'} "?" nhi
+							] else [
+								sql-execute replace copy {insert into NHILOOKUP (NHI) values ('?')} "?" nhi
+								sql-execute replace copy {select id from NHILOOKUP where nhi= '?'} "?" nhi
 								result: copy port
+                                dump result
 								nhiid: result/1/1
 							]
-						] [; no NHI so need to abandon this letter
+						] else [; no NHI so need to abandon this letter
 							print "No NHI"
 							mode: 'abandon ;'
 						]
@@ -708,12 +714,13 @@ for-each record records [; records contains all id, filenames from files where f
 							; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob 
 							; address [line1 [line2] town]
 							; so let us see if this person is in the database of patients
-							sql-execute replace {select id from patients where nhi = ?} "?" nhiid
+                            dump nhiid
+							sql-execute replace copy {select id from patients where nhi = ?} "?" nhiid
 							either not empty? result: copy port [
 								print "patient already in database..."
 							] [
 								print "about to check patient details"
-								?? dob
+								dump dob
 								dob: to date! dob
 								areacode: to integer! areacode
 								if 2 = length-of address [insert skip address 1 copy ""]
@@ -730,16 +737,19 @@ for-each record records [; records contains all id, filenames from files where f
 								sql-execute reword {insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values ($nhi, $clinicians, '$dob', '$surname', '$fname', '$surname', '$street', '$street2', '$town', $areacode, '$email', '$phone', '$mobile', $gp, $cid)} reduce ['nhi nhiid 'clinicians current-doc 'dob dob 'surname surname 'fname fname 'sname sname 'street address/1 'street2 address/2 'town address/3 'areacode areacode 'email email 'phone phone 'mobile mobile 'gp fpid 'cid gpcentreid]
 							]
 							; now add the medications if this list is newer than an old list
-							sql-execute replace {select * from medications where nhi=? order by letter DESC} "?" nhiid
+							sql-execute replace copy {select * from medications where nhi=? order by letter DESC} "?" nhiid
 							; remove all the old medications?
 							if not empty? result: copy port [
 								; we have old medications, so get the clinc date and see if it is older or newer
                                 print "Getting last clinic date"
                                 dump result
-								lastclinic: result/3
+								lastclinic: result/1/3
+                                lastclinic: lastclinic/date
+                                dump ldate
+                                dump lastclinic
 								if all [ldate > lastclinic not empty? medications] [
 									; this letter is newer, we have a new medication list, so remove all old medications
-									sql-execute replace {delete from medications where nhi = ?} "?" nhiid
+									sql-execute replace copy {delete from medications where nhi = ?} "?" nhiid
 								]
 							] else [lastclinic: 1-Jan-1900]
                             dump lastclinic
@@ -775,13 +785,13 @@ for-each record records [; records contains all id, filenames from files where f
 						; == should we check to see if this letter is newer or older than latest?? ==
 						if not empty? diagnoses [
 							; see how many diagnoses there are
-							sql-execute replace {select count(*) from diagnoses where nhi = ?} "?" nhiid
+							sql-execute replace copy {select count(*) from diagnoses where nhi = ?} "?" nhiid
 							result: copy port
 							if not empty? result [
 								result: result/1/1
 								if result <= length-of diagnoses [
 									;  existing diagnoses are fewer than we now have so lets delete existing
-									sql-execute replace {delete from diagnoses where nhi = ?} "?" nhiid
+									sql-execute replace copy {delete from diagnoses where nhi = ?} "?" nhiid
 								]
 							]
 							; do we have to look at the case where new diagnoses are less than existing?
@@ -792,6 +802,7 @@ for-each record records [; records contains all id, filenames from files where f
 						]
 
 						; finished the work, now update the letters table
+                        dump ldate
 						sql-execute reword {insert into letters (clinicians, nhi, cdate, dictation, checksum) values ($clinicians, $nhi, '$cdate', '$dictation', '$checksum')} reduce ['clinicians current-doc 'nhi nhiid 'cdate ldate 'dictation contents 'checksum ck]
                         print "Inserted into letters the file contents"
 						sql-execute reword {update files set done = TRUE where id = $id} reduce ['id fileid]
