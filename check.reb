@@ -49,3 +49,15 @@ for-each record result [
     dump-table 'diagnoses
     dump-table 'medications
 ]
+
+nhi: "VLE4321"
+
+sql-execute replace {select id from NHILOOKUP where nhi = '?'} "?" nhi
+
+result: copy port
+dump result
+for-each record result [
+    nhi: record/1
+    dump-table 'diagnoses
+    dump-table 'medications
+]
