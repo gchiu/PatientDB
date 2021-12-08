@@ -45,12 +45,7 @@ Candida parasilosis infection – left ear June 2021
 
 Medications: 
 Cyclophosphamide Induction using Cyclops Protocol 
-- 15 mg/kg (max 1.2G) Cyclophosphamide x2 weekly for six weeks, and then x3 weekly for three months. No pulses of Methylprednisolone 
-- Commenced 22nd July 2021 for total of 10 pulses  
-
-DMARDS:
-Mycophenolate caused diarrhoea
-Azathioprine facial rash
+- 15 mg/kg (max 1.2G) Cyclophosphamide x2 weekly for six weeks, and then x3 weekly for three months. No pulses of Methylprednisolone, Commenced 22nd July 2021 for total of 10 pulses  
 
 Page 2
 COTTERISE, Renee Jane
@@ -67,6 +62,10 @@ Omeprazole 20mg daily
 NovoRapid 32 units tds 
 Gabapentin 600mg nocte 
 Dapsone 100mg 
+
+DMARDS:
+Mycophenolate caused diarrhoea
+Azathioprine facial rash
 
 Vitals:
 Weight 112.2kg, BP 122/76mmHg, saturation 94%, pulse 93bpm 

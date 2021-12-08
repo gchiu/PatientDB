@@ -759,12 +759,29 @@ for-each record records [; records contains all id, filenames from files where f
 								if not empty? medications [
                                     print "Adding medications"
 									for-each drug medications [
-										?? drug
+										dump drug
+                                        drugname: dosing: _
 										parse drug [copy drugname drugname-rule copy dosing to end]
+                                        dump drugname
 										dosing: any [dosing copy ""]
 										dump drugname dump dosing
-										sql-execute reword
-										{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, '$letter', '$name', '$dosing', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
+                                        if not blank? drugname [
+                                            sql-execute reword {select * from medications where nhi = $nhi and name = '$name' and active = 'T'} 
+                                            reduce ['nhi nhiid 'name drugname]
+                                            result: copy port
+                                            if not empty? result [
+                                                dump medications
+                                                print "Lets see what we have"
+                                                for-each record medications [
+                                                    probe record
+                                                ]
+                                                fail "Adding duplicate record"
+                                            ]
+    										sql-execute reword
+	    									{insert into medications (nhi, letter, name, dosing, active ) values ($nhi, '$letter', '$name', '$dosing', 'T')} reduce ['nhi nhiid 'letter ldate 'name drugname 'dosing dosing]
+                                        ] else [
+                                            ; this is probably dosing for the last drug so consider adding in
+                                        ]
 									]
 								]
 								if not empty? dmards [
