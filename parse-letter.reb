@@ -928,6 +928,7 @@ for-each record records [; records contains all id, filenames from files where f
 												; drug details
 											] else [
 	                                            ; must be now in the body of the letter
+												; can't assume if medications empty that in body as some letters don't have medications or vitals
 												print "long sentence set finish 878"
         	                                    mode: 'finish
             	                                break
@@ -1047,7 +1048,6 @@ for-each record records [; records contains all id, filenames from files where f
                         print "Inserted into letters the file contents"
 						sql-execute [{update files set done = TRUE where id = } ^fileid]
                         print "Updated done flag"
-
 						print "================================================="
 					] else [
 						; we have process this letter already
