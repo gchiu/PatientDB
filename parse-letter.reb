@@ -1023,20 +1023,16 @@ for-each record records [; records contains all id, filenames from files where f
 							for-each [diagnosis detail] diagnoses [
 								dump diagnosis
 								dump detail
-								;trap [diagnosis: copy/part diagnosis 250]
-								;trap [about: copy/part detail/1 510]
 								if e: error? entrap [
 
 									sql-execute [
 										{insert into diagnoses (nhi, letter, diagnosis, detail) values (}
-										^nhiid "," ^ldate "," ^diagnosis "," ^detail/1 ")}" 
+										^nhiid "," ^ldate "," ^diagnosis "," ^detail/1 
+										")" 
 									]	
 								][
 									print "sql error"
 									dump e
-									;dump about
-									;probe length-of about
-
 								]
 							]
 						]
