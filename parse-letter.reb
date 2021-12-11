@@ -1021,6 +1021,8 @@ for-each record records [; records contains all id, filenames from files where f
 							; do we have to look at the case where new diagnoses are less than existing?
 							if odd? length-of diagnoses [append/only diagnoses [""]]
 							for-each [diagnosis detail] diagnoses [
+								dump diagnosis
+								dump detail
 								;trap [diagnosis: copy/part diagnosis 250]
 								;trap [about: copy/part detail/1 510]
 								if e: error? entrap [
