@@ -3,9 +3,9 @@ Rebol [
     exports: [sql-execute port dbase dump-table]
 ]
 
-; dbase: open join odbc://rebol-firebird ";UID=test;PWD=test-password"
+dbase: open join odbc://rebol-firebird ";UID=test;PWD=test-password"
 ; dbase: open odbc://patients
-dbase: open odbc://test
+; dbase: open odbc://test
 port: odbc-statement-of dbase
 show-sql?: true
 
