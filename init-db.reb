@@ -151,7 +151,7 @@ insert port
             street varchar(256),
             street2 varchar(256),
             town varchar(256),
-            areacode integer,
+            areacode varchar(4),
             email varchar(128),
             phone varchar(15),
             mobile varchar(15),

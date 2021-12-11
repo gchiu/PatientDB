@@ -52,10 +52,29 @@ for-each file read dir [
 	ffile: form file
 	if parse? ffile filename-rule [
         print spaced ["Checking" ffile]
-		sql-execute unspaced [{select * from files where filename ='} ffile "'"]
+		if e: error? trap [
+			sql-execute [{select * from files where filename =} ^ffile]
+		][
+			print ":::::::::::::: sql error:::::::::::::::::"
+			probe e
+			continue	
+		]
 		if empty? copy port [
             print spaced ["Adding" ffile]
-			sql-execute unspaced [{insert into files (filename) values ('} ffile {')}]
+			dump ffile
+			if e: error? trap [
+				sql-execute [
+					{insert into files (filename) values (} 
+					^ffile
+					{)}
+				]
+				print spaced ["Added" ffile]
+			][
+				print ":::::::::::::: sql error:::::::::::::::::"
+				cmd: unspaced [{insert into files (filename) values ('} ffile {')}]
+				print spaced ["try" cmd]
+				insert port cmd
+			]
 		]
 	] else [
         print spaced [file "doesn't match pattern"]

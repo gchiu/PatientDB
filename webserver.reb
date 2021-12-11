@@ -348,8 +348,7 @@ server: open compose [
   ]
 ]
 
-dbase: open odbc://patients
-port: odbc-statement-of dbase
+import %sql.reb
 
 ; type Script id unassigned-attach message arg1 word is attached to a context, but unassigned near *** copy  foreach ** nhi common ?? nhi id *** *** where fetch-combo-users either if handle-request else trap handler if dispatch case cycle accept wait do catch module import* do* do console file /D/webserver.reb line 355 arg1 foreach
 
