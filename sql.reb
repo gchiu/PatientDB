@@ -1,11 +1,16 @@
 Rebol [
     type: module
-    exports: [sql-execute port dbase dump-table]
+    exports: [sql-execute port dbase dump-table dsn digit alpha]
 ]
 
-dbase: open join odbc://rebol-firebird ";UID=test;PWD=test-password"
-; dbase: open odbc://patients
-; dbase: open odbc://test
+dsn: "rebol-firebird;UID=test;PWD=test-password"
+;dsn: "test"
+;dsn: "patients"
+
+digit: charset [#"0" - #"9"]
+alpha: charset [#"a" - #"z" #"A" - #"Z"]
+
+print "Opening dsn: test" dbase: open join odbc:// dsn
 port: odbc-statement-of dbase
 show-sql?: true
 

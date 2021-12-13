@@ -184,16 +184,46 @@ handle-request: function [
 
   probe req/request-uri
 
-  if parse? req/request-uri ["/drug/" copy drugname to "/" to end][
-    ; res: spaced ["drug request for users of" drugname]
-    either find drugname "+" [
-      res: fetch-combo-users drugname
-    ][
-      res: fetch-drug-users drugname
+  ;==============handle get requests============================;
+  case [
+    ; drug names and combinations
+    parse? req/request-uri ["/drug/" copy drugname to "/" to end][
+      ; res: spaced ["drug request for users of" drugname]
+      res: if find drugname "+" [
+        fetch-combo-users drugname
+      ] else [
+        fetch-drug-users drugname
+      ]
+      return reduce [200 mime/html res]
     ]
-    return reduce [200 mime/html res]
-  ]
+    ; patient demographics
+    parse? req/request-uri ["/patients/nhi/" copy nhi to "/" to end][
+      if parse? nhi [3 alpha 4 digit][
+        uppercase nhi
+        sql-execute [{select id from NHILOOKUP where nhi =} ^nhi]
+        if empty? result: copy port [
+            nhi: "Not found"
+        ] else [
+            nhi: result/1/1
+        ]
+      ] else [
+        nhi: "-ERR Didn't parse the parser"
+      ]
+      return reduce [200 mime/html spaced["id:" nhi]]
+    ]
 
+    parse? req/request-uri  ["/patients/" copy id some digit "/all/" end][
+        print "parsed fetch-all"
+        id: to integer! id
+        sql-execute [{select nhi from NHILOOKUP where id =} ^id]
+        result: copy port
+        if empty? result [
+          return spaced [{-ERR this ID of:} id {is not in use}]
+        ] else [
+          fetch-all to integer! id result/1/1
+        ]
+    ]
+  ]
 
   set 'request req  ; global 
   req/target: my dehex
@@ -348,7 +378,7 @@ server: open compose [
   ]
 ]
 
-import %sql.reb
+import %patientdb/sql.reb
 
 ; type Script id unassigned-attach message arg1 word is attached to a context, but unassigned near *** copy  foreach ** nhi common ?? nhi id *** *** where fetch-combo-users either if handle-request else trap handler if dispatch case cycle accept wait do catch module import* do* do console file /D/webserver.reb line 355 arg1 foreach
 
@@ -458,10 +488,81 @@ fetch-drug-users: func [drug][
   return mold patient-ids
 ]
 
+fetch-all: func [dbid nhi
+  <local> rec
+][
+    print "entering fetch all"
+    sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} ^dbid]
+    rec: copy port
+    if not empty? rec [
+			rec: rec/1
+			patient-o: make object! compose [
+				fname: (rec/1)
+				surname: (rec/2)
+				dob: (rec/3)
+				gpname: rec/4
+				gpcentname: (rec/5)
+				dbid: (dbid)
+				nhi: (nhi)
+				phone: rec/6 mobile: rec/7
+				street: rec/8
+				medications: diagnoses: dmards: consults: dates: _
+			]
+			; now let us get the number of medications
+			medications: copy []
+			sql-execute [{select name, dosing from medications where active = 'T' and nhi =} ^dbid]
+			rec: copy port
+			if not empty? rec [
+				for-each r rec [
+					append medications spaced [r/1 r/2]
+				]
+			]
+
+			; diagnoses
+			diagnoses: copy []
+			sql-execute [{select diagnosis from diagnoses where nhi =} ^dbid]
+			rec: copy port
+			if not empty? rec [
+				for-each r rec [
+					append diagnoses r/1
+				]
+			]
+
+			dmards: copy []
+      dump dbid
+			sql-execute [{select name, dosing from medications where active = 'F' and nhi =} ^dbid]
+			rec: copy port
+			if not empty? rec [
+				for-each r rec [
+					append dmards r/1
+				]
+			]
+
+			patient-o/dmards: unique dmards
+			patient-o/medications: unique medications
+			patient-o/diagnoses: unique diagnoses
+
+			rdates: copy [] dates: copy [] consults: copy []
+			sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} ^dbid {order by cdate DESC} ]
+			for-each record copy port [
+				append/only consults record ; id cdate clinicians dictation
+				; append rdates rejoin [next form 100000 + record/1 " " record/2]
+				append dates form record/2
+			]
+
+			patient-o/dates: dates
+			patient-o/consults: consults
+			return mold patient-o
+		] else [
+      return {-ERR patient not found}
+    ]
+]
+
 if verbose >= 1 [
   lib/print spaced ["Serving on port" port]
   lib/print spaced ["root-dir:" clean-path root-dir]
   lib/print spaced ["access-dir:" mold access-dir]
+  lib/print spaced ["dsn:" dsn]
 ]
 
 wait server

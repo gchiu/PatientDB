@@ -157,6 +157,9 @@ sys.make-scheme [
                 ;
                 trap-httpd [
                     read client
+                    net-utils.net-log unspaced [
+                        "client read"
+                    ]
                 ] then [
                     stop
                 ]
@@ -166,11 +169,12 @@ sys.make-scheme [
                         stop
                     ]
 
-                    find client.data #{0D0A0D0A} [
+                    all [not null? client.data find client.data #{0D0A0D0A}] [
                         transcribe client
                         dispatch client
                         stop
                     ]
+                    true [stop]
                 ]
             ]
 
