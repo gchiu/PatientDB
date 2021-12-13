@@ -7,6 +7,8 @@ Rebol [
 
 ]
 
+system.options.redbol-paths: true
+
 import %sql.reb
 
     dump-table 'patients
