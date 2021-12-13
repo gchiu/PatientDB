@@ -35,7 +35,7 @@ uparse system.options.args [while [
   )
   |
   port: into text! [integer!]
-  | 
+  |
   root-dir: to-file/ <any>
 ]]
 
@@ -200,7 +200,7 @@ handle-request: function [
     parse? req/request-uri ["/patients/nhi/" copy nhi to "/" to end][
       if parse? nhi [3 alpha 4 digit][
         uppercase nhi
-        sql-execute [{select id from NHILOOKUP where nhi =} ^nhi]
+        sql-execute [{select id from NHILOOKUP where nhi =} @nhi]
         if empty? result: copy port [
             nhi: "Not found"
         ] else [
@@ -215,7 +215,7 @@ handle-request: function [
     parse? req/request-uri  ["/patients/" copy id some digit "/all/" end][
         print "parsed fetch-all"
         id: to integer! id
-        sql-execute [{select nhi from NHILOOKUP where id =} ^id]
+        sql-execute [{select nhi from NHILOOKUP where id =} @id]
         result: copy port
         if empty? result [
           return spaced [{-ERR this ID of:} id {is not in use}]
@@ -225,7 +225,7 @@ handle-request: function [
     ]
   ]
 
-  set 'request req  ; global 
+  set 'request req  ; global
   req/target: my dehex
   path-elements: next split req/target #"/"
   ; 'extern' url /http://ser.ver/...
@@ -242,7 +242,7 @@ handle-request: function [
     if req/query-string [
       if data: html-list-dir path [
         return reduce [200 mime/html data]
-      ] 
+      ]
       return 500
     ]
     if file? access-dir [
@@ -273,7 +273,7 @@ handle-request: function [
       action? :rem-to-html
       any [
         not req/query-string
-        not empty? req/query-string 
+        not empty? req/query-string
       ]
     ][
       rem/rem/request: req
@@ -337,7 +337,7 @@ server: open compose [
     ; writable folder in Android.
     ;
     ; https://github.com/metaeducation/rebol-server/issues/9
-    ; 
+    ;
     trap [
       uparse request.target [
         "/testwrite" across thru end
@@ -413,9 +413,9 @@ fetch-combo-users: func [drug
 
     insert port [
     {
-      select distinct nhilookup.nhi, nhilookup.id, patients.surname, patients.fname, 
+      select distinct nhilookup.nhi, nhilookup.id, patients.surname, patients.fname,
       patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname,
-      medications.letter, medications.name, medications.dosing  
+      medications.letter, medications.name, medications.dosing
       from medications, nhilookup, patients
       where nhilookup.id = medications.nhi
       and patients.nhi = medications.nhi
@@ -431,7 +431,7 @@ fetch-combo-users: func [drug
           r/11: form d/date
         ]
     ]
-; comment {    
+; comment {
     ;?? drugs-2
     ;print "number of results"
     ;probe length? rec
@@ -463,13 +463,13 @@ fetch-drug-users: func [drug][
   ;probe drug
   append drug "%"
   insert port [
-    {select distinct nhilookup.nhi, patients.surname, patients.fname, medications.letter, medications.name, medications.dosing, 
-    patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname 
+    {select distinct nhilookup.nhi, patients.surname, patients.fname, medications.letter, medications.name, medications.dosing,
+    patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname
      from medications, nhilookup, patients
       where nhilookup.id = medications.nhi
       and patients.nhi = medications.nhi
-      and medications.name like (?) 
-      and medications.active = 'T' 
+      and medications.name like (?)
+      and medications.active = 'T'
     } drug
   ]
   ; [integer! date! string! string!]
@@ -492,7 +492,7 @@ fetch-all: func [dbid nhi
   <local> rec
 ][
     print "entering fetch all"
-    sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} ^dbid]
+    sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} @dbid]
     rec: copy port
     if not empty? rec [
 			rec: rec/1
@@ -510,7 +510,7 @@ fetch-all: func [dbid nhi
 			]
 			; now let us get the number of medications
 			medications: copy []
-			sql-execute [{select name, dosing from medications where active = 'T' and nhi =} ^dbid]
+			sql-execute [{select name, dosing from medications where active = 'T' and nhi =} @dbid]
 			rec: copy port
 			if not empty? rec [
 				for-each r rec [
@@ -520,7 +520,7 @@ fetch-all: func [dbid nhi
 
 			; diagnoses
 			diagnoses: copy []
-			sql-execute [{select diagnosis from diagnoses where nhi =} ^dbid]
+			sql-execute [{select diagnosis from diagnoses where nhi =} @dbid]
 			rec: copy port
 			if not empty? rec [
 				for-each r rec [
@@ -530,7 +530,7 @@ fetch-all: func [dbid nhi
 
 			dmards: copy []
       dump dbid
-			sql-execute [{select name, dosing from medications where active = 'F' and nhi =} ^dbid]
+			sql-execute [{select name, dosing from medications where active = 'F' and nhi =} @dbid]
 			rec: copy port
 			if not empty? rec [
 				for-each r rec [
@@ -543,7 +543,7 @@ fetch-all: func [dbid nhi
 			patient-o/diagnoses: unique diagnoses
 
 			rdates: copy [] dates: copy [] consults: copy []
-			sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} ^dbid {order by cdate DESC} ]
+			sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} @dbid {order by cdate DESC} ]
 			for-each record copy port [
 				append/only consults record ; id cdate clinicians dictation
 				; append rdates rejoin [next form 100000 + record/1 " " record/2]

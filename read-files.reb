@@ -17,7 +17,7 @@ if any [blank? system/script/args empty? system/script/args] [
 ] else [
     dir: dirize to file! system/script/args
     if dir = %/ [
-        fail "Can't use in current directory" 
+        fail "Can't use in current directory"
     ]
     if not exists? dir [
 	    fail spaced ["dir" dir "does not exist"]
@@ -53,19 +53,19 @@ for-each file read dir [
 	if parse? ffile filename-rule [
         print spaced ["Checking" ffile]
 		if e: error? trap [
-			sql-execute [{select * from files where filename =} ^ffile]
+			sql-execute [{select * from files where filename =} @ffile]
 		][
 			print ":::::::::::::: sql error:::::::::::::::::"
 			probe e
-			continue	
+			continue
 		]
 		if empty? copy port [
             print spaced ["Adding" ffile]
 			dump ffile
 			if e: error? trap [
 				sql-execute [
-					{insert into files (filename) values (} 
-					^ffile
+					{insert into files (filename) values (}
+					@ffile
 					{)}
 				]
 				print spaced ["Added" ffile]

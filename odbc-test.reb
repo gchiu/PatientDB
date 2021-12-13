@@ -272,7 +272,7 @@ trap [
         print mold content
         for-each value content [
             sql-execute [
-                {INSERT INTO} table-name {(val)} {VALUES} {(} ^value {)}
+                {INSERT INTO} table-name {(val)} {VALUES} {(} @value {)}
             ]
         ]
 

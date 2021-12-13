@@ -22,7 +22,7 @@ sql-execute: specialize :odbc-execute [; https://forum.rebol.info/t/1234
 ]
 
 dump-table: func [table [word!]][
-    sql-execute [{select * from} ^table]
+    sql-execute [{select * from} @table]
     print spaced ["Dumping" table]
     for-each record copy port [
         dump record

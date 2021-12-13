@@ -18,7 +18,7 @@ import %sql.reb
     dump-table 'medications
 
 dbid: 1
-sql-execute [{select name from medications where active = 'F' and id =} ^dbid]
+sql-execute [{select name from medications where active = 'F' and id =} @dbid]
 result: copy port
 for-each r result [
     dump r
