@@ -27,3 +27,9 @@ if result/1/1 <> 21 [
     fail "Not enough medications"
 ]
 
+dbid: 1
+sql-execute [{select name from medications where active = 'F' and id =} ^dbid]
+result: copy port
+for-each r result [
+    dump r
+]
