@@ -26,8 +26,8 @@ months: ["October"] years: [2021]
 t1: now/precise
 for-each year years [
 	for-each cmonth months [
-		do/args %read-files.reb  dir: to file! unspaced ["/d/" year "/" year "/" cmonth "/"]
-		; do/args %read-files.reb  dir: to file! unspaced [year "/" year "/" cmonth "/"]
+		; do/args %read-files.reb  dir: to file! unspaced ["/d/" year "/" year "/" cmonth "/"]
+		do/args %read-files.reb  dir: to file! unspaced [year "/" year "/" cmonth "/"]
 		print "invoking parse-letters.reb"
 		do/args %parse-letter.reb dir
 	]
