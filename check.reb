@@ -17,18 +17,18 @@ import %sql.reb
     dump-table 'diagnoses
     dump-table 'medications
 
-sql-execute {select count(*) from diagnoses}
-result: copy port
-dump result
-if result/1/1 <> 19 [
-    fail "Not enough diagnoses"
-]
-
 sql-execute {select count(*) from medications}
 result: copy port
 dump result
 if result/1/1 <> 21 [
     fail "Not enough medications"
+]
+
+sql-execute {select count(*) from diagnoses}
+result: copy port
+dump result
+if result/1/1 <> 19 [
+    fail "Not enough diagnoses"
 ]
 
 dbid: 1
