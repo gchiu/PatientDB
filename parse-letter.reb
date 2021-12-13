@@ -1021,20 +1021,15 @@ for-each record records [; records contains all id, filenames from files where f
 							]
 							; do we have to look at the case where new diagnoses are less than existing?
 							if odd? length-of diagnoses [append/only diagnoses [""]]
+							print "Adding diagnoses now 1024"
 							for-each [diagnosis detail] diagnoses [
 								dump diagnosis
 								dump detail
-								if e: error? entrap [
-
 									sql-execute [
 										{insert into diagnoses (nhi, letter, diagnosis, detail) values (}
 										^nhiid "," ^ldate "," ^diagnosis "," ^detail/1 
 										")" 
 									]	
-								][
-									print "sql error"
-									dump e
-								]
 							]
 						]
 
