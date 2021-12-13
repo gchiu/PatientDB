@@ -17,6 +17,13 @@ import %sql.reb
     dump-table 'diagnoses
     dump-table 'medications
 
+dbid: 1
+sql-execute [{select name from medications where active = 'F' and id =} ^dbid]
+result: copy port
+for-each r result [
+    dump r
+]
+
 sql-execute {select count(*) from medications}
 result: copy port
 dump result
@@ -29,11 +36,4 @@ result: copy port
 dump result
 if result/1/1 <> 19 [
     fail "Not enough diagnoses"
-]
-
-dbid: 1
-sql-execute [{select name from medications where active = 'F' and id =} ^dbid]
-result: copy port
-for-each r result [
-    dump r
 ]
