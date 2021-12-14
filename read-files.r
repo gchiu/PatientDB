@@ -22,7 +22,7 @@ port: first dbase
 ; dir: %2021/2021/October/
 
 foreach file read dir [
-	?? file
+    ?? file
     ; if the filename matches the filename-rule, then check to see if it is in the database
     ; if not, then add it
     ffile: form file

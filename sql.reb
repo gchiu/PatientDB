@@ -17,8 +17,8 @@ port: odbc-statement-of dbase
 show-sql?: true
 
 sql-execute: specialize :odbc-execute [; https://forum.rebol.info/t/1234
-	statement: port
-	verbose: if show-sql? [#]
+    statement: port
+    verbose: if show-sql? [#]
 ]
 
 dump-table: func [table [word!]][

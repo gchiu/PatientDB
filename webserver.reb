@@ -495,65 +495,65 @@ fetch-all: func [dbid nhi
     sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} @dbid]
     rec: copy port
     if not empty? rec [
-			rec: rec/1
-			patient-o: make object! compose [
-				fname: (rec/1)
-				surname: (rec/2)
-				dob: (rec/3)
-				gpname: rec/4
-				gpcentname: (rec/5)
-				dbid: (dbid)
-				nhi: (nhi)
-				phone: rec/6 mobile: rec/7
-				street: rec/8
-				medications: diagnoses: dmards: consults: dates: _
-			]
-			; now let us get the number of medications
-			medications: copy []
-			sql-execute [{select name, dosing from medications where active = 'T' and nhi =} @dbid]
-			rec: copy port
-			if not empty? rec [
-				for-each r rec [
-					append medications spaced [r/1 r/2]
-				]
-			]
+      rec: rec/1
+      patient-o: make object! compose [
+        fname: (rec/1)
+        surname: (rec/2)
+        dob: (rec/3)
+        gpname: rec/4
+        gpcentname: (rec/5)
+        dbid: (dbid)
+        nhi: (nhi)
+        phone: rec/6 mobile: rec/7
+        street: rec/8
+        medications: diagnoses: dmards: consults: dates: _
+      ]
+      ; now let us get the number of medications
+      medications: copy []
+      sql-execute [{select name, dosing from medications where active = 'T' and nhi =} @dbid]
+      rec: copy port
+      if not empty? rec [
+        for-each r rec [
+          append medications spaced [r/1 r/2]
+        ]
+      ]
 
-			; diagnoses
-			diagnoses: copy []
-			sql-execute [{select diagnosis from diagnoses where nhi =} @dbid]
-			rec: copy port
-			if not empty? rec [
-				for-each r rec [
-					append diagnoses r/1
-				]
-			]
+      ; diagnoses
+      diagnoses: copy []
+      sql-execute [{select diagnosis from diagnoses where nhi =} @dbid]
+      rec: copy port
+      if not empty? rec [
+        for-each r rec [
+          append diagnoses r/1
+        ]
+      ]
 
-			dmards: copy []
+      dmards: copy []
       dump dbid
-			sql-execute [{select name, dosing from medications where active = 'F' and nhi =} @dbid]
-			rec: copy port
-			if not empty? rec [
-				for-each r rec [
-					append dmards r/1
-				]
-			]
+      sql-execute [{select name, dosing from medications where active = 'F' and nhi =} @dbid]
+      rec: copy port
+      if not empty? rec [
+        for-each r rec [
+          append dmards r/1
+        ]
+      ]
 
-			patient-o/dmards: unique dmards
-			patient-o/medications: unique medications
-			patient-o/diagnoses: unique diagnoses
+      patient-o/dmards: unique dmards
+      patient-o/medications: unique medications
+      patient-o/diagnoses: unique diagnoses
 
-			rdates: copy [] dates: copy [] consults: copy []
-			sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} @dbid {order by cdate DESC} ]
-			for-each record copy port [
-				append/only consults record ; id cdate clinicians dictation
-				; append rdates rejoin [next form 100000 + record/1 " " record/2]
-				append dates form record/2
-			]
+      rdates: copy [] dates: copy [] consults: copy []
+      sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} @dbid {order by cdate DESC} ]
+      for-each record copy port [
+        append/only consults record ; id cdate clinicians dictation
+        ; append rdates rejoin [next form 100000 + record/1 " " record/2]
+        append dates form record/2
+      ]
 
-			patient-o/dates: dates
-			patient-o/consults: consults
-			return mold patient-o
-		] else [
+      patient-o/dates: dates
+      patient-o/consults: consults
+      return mold patient-o
+    ] else [
       return {-ERR patient not found}
     ]
 ]
