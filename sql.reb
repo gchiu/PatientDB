@@ -22,7 +22,16 @@ sql-execute: specialize :odbc-execute [; https://forum.rebol.info/t/1234
 ]
 
 dump-table: func [table [word!]][
-    sql-execute [{select * from} @table]
+    ;
+    ; Note: Table names cannot be used in parameterized queries:
+    ;
+    ; https://stackoverflow.com/q/1208442/
+    ;
+    ; For the moment, the ^META parameter just injects the word directly as
+    ; a string.  At minimum this should need something like SQL-EXECUTE/UNSAFE.
+    ;
+    sql-execute [SELECT * FROM ^table]
+
     print spaced ["Dumping" table]
     for-each record copy port [
         dump record
