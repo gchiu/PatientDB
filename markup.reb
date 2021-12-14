@@ -122,7 +122,7 @@ xml: make object! [
       (Proc as text! x)
     | [copy x !name | !error]
       (clear buf, append buf as tag! x)
-      while [!spaces opt !attribute]
+      opt some [!spaces opt !attribute]
       [ "/" ">"
         (Vtag copy buf)
       | ">"
@@ -145,7 +145,7 @@ xml: make object! [
   !error: [x: here (Error x)]
 
   !content: [
-    while [ !tag | !text]
+    opt some [ !tag | !text]
     [end | !error]
   ]
 
@@ -195,15 +195,15 @@ tml: make object! [
   !attributes: [ (clear buf-a)
     "{"
     some [
-      while !space
+      opt some !space
       copy name some !nchar
-      [ "=" while !space
+      [ "=" opt some !space
         [ {"} copy value to {"} skip
         | {'} copy value to {'} skip
         | copy value some !nchar
         ] ( append buf-a as issue! as text! name
             append buf-a as text! value )
-      | ":" while !space
+      | ":" opt some !space
         copy value some !prop-char opt ";"
         ( append buf-a as file! name
           append buf-a as text! trim value )
@@ -214,7 +214,7 @@ tml: make object! [
     thru "}"
   ]
   !raw-text: [
-    "[" copy x while !nchar ">"
+    "[" copy x opt some !nchar ">"
     (x: unspaced ["<" x "]"])
     copy txt to x, x
   ]
@@ -228,7 +228,7 @@ tml: make object! [
     clear Flat-buf
     clear Text-buf
     parse tml [
-      while further
+      opt some further
         [ copy tagname some !nchar
           opt !attributes
           [ !raw-text (
@@ -259,7 +259,7 @@ tml: make object! [
           | some !space (Vtag [<br>])
           ]
         | newline
-          [ copy txt some [while !hspace newline]
+          [ copy txt some [opt some !hspace newline]
             (insert txt newline, clone-tag txt)
           | (append Text-buf newline)
           ]

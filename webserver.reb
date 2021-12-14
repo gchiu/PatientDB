@@ -18,7 +18,7 @@ root-dir: %"./"
 access-dir: false
 verbose: 1
 
-uparse system.options.args [while [
+uparse system.options.args [opt some [
   "-a", access-dir: [
       <end> (true)
     | "true" (true)

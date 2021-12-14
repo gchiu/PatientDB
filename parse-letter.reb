@@ -272,7 +272,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'nhi [; confirm nhi matches that from the filename
-                                        if parse? line ["NHI:" while further space copy letter-nhi nhi-rule] [
+                                        if parse? line ["NHI:" opt some space copy letter-nhi nhi-rule] [
                                             either letter-nhi <> nhi [
                                                 print "Mismatch on file NHI and Letter NHI"
                                                 mismatch-nhi: me + 1
@@ -382,11 +382,11 @@ for-each record records [; records contains all id, filenames from files where f
                                             ; Anti-CCP +ve rheumatoid arthritis
                                             case [
                                                 parse? line [
-                                                    while further whitespace "-" while further whitespace copy dline to end | ; this is diagnosis detail
-                                                    while further whitespace "•" while further whitespace copy dline to end | ; so is this
-                                                    while further whitespace some alpha "." while further whitespace copy dline to end | ; so is this
-                                                    while further whitespace some alpha ":" while further whitespace copy dline to end | ; so is this
-                                                    while further whitespace alpha ")" while further whitespace copy dline to end ; a), b)^- ; so is this
+                                                    opt some whitespace "-" opt some whitespace copy dline to end | ; this is diagnosis detail
+                                                    opt some whitespace "•" opt some whitespace copy dline to end | ; so is this
+                                                    opt some whitespace some alpha "." opt some whitespace copy dline to end | ; so is this
+                                                    opt some whitespace some alpha ":" opt some whitespace copy dline to end | ; so is this
+                                                    opt some whitespace alpha ")" opt some whitespace copy dline to end ; a), b)^- ; so is this
                                                 ] [
                                                     print "got a diagnosis"
                                                     dump dline
@@ -397,8 +397,8 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
                                                 parse? line [
                                                     ; need to trap those cases where the diagnoses are numerated and aren't bullets to the one above in which case there's no leading space
-                                                    while further digit "." while further whitespace copy line to end |
-                                                    some digit "." while further whitespace copy line to end | ; where the diagnosis starts with a digit
+                                                    opt some digit "." opt some whitespace copy line to end |
+                                                    some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
                                                     copy line some diagnosis-rule to end
                                                 ] [
                                                     ; submode: 'gotdx ;'
@@ -648,10 +648,10 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
                                             ] [
                                                 case [
-                                                    parse? line [while further whitespace "-" while further whitespace copy dline to end | ; this is diagnosis detail
-                                                        while further whitespace some alpha "." while further whitespace copy dline to end | ; so is this
-                                                        while further whitespace some alpha ":" while further whitespace copy dline to end | ; so is this
-                                                        while further whitespace alpha ")" while further whitespace copy dline to end ; a), b)^- ; so is this
+                                                    parse? line [opt some whitespace "-" opt some whitespace copy dline to end | ; this is diagnosis detail
+                                                        opt some whitespace some alpha "." opt some whitespace copy dline to end | ; so is this
+                                                        opt some whitespace some alpha ":" opt some whitespace copy dline to end | ; so is this
+                                                        opt some whitespace alpha ")" opt some whitespace copy dline to end ; a), b)^- ; so is this
                                                     ] [
                                                         if dline [
                                                             trim/head/tail dline
@@ -659,7 +659,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                         ]
                                                     ]
                                                     parse? line [
-                                                        some digit "." while further whitespace copy line to end | ; where the diagnosis starts with a digit
+                                                        some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
                                                         copy line some diagnosis-rule to end
                                                     ] [
                                                         ; submode: 'gotdx ;'
