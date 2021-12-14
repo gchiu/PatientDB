@@ -16,7 +16,7 @@ load-docx: function [
     t: make block! 24
     unzip/quiet t docx
     ; xml is defined in %markup.reb
-    xml/load select t %"word/document.xml"
+    xml.load select t %"word/document.xml"
 ]
 
 batch-docx2txt: func [dir [file!]

@@ -6,7 +6,7 @@ import %sql.reb
 
 sql-execute {select id from nhilookup where nhi = 'DLV5219'}
 result: copy port
-id: result/1/1
+id: result.1.1
 
 sql-execute [{delete from diagnoses where nhi =} @id]
 sql-execute [{delete from medications where nhi =} @id]

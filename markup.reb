@@ -177,12 +177,12 @@ tml: make object! [
     forever [
       if head? s [break]
       s: back s
-      if s/1 = "[" [continue]
-      assert [block? x: s/1]
+      if s.1 = "[" [continue]
+      assert [block? x: s.1]
       break
     ]
-    if x and (find [<p> <div> <tr>] x/1) [
-      Ctag x/1, Otag x
+    if x and (find [<p> <div> <tr>] x.1) [
+      Ctag x.1, Otag x
     ] else [append Text-buf txt]
   ]
 

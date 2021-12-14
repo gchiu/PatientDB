@@ -1,6 +1,6 @@
 #!/usr/bin/r3
 REBOL [Name: webserver]
--help: does [lib/print {
+-help: does [lib.print {
 USAGE: r3 webserver.reb [OPTIONS]
 OPTIONS:
   -h, -help, --help : this help
@@ -41,13 +41,13 @@ uparse system.options.args [while [
 
 ;; LIBS
 
-delete-recur: adapt :lib/delete [
+delete-recur: adapt :lib.delete [
   if file? port [
     if not exists? port [return null]
     if 'dir = exists? port [
       port: dirize port
       for-each x read port [
-          delete-recur %% (port)/(x)
+          delete-recur %% (port).(x)
       ]
     ]
   ]
@@ -58,9 +58,9 @@ attempt [
   rem: import 'rem
   html: import 'html
 ]
-rem-to-html: attempt[chain [:rem/load-rem :html/to-html]]
+rem-to-html: attempt[chain [:rem.load-rem :html.to-html]]
 
-change-dir system/options/path
+change-dir system.options.path
 
 ext-map: [
   "css" css
@@ -107,7 +107,7 @@ html-list-dir: function [
   dir [file!]
   ][
   if trap [list: read dir] [return _]
-  ;;for-next list [if 'dir = exists? join dir list/1 [append list/1 %/]]
+  ;;for-next list [if 'dir = exists? join dir list.1 [append list.1 %/]]
   ;; ^-- workaround for #838
   sort/compare list func [x y] [
     case [
@@ -155,7 +155,7 @@ html-list-dir: function [
 
 parse-query: function [query] [
 
-;  lib/print spaced ["parsing query: " query]
+;  lib.print ["parsing query: " query]
 
   xchar: charset "=&"
   r: make block! 0
@@ -182,37 +182,37 @@ handle-request: function [
     req [object!]
   ][
 
-  probe req/request-uri
+  probe req.request-uri
 
   ;==============handle get requests============================;
   case [
     ; drug names and combinations
-    parse? req/request-uri ["/drug/" copy drugname to "/" to end][
+    parse? req.request-uri ["/drug/" copy drugname to "/" to end][
       ; res: spaced ["drug request for users of" drugname]
       res: if find drugname "+" [
         fetch-combo-users drugname
       ] else [
         fetch-drug-users drugname
       ]
-      return reduce [200 mime/html res]
+      return reduce [200 mime.html res]
     ]
     ; patient demographics
-    parse? req/request-uri ["/patients/nhi/" copy nhi to "/" to end][
+    parse? req.request-uri ["/patients/nhi/" copy nhi to "/" to end][
       if parse? nhi [3 alpha 4 digit][
         uppercase nhi
         sql-execute [{select id from NHILOOKUP where nhi =} @nhi]
         if empty? result: copy port [
             nhi: "Not found"
         ] else [
-            nhi: result/1/1
+            nhi: result.1.1
         ]
       ] else [
         nhi: "-ERR Didn't parse the parser"
       ]
-      return reduce [200 mime/html spaced["id:" nhi]]
+      return reduce [200 mime.html spaced["id:" nhi]]
     ]
 
-    parse? req/request-uri  ["/patients/" copy id some digit "/all/" end][
+    parse? req.request-uri  ["/patients/" copy id some digit "/all/" end][
         print "parsed fetch-all"
         id: to integer! id
         sql-execute [{select nhi from NHILOOKUP where id =} @id]
@@ -220,28 +220,28 @@ handle-request: function [
         if empty? result [
           return spaced [{-ERR this ID of:} id {is not in use}]
         ] else [
-          fetch-all to integer! id result/1/1
+          fetch-all to integer! id result.1.1
         ]
     ]
   ]
 
   set 'request req  ; global
-  req/target: my dehex
-  path-elements: next split req/target #"/"
+  req.target: my dehex
+  path-elements: next split req.target #"/"
   ; 'extern' url /http://ser.ver/...
-  parse req/request-uri ["//"] then [
-    lib/print req/request-uri
-    return reduce [200 mime/html "req/request-uri"]
+  parse req.request-uri ["//"] then [
+    lib.print req.request-uri
+    return reduce [200 mime.html "req.request-uri"]
   ] else [
-    path: join root-dir req/target
+    path: join root-dir req.target
     path-type: try exists? path
   ]
   append req reduce ['real-path clean-path path]
   if path-type = 'dir [
     if not access-dir [return 403]
-    if req/query-string [
+    if req.query-string [
       if data: html-list-dir path [
-        return reduce [200 mime/html data]
+        return reduce [200 mime.html data]
       ]
       return 500
     ]
@@ -254,13 +254,13 @@ handle-request: function [
         ]
       ] then [dir-index: "?"]
     ] else [dir-index: "?"]
-    return redirect-response join req/target dir-index
+    return redirect-response join req.target dir-index
   ]
   if path-type = 'file [
     pos: try find-last last path-elements
       "."
     file-ext: (if pos [copy next pos] else [_])
-    mimetype: try attempt [ext-map/:file-ext]
+    mimetype: try attempt [ext-map.(file-ext)]
     if trap [data: read path] [return 403]
     if all [
       any [
@@ -272,18 +272,18 @@ handle-request: function [
       ]
       action? :rem-to-html
       any [
-        not req/query-string
-        not empty? req/query-string
+        not req.query-string
+        not empty? req.query-string
       ]
     ][
-      rem/rem/request: req
+      rem.rem.request: req
       if error: try trap [
         data: rem-to-html data
       ] [ data: form error mimetype: 'text ]
       else [ mimetype: 'html ]
     ]
     if mimetype = 'rebol [
-      if req/query-string [
+      if req.query-string [
         mimetype: 'html
         e: try trap [
           data: do data
@@ -314,7 +314,7 @@ handle-request: function [
 ]
 
 redirect-response: function [target] [
-  reduce [200 mime/html unspaced [
+  reduce [200 mime.html unspaced [
     {<html><head><meta http-equiv="Refresh" content="0; url=}
     target {" /></head></html>}
   ]]
@@ -323,11 +323,11 @@ redirect-response: function [target] [
 ;; MAIN
 server: open compose [
   scheme: 'httpd (port) [
-    if verbose >= 2 [lib/print mold request]
+    if verbose >= 2 [lib.print mold request]
     if verbose >= 1 [
-      lib/print spaced [
-        request/method
-        request/request-uri
+      lib.print [
+        request.method
+        request.request-uri
       ]
     ]
 
@@ -360,20 +360,20 @@ server: open compose [
     ]
 
     if integer? res [
-      response/status: res
-      response/type: "text/html"
-      response/content: unspaced [
+      response.status: res
+      response.type: "text/html"
+      response.content: unspaced [
         <h2> res space select status-codes res </h2>
-        <b> request/method space request/request-uri </b>
+        <b> request.method space request.request-uri </b>
         <br> <pre> mold request </pre>
       ]
     ] else [
-      response/status: res/1
-      response/type: res/2
-      response/content: to-binary res/3
+      response.status: res.1
+      response.type: res.2
+      response.content: to-binary res.3
     ]
     if verbose >= 1 [
-      lib/print spaced ["=>" response/status]
+      lib.print ["=>" response.status]
     ]
   ]
 ]
@@ -386,18 +386,18 @@ fetch-combo-users: func [drug
   <local> id drug1 drug2 common drugs drug-1 drug-2
 ][
   drugs: split drug "+"
-  append drugs/1 "%" drugs-1: drugs/1
-  append drugs/2 "%" drugs-2: drugs/2
+  append drugs.1 "%" drugs-1: drugs.1
+  append drugs.2 "%" drugs-2: drugs.2
 
 ;comment {
   insert port [
-    {select nhi from medications where name like (?) and active = 'T'} drugs/1
+    {select nhi from medications where name like (?) and active = 'T'} drugs.1
   ]
 
   drug1: copy port
 
   insert port [
-    {select nhi from medications where name like (?) and active = 'T'} drugs/2
+    {select nhi from medications where name like (?) and active = 'T'} drugs.2
   ]
 
   drug2: copy port
@@ -409,7 +409,7 @@ fetch-combo-users: func [drug
 ;}
 
   ; get the patients on drug-1 eg. MTX
-    ; id: common/1/1
+    ; id: common.1.1
 
     insert port [
     {
@@ -426,9 +426,9 @@ fetch-combo-users: func [drug
     ]
     rec: copy port
     for-each r rec [
-        d: r/11
+        d: r.11
         if date? d [
-          r/11: form d/date
+          r.11: form d.date
         ]
     ]
 ; comment {
@@ -437,12 +437,12 @@ fetch-combo-users: func [drug
     ;probe length? rec
     ;probe rec
     for-each r rec [
-      ; get the second drug, patient id is r/2
+      ; get the second drug, patient id is r.2
       ; probe r
-      id: r/2
+      id: r.2
       insert port [{select distinct nhi, name, dosing from medications where nhi = (?) and name like (?) and active = 'T'} id drugs-2 ]
       s: copy port
-      append r reduce [s/1/2 s/1/3]
+      append r reduce [s.1.2 s.1.3]
     ]
 ;}
     append/only rec []
@@ -474,7 +474,7 @@ fetch-drug-users: func [drug][
   ]
   ; [integer! date! string! string!]
   for-each record copy port [
-    attempt [record/4: form record/4/date]
+    attempt [record.4: form record.4.date]
     append/only patient-ids record
   ]
   ;]
@@ -495,17 +495,17 @@ fetch-all: func [dbid nhi
     sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} @dbid]
     rec: copy port
     if not empty? rec [
-      rec: rec/1
+      rec: rec.1
       patient-o: make object! compose [
-        fname: (rec/1)
-        surname: (rec/2)
-        dob: (rec/3)
-        gpname: rec/4
-        gpcentname: (rec/5)
+        fname: (rec.1)
+        surname: (rec.2)
+        dob: (rec.3)
+        gpname: rec.4
+        gpcentname: (rec.5)
         dbid: (dbid)
         nhi: (nhi)
-        phone: rec/6 mobile: rec/7
-        street: rec/8
+        phone: rec.6 mobile: rec.7
+        street: rec.8
         medications: diagnoses: dmards: consults: dates: _
       ]
       ; now let us get the number of medications
@@ -514,7 +514,7 @@ fetch-all: func [dbid nhi
       rec: copy port
       if not empty? rec [
         for-each r rec [
-          append medications spaced [r/1 r/2]
+          append medications spaced [r.1 r.2]
         ]
       ]
 
@@ -524,7 +524,7 @@ fetch-all: func [dbid nhi
       rec: copy port
       if not empty? rec [
         for-each r rec [
-          append diagnoses r/1
+          append diagnoses r.1
         ]
       ]
 
@@ -534,24 +534,24 @@ fetch-all: func [dbid nhi
       rec: copy port
       if not empty? rec [
         for-each r rec [
-          append dmards r/1
+          append dmards r.1
         ]
       ]
 
-      patient-o/dmards: unique dmards
-      patient-o/medications: unique medications
-      patient-o/diagnoses: unique diagnoses
+      patient-o.dmards: unique dmards
+      patient-o.medications: unique medications
+      patient-o.diagnoses: unique diagnoses
 
       rdates: copy [] dates: copy [] consults: copy []
       sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} @dbid {order by cdate DESC} ]
       for-each record copy port [
         append/only consults record ; id cdate clinicians dictation
-        ; append rdates rejoin [next form 100000 + record/1 " " record/2]
-        append dates form record/2
+        ; append rdates rejoin [next form 100000 + record.1 " " record.2]
+        append dates form record.2
       ]
 
-      patient-o/dates: dates
-      patient-o/consults: consults
+      patient-o.dates: dates
+      patient-o.consults: consults
       return mold patient-o
     ] else [
       return {-ERR patient not found}
@@ -559,10 +559,10 @@ fetch-all: func [dbid nhi
 ]
 
 if verbose >= 1 [
-  lib/print spaced ["Serving on port" port]
-  lib/print spaced ["root-dir:" clean-path root-dir]
-  lib/print spaced ["access-dir:" mold access-dir]
-  lib/print spaced ["dsn:" dsn]
+  lib.print ["Serving on port" port]
+  lib.print ["root-dir:" clean-path root-dir]
+  lib.print ["access-dir:" mold access-dir]
+  lib.print ["dsn:" dsn]
 ]
 
 wait server

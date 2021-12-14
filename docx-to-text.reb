@@ -12,12 +12,12 @@ load-docx: function [
   t: make block! 24
   unzip/quiet t docx
   ; xml is defined in %markup.reb
-  xml/load select t %"word/document.xml"
+  xml.load select t %"word/document.xml"
 ]
 ; ^-- look at result to understand format
 ; example:
 comment [
-  xml/load unspaced [
+  xml.load unspaced [
     <!xml>
     <p style="color: red">
     <br class="dummy" />
@@ -44,7 +44,7 @@ comment [
 ]
 
 comment [
-t: f: to-file system/script/args/1
+t: f: to-file system.script.args.1
 ?? f
 t: load-docx t
 ?? t
@@ -57,7 +57,7 @@ for-each [k v] t [
     write-stdout v
     append d deline v  ;== remove CRLF pairs and replace with LF
   ]
-  if all [k = 'vtag, block? v, v/1 = <w:tab>][
+  if all [k = 'vtag, block? v, v.1 = <w:tab>][
     write-stdout "^-"
     if #"^/" <> last d [
       append d "^-"

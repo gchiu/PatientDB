@@ -8,11 +8,11 @@ Rebol [
     }
 ]
 
-if any [blank? system/script/args empty? system/script/args] [
+if any [blank? system.script.args empty? system.script.args] [
     ; use this as the testing directory with no args
     dir: %2021/2021/October/
 ] else [
-    dir: dirize to file! system/script/args
+    dir: dirize to file! system.script.args
     if dir = %/ [
         fail "Can't use in current directory"
     ]
@@ -31,7 +31,7 @@ debug: false
 sql-execute {select id, surname from clinicians}
 clinicians: copy []
 for-each c copy port [
-    append clinicians reduce [c/2 c/1]
+    append clinicians reduce [c.2 c.1]
 ]
 ; Chiu 1 Elasir 2
 probe clinicians
@@ -86,10 +86,10 @@ find-clinician: func [clinician [text!]] [
 
 for-each record records [; records contains all id, filenames from files where flag done is false
     ?? record
-    fileid: record/1
+    fileid: record.1
     print "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
     print spaced ["fileid" fileid]
-    filename: record/2
+    filename: record.2
     print spaced ["filename" filename]
     print spaced ["processing" filename]
 
@@ -239,12 +239,12 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
                                                 fpblock: split line space
                                                 fpblockrev: reverse copy fpblock
-                                                if fpblockrev/2 = "der" [
-                                                    append fpblockrev/2: spaced [fpblock/2 fpblockrev/1]
+                                                if fpblockrev.2 = "der" [
+                                                    append fpblockrev.2: spaced [fpblock.2 fpblockrev.1]
                                                     remove fpblockrev
                                                 ]
-                                                if any [fpblockrev/2 = "van" fpblockrev/2 = "le"][
-                                                    append fpblockrev/2: spaced [fpblock/2 fpblockrev/1]
+                                                if any [fpblockrev.2 = "van" fpblockrev.2 = "le"][
+                                                    append fpblockrev.2: spaced [fpblock.2 fpblockrev.1]
                                                     remove fpblockrev
                                                 ]
                                                 fpname: first fpblockrev
@@ -783,9 +783,9 @@ for-each record records [; records contains all id, filenames from files where f
                             ]
                             if not all [fpname fptitle][
                                 case/all [
-                                    fpblockrev/2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev/1]]
-                                    fpblockrev/2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev/1]]
-                                    all [fpblockrev/3 = "van" any [fpblockrev/2 = "der" fpblockrev/2 = "de"]] [remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev/1]]
+                                    fpblockrev.2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev.1]]
+                                    fpblockrev.2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev.1]]
+                                    all [fpblockrev.3 = "van" any [fpblockrev.2 = "der" fpblockrev.2 = "de"]] [remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev.1]]
                                 ]
 
                                 fpblock: reverse copy fpblockrev
@@ -799,7 +799,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 sql-execute [{select id, fname, surname from fps where surname =} @fpname "and fname =" @fpinits]
                                 result: copy port
                                 either not empty? result [
-                                    fpid: result/1/1
+                                    fpid: result.1.1
                                 ] [
                                     ; not there, so insert
                                     sql-execute [{insert into fps (title, fname, surname) values (} @fptitle "," @fpinits "," @fpname ")"]
@@ -807,7 +807,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     sql-execute [{select id, fname, surname from fps where surname =} @fpname "and fname =" @fpinits]
 
                                     result: copy port
-                                    fpid: result/1/1
+                                    fpid: result.1.1
                                     print "Added FP"
                                 ]
                             ]
@@ -817,28 +817,28 @@ for-each record records [; records contains all id, filenames from files where f
                         if not empty? fpaddress [
                             print "we have a fpaddress 819"
                             dump fpaddress
-                            sql-execute [{select id from gpcentre where centrename =} @fpaddress/1]
+                            sql-execute [{select id from gpcentre where centrename =} @fpaddress.1]
 
                             result: copy port
                             dump result
                             either not empty? result [
-                                gpcentreid: result/1/1 ; or result/1 ?
+                                gpcentreid: result.1.1  ; or result.1 ?
                             ] [
                                 print "Line 830"
                                 dump fpaddress
-                                if null? fpaddress/2 [append fpaddress copy ""]
-                                if null? fpaddress/3 [append fpaddress copy ""]
+                                if null? fpaddress.2 [append fpaddress copy ""]
+                                if null? fpaddress.3 [append fpaddress copy ""]
                                 dump fpaddress
                                 print "Line 833"
 
-                                sql-execute [{insert into gpcentre (centrename, street, town) values (} @fpaddress/1 {,} @fpaddress/2 "," @fpaddress/3 {)}]
+                                sql-execute [{insert into gpcentre (centrename, street, town) values (} @fpaddress.1 {,} @fpaddress.2 "," @fpaddress.3 {)}]
 
-                                sql-execute [{select id from gpcentre where centrename =} @fpaddress/1]
+                                sql-execute [{select id from gpcentre where centrename =} @fpaddress.1]
 
                                 result: copy port
                                 print "dumping centreid at 781"
                                 dump result
-                                gpcentreid: result/1/1
+                                gpcentreid: result.1.1
                             ]
                         ] else [
                             print "No fpaddress 846"
@@ -855,13 +855,13 @@ for-each record records [; records contains all id, filenames from files where f
                             sql-execute [{select id from NHILOOKUP where nhi =} @nhi]
                             if not empty? result: copy port [
                                 dump result
-                                nhiid: result/1/1
+                                nhiid: result.1.1
                             ] else [
                                 sql-execute [{insert into NHILOOKUP (NHI) values (} @nhi {)}]
                                 sql-execute [{select id from NHILOOKUP where nhi=} @nhi ]
                                 result: copy port
                                 dump result
-                                nhiid: result/1/1
+                                nhiid: result.1.1
                             ]
                         ] else [; no NHI so need to abandon this letter
                             print "No NHI"
@@ -888,7 +888,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 mobile: any [mobile copy ""]
                                 sname: any [sname copy ""]
                                 areacode: any [areacode "0000"]
-                                ;for-each v reduce [nhiid current-doc dob address/1 address/2 address/3 areacode email phone mobile fpid gpcentreid][
+                                ;for-each v reduce [nhiid current-doc dob address.1 address.2 address.3 areacode email phone mobile fpid gpcentreid][
                                 ;    ?? V
                                 ;]
                                 dump fpid
@@ -896,7 +896,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump gpcentreid
                                 sql-execute [
                                     {insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (}
-                                    @nhiid "," @current-doc "," @dob "," @surname "," @fname "," @sname "," @address/1 "," @address/1 "," @address/3 ","  @areacode "," @email "," @phone "," @mobile "," @fpid "," @gpcentreid
+                                    @nhiid "," @current-doc "," @dob "," @surname "," @fname "," @sname "," @address.1 "," @address.1 "," @address.3 ","  @areacode "," @email "," @phone "," @mobile "," @fpid "," @gpcentreid
                                     {)}]
                             ]
                             ; now add the medications if this list is newer than an old list
@@ -906,8 +906,8 @@ for-each record records [; records contains all id, filenames from files where f
                                 ; we have old medications, so get the clinc date and see if it is older or newer
                                 print "Getting last clinic date"
                                 dump result
-                                lastclinic: result/1/3
-                                lastclinic: lastclinic/date
+                                lastclinic: result.1.3
+                                lastclinic: lastclinic.date
                                 dump ldate
                                 dump lastclinic
                                 if all [ldate > lastclinic not empty? medications] [
@@ -924,7 +924,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     for-each drug medications [
                                         dump drug
                                         if 128 < length-of drug [
-                                            if find "-*" drug/1 [ ; is there a bullet in front?
+                                            if find "-*" drug.1 [ ; is there a bullet in front?
                                                 ; drug details
                                             ] else [
                                                 ; must be now in the body of the letter
@@ -1013,7 +1013,7 @@ for-each record records [; records contains all id, filenames from files where f
                             sql-execute  [{select count(*) from diagnoses where nhi = } @nhiid]
                             result: copy port
                             if not empty? result [
-                                result: result/1/1
+                                result: result.1.1
                                 if result <= length-of diagnoses [
                                     ;  existing diagnoses are fewer than we now have so lets delete existing
                                     sql-execute [{delete from diagnoses where nhi =} @nhiid]
@@ -1027,7 +1027,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump detail
                                     sql-execute [
                                         {insert into diagnoses (nhi, letter, diagnosis, detail) values (}
-                                        @nhiid "," @ldate "," @diagnosis "," @detail/1
+                                        @nhiid "," @ldate "," @diagnosis "," @detail.1
                                         ")"
                                     ]
                             ]

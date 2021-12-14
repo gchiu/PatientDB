@@ -7,8 +7,6 @@ Rebol [
 
 ]
 
-system.options.redbol-paths: true
-
 import %sql.reb
 
     dump-table 'patients
@@ -27,13 +25,13 @@ for-each r result [
 sql-execute {select count(*) from medications}
 result: copy port
 dump result
-if result/1/1 <> 21 [
+if result.1.1 <> 21 [
     fail "Not enough medications"
 ]
 
 sql-execute {select count(*) from diagnoses}
 result: copy port
 dump result
-if result/1/1 <> 19 [
+if result.1.1 <> 19 [
     fail "Not enough diagnoses"
 ]

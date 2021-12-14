@@ -10,7 +10,6 @@ Rebol [
 
     }
 ]
-system.options.redbol-paths: true
 
 ; for-each f read %./ [dump f orig: copy f if find f "111" [replace f "111" "11" dump f rename orig f]]
 
