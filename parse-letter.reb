@@ -151,7 +151,7 @@ for-each record records [; records contains all id, filenames from files where f
                     ; now check to see if the letters database has this letter or not
                     ; letters table holds files we have already processed
                     print "Preparing to sql-execute on 154"
-                    sql-execute [{select id from letters where checksum =} @ck]
+                    sql-execute [SELECT id FROM letters WHERE checksum = @ck]
                     if empty? copy port [; okay not done yet so we can add it and then process it
                         print "aint done"
                         oldmode: _
@@ -796,15 +796,26 @@ for-each record records [; records contains all id, filenames from files where f
                             ; are they already in the database
                             replace/all fpname "'" "''"
                             if all [fpname <> "unknown" 4 > length-of fptitle ][ ; avoid Health Hub - no GP
-                                sql-execute [{select id, fname, surname from fps where surname =} @fpname "and fname =" @fpinits]
+                                sql-execute [
+                                    SELECT id, fname, surname
+                                    FROM fps
+                                    WHERE surname = @fpname AND fname = @fpinits
+                                ]
                                 result: copy port
                                 either not empty? result [
                                     fpid: result.1.1
                                 ] [
                                     ; not there, so insert
-                                    sql-execute [{insert into fps (title, fname, surname) values (} @fptitle "," @fpinits "," @fpname ")"]
+                                    sql-execute [
+                                        INSERT INTO fps (title, fname, surname)
+                                        VALUES (@fptitle, @fpinits, @fpname)
+                                    ]
 
-                                    sql-execute [{select id, fname, surname from fps where surname =} @fpname "and fname =" @fpinits]
+                                    sql-execute [
+                                        SELECT id, fname, surname
+                                        FROM fps
+                                        WHERE surname = @fpname AND fname = @fpinits
+                                    ]
 
                                     result: copy port
                                     fpid: result.1.1
@@ -817,7 +828,9 @@ for-each record records [; records contains all id, filenames from files where f
                         if not empty? fpaddress [
                             print "we have a fpaddress 819"
                             dump fpaddress
-                            sql-execute [{select id from gpcentre where centrename =} @fpaddress.1]
+                            sql-execute [
+                                SELECT id FROM gpcentre WHERE centrename = @fpaddress.1
+                            ]
 
                             result: copy port
                             dump result
@@ -831,9 +844,16 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump fpaddress
                                 print "Line 833"
 
-                                sql-execute [{insert into gpcentre (centrename, street, town) values (} @fpaddress.1 {,} @fpaddress.2 "," @fpaddress.3 {)}]
+                                sql-execute [
+                                    INSERT INTO gpcentre (centrename, street, town)
+                                    VALUES (@fpaddress.1, @fpaddress.2, @fpaddress.3)
+                                ]
 
-                                sql-execute [{select id from gpcentre where centrename =} @fpaddress.1]
+                                sql-execute [
+                                    SELECT id
+                                    FROM gpcentre
+                                    WHERE centrename = @fpaddress.1
+                                ]
 
                                 result: copy port
                                 print "dumping centreid at 781"
@@ -852,13 +872,13 @@ for-each record records [; records contains all id, filenames from files where f
                             print "Going to see if we have the patient already"
                             dump nhi
                             dump letter-nhi
-                            sql-execute [{select id from NHILOOKUP where nhi =} @nhi]
+                            sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = @nhi]
                             if not empty? result: copy port [
                                 dump result
                                 nhiid: result.1.1
                             ] else [
-                                sql-execute [{insert into NHILOOKUP (NHI) values (} @nhi {)}]
-                                sql-execute [{select id from NHILOOKUP where nhi=} @nhi ]
+                                sql-execute [INSERT INTO NHILOOKUP (NHI) values (@nhi)]
+                                sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = @nhi]
                                 result: copy port
                                 dump result
                                 nhiid: result.1.1
@@ -874,7 +894,7 @@ for-each record records [; records contains all id, filenames from files where f
                             ; address [line1 [line2] town]
                             ; so let us see if this person is in the database of patients
                             dump nhiid
-                            sql-execute [{select id from patients where nhi =} @nhiid]
+                            sql-execute [SELECT id FROM patients WHERE nhi = @nhiid]
                             either not empty? result: copy port [
                                 print "patient already in database..."
                             ] [
@@ -895,12 +915,29 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump sname
                                 dump gpcentreid
                                 sql-execute [
-                                    {insert into patients (nhi, clinicians, dob, surname, fname, sname, street, street2, town, areacode, email, phone, mobile, gp, gpcentre) values (}
-                                    @nhiid "," @current-doc "," @dob "," @surname "," @fname "," @sname "," @address.1 "," @address.1 "," @address.3 ","  @areacode "," @email "," @phone "," @mobile "," @fpid "," @gpcentreid
-                                    {)}]
+                                    INSERT INTO patients (
+                                        nhi, clinicians,
+                                        dob, surname, fname, sname,
+                                        street, street2, town, areacode,
+                                        email, phone, mobile,
+                                        gp, gpcentre
+                                    )
+                                    VALUES (
+                                        @nhiid, @current-doc,
+                                        @dob, @surname, @fname, @sname,
+                                        @address.1, @address.1, @address.3, @areacode,  ; !!! Should this use @address.2?
+                                        @email, @phone, @mobile,
+                                        @fpid, @gpcentreid
+                                    )
+                                ]
                             ]
+
                             ; now add the medications if this list is newer than an old list
-                            sql-execute [{select * from medications where nhi=} @nhiid {order by letter DESC}]
+                            sql-execute [
+                                SELECT * FROM medications
+                                WHERE nhi = @nhiid
+                                ORDER BY letter DESC
+                            ]
                             ; remove all the old medications?
                             if not empty? result: copy port [
                                 ; we have old medications, so get the clinc date and see if it is older or newer
@@ -912,7 +949,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump lastclinic
                                 if all [ldate > lastclinic not empty? medications] [
                                     ; this letter is newer, we have a new medication list, so remove all old medications
-                                    sql-execute [{delete from medications where nhi =} @nhiid]
+                                    sql-execute [DELETE FROM medications WHERE nhi = @nhiid]
                                 ]
                             ] else [lastclinic: 1-Jan-1900]
                             dump lastclinic
@@ -951,7 +988,10 @@ for-each record records [; records contains all id, filenames from files where f
                                         ]
                                         dump drugname dump dosing
                                         if not blank? drugname [
-                                            sql-execute [{select * from medications where nhi =} @nhiid {and name =} @drugname {and active = 'T'}]
+                                            sql-execute [
+                                                SELECT * FROM medications
+                                                WHERE nhi = @nhiid AND name = @drugname AND active = {'T'}
+                                            ]
                                             result: copy port
                                             if not empty? result [
                                                 dump medications
@@ -968,9 +1008,11 @@ for-each record records [; records contains all id, filenames from files where f
                                             ;]
                                             print "Inserting into medications 976"
                                             sql-execute [
-                                                {insert into medications (nhi, letter, name, dosing, active ) values (}
-                                                @nhiid "," @ldate "," @drugname "," @dosing
-                                                {, 'T')}
+                                                INSERT INTO medications (
+                                                    nhi, letter, name, dosing, active
+                                                ) VALUES (
+                                                    @nhiid, @ldate, @drugname, @dosing, {'T'}
+                                                )
                                             ]
                                         ] else [
                                             ; this is probably dosing for the last drug so consider adding in
@@ -997,9 +1039,11 @@ for-each record records [; records contains all id, filenames from files where f
 
                                         print "Inserting into medications 1005"
                                         sql-execute [
-                                            {insert into medications (nhi, letter, name, dosing, active ) values (}
-                                            @nhiid "," @ldate "," @drugname "," @dosing
-                                            {, 'F')}
+                                            INSERT INTO medications (
+                                                nhi, letter, name, dosing, active
+                                            ) VALUES (
+                                                @nhiid, @ldate, @drugname, @dosing, {'F'}
+                                            )
                                         ]
                                     ]
                                 ]
@@ -1016,7 +1060,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 result: result.1.1
                                 if result <= length-of diagnoses [
                                     ;  existing diagnoses are fewer than we now have so lets delete existing
-                                    sql-execute [{delete from diagnoses where nhi =} @nhiid]
+                                    sql-execute [DELETE FROM diagnoses WHERE nhi = @nhiid]
                                 ]
                             ]
                             ; do we have to look at the case where new diagnoses are less than existing?
@@ -1026,9 +1070,11 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump diagnosis
                                 dump detail
                                     sql-execute [
-                                        {insert into diagnoses (nhi, letter, diagnosis, detail) values (}
-                                        @nhiid "," @ldate "," @diagnosis "," @detail.1
-                                        ")"
+                                        INSERT INTO diagnoses (
+                                            nhi, letter, diagnosis, detail
+                                        ) VALUES (
+                                            @nhiid, @ldate, @diagnosis, @detail.1
+                                        )
                                     ]
                             ]
                         ]
@@ -1037,11 +1083,16 @@ for-each record records [; records contains all id, filenames from files where f
                         dump ldate
                         ; replace/all contents "'" "''"
                         sql-execute [
-                            {insert into letters (clinicians, nhi, cdate, dictation, checksum) values (}
-                            @current-doc {,} @nhiid {,} @ldate {,} @contents {,} @ck {)}
+                            INSERT INTO letters (
+                                clinicians, nhi, cdate, dictation, checksum
+                            ) VALUES (
+                                @current-doc, @nhiid, @ldate, @contents, @ck
+                            )
                         ]
                         print "Inserted into letters the file contents"
-                        sql-execute [{update files set done = TRUE where id = } @fileid]
+                        sql-execute [
+                            UPDATE files SET done = TRUE where id = @fileid
+                        ]
                         print "Updated done flag"
                         print "================================================="
                     ] else [

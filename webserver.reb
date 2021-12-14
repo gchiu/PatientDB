@@ -200,7 +200,7 @@ handle-request: function [
     parse? req.request-uri ["/patients/nhi/" copy nhi to "/" to end][
       if parse? nhi [3 alpha 4 digit][
         uppercase nhi
-        sql-execute [{select id from NHILOOKUP where nhi =} @nhi]
+        sql-execute [SELECT id FROM NHILOOKUP WHERE nhi = @nhi]
         if empty? result: copy port [
             nhi: "Not found"
         ] else [
@@ -215,7 +215,7 @@ handle-request: function [
     parse? req.request-uri  ["/patients/" copy id some digit "/all/" end][
         print "parsed fetch-all"
         id: to integer! id
-        sql-execute [{select nhi from NHILOOKUP where id =} @id]
+        sql-execute [SELECT nhi FROM NHILOOKUP WHERE id = @id]
         result: copy port
         if empty? result [
           return spaced [{-ERR this ID of:} id {is not in use}]
@@ -411,18 +411,20 @@ fetch-combo-users: func [drug
   ; get the patients on drug-1 eg. MTX
     ; id: common.1.1
 
-    insert port [
-    {
-      select distinct nhilookup.nhi, nhilookup.id, patients.surname, patients.fname,
-      patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname,
-      medications.letter, medications.name, medications.dosing
-      from medications, nhilookup, patients
-      where nhilookup.id = medications.nhi
-      and patients.nhi = medications.nhi
-      and medications.name like (?)
-      and medications.active = 'T'
-      and patients.nhi in (select distinct nhi from medications where active = (?) and name like (?))
-    } drugs-1 "T" drugs-2
+    sql-execute [
+      SELECT DISTINCT nhilookup.nhi, nhilookup.id, patients.surname, patients.fname,
+        patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname,
+        medications.letter, medications.name, medications.dosing
+      FROM medications, nhilookup, patients
+      WHERE nhilookup.id = medications.nhi
+        AND patients.nhi = medications.nhi
+        AND medications.name like @drugs-1
+        AND medications.active = 'T'
+        AND patients.nhi in (
+          SELECT DISTINCT nhi
+          FROM medications
+          WHERE active = @("T") AND name LIKE @drugs-2
+        )
     ]
     rec: copy port
     for-each r rec [
@@ -492,7 +494,10 @@ fetch-all: func [dbid nhi
   <local> rec
 ][
     print "entering fetch all"
-    sql-execute [{select fname, surname, dob, gpname, gpcentname, phone, mobile, street from patients where nhi =} @dbid]
+    sql-execute [
+      SELECT fname, surname, dob, gpname, gpcentname, phone, mobile, street
+      FROM patients where nhi = @dbid
+    ]
     rec: copy port
     if not empty? rec [
       rec: rec.1
@@ -510,7 +515,11 @@ fetch-all: func [dbid nhi
       ]
       ; now let us get the number of medications
       medications: copy []
-      sql-execute [{select name, dosing from medications where active = 'T' and nhi =} @dbid]
+      sql-execute [
+        SELECT name, dosing
+        FROM medications
+        WHERE active = {'T'} and nhi = @dbid
+      ]
       rec: copy port
       if not empty? rec [
         for-each r rec [
@@ -520,7 +529,11 @@ fetch-all: func [dbid nhi
 
       ; diagnoses
       diagnoses: copy []
-      sql-execute [{select diagnosis from diagnoses where nhi =} @dbid]
+      sql-execute [
+        SELECT diagnosis
+        FROM diagnoses
+        WHERE nhi = @dbid
+      ]
       rec: copy port
       if not empty? rec [
         for-each r rec [
@@ -530,7 +543,11 @@ fetch-all: func [dbid nhi
 
       dmards: copy []
       dump dbid
-      sql-execute [{select name, dosing from medications where active = 'F' and nhi =} @dbid]
+      sql-execute [
+        SELECT name, dosing
+        FROM medications
+        WHERE active = {'F'} and nhi = @dbid
+      ]
       rec: copy port
       if not empty? rec [
         for-each r rec [
@@ -543,7 +560,12 @@ fetch-all: func [dbid nhi
       patient-o.diagnoses: unique diagnoses
 
       rdates: copy [] dates: copy [] consults: copy []
-      sql-execute [{select id, cdate, clinicians, dictation from letters where nhi =} @dbid {order by cdate DESC} ]
+      sql-execute [
+        SELECT id, cdate, clinicians, dictation
+        FROM letters
+        WHERE nhi = @dbid
+        ORDER BY cdate DESC
+      ]
       for-each record copy port [
         append/only consults record ; id cdate clinicians dictation
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]

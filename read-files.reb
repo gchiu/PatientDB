@@ -53,7 +53,7 @@ for-each file read dir [
     if parse? ffile filename-rule [
         print spaced ["Checking" ffile]
         if e: error? trap [
-            sql-execute [{select * from files where filename =} @ffile]
+            sql-execute [SELECT * FROM files WHERE filename = @ffile]
         ][
             print ":::::::::::::: sql error:::::::::::::::::"
             probe e
@@ -64,16 +64,14 @@ for-each file read dir [
             dump ffile
             if e: error? trap [
                 sql-execute [
-                    {insert into files (filename) values (}
-                    @ffile
-                    {)}
+                    INSERT INTO files (filename) VALUES (@ffile)
                 ]
                 print spaced ["Added" ffile]
             ][
                 print ":::::::::::::: sql error:::::::::::::::::"
-                cmd: unspaced [{insert into files (filename) values ('} ffile {')}]
-                print spaced ["try" cmd]
-                insert port cmd
+                cmd: [INSERT INTO files (filename) values (@ffile)]
+                print spaced ["try" mold cmd]
+                sql-execute cmd
             ]
         ]
     ] else [
