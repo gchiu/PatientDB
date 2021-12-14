@@ -249,7 +249,7 @@ jobs:
 
     - name: init-db using renc
       run: |
-        r3 init-db.reb < yes.txt
+        echo "Yes" | r3 init-db.reb
 
     - name: import files into database
       run: |
