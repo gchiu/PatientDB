@@ -11,7 +11,7 @@ dsn: "rebol-firebird;UID=test;PWD=test-password"
 digit: charset [#"0" - #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 
-print spaced ["Opening dsn:" dsn]
+print ["Opening dsn:" dsn]
 dbase: open join odbc:// dsn
 port: odbc-statement-of dbase
 show-sql?: true
@@ -32,7 +32,7 @@ dump-table: func [table [word!]][
     ;
     sql-execute [SELECT * FROM ^table]
 
-    print spaced ["Dumping" table]
+    print ["Dumping" table]
     for-each record copy port [
         dump record
     ]

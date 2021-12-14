@@ -33,4 +33,4 @@ for-each year years [
     ]
 ]
 t2: now/precise
-print spaced ["took" difference t2 t1]
+print ["took" difference t2 t1]

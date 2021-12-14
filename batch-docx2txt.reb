@@ -31,7 +31,7 @@ batch-docx2txt: func [dir [file!]
         if all [%.docx = suffix? file not find file "$"][ ; make sure not a temporary file which might have a lock on it
             target: join dir replace copy file %.docx %.txt
             if not exists? target [
-                print spaced ["converting" target]
+                print ["converting" target]
                 if error? entrap [
                     t: load-docx join dir file
                 ][
@@ -61,7 +61,7 @@ batch-docx2txt: func [dir [file!]
                 close target
 
             ] else [
-                print spaced ["skipping" target]
+                print ["skipping" target]
             ]
         ]
     ]

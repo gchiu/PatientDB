@@ -73,7 +73,7 @@ for-each record copy port [
     append/only records record
 ]
 
-print spaced ["Number of files needed to process:" length-of records]
+print ["Number of files needed to process:" length-of records]
 
 find-clinician: func [clinician [text!]] [
     for-each [doc id] clinicians [
@@ -88,20 +88,20 @@ for-each record records [; records contains all id, filenames from files where f
     ?? record
     fileid: record.1
     print "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-    print spaced ["fileid" fileid]
+    print ["fileid" fileid]
     filename: record.2
-    print spaced ["filename" filename]
-    print spaced ["processing" filename]
+    print ["filename" filename]
+    print ["processing" filename]
 
     if exists? to file! join dir filename [
         ; append/only records record
-        print spaced ["Current file number:" cnt: me + 1]
-        print spaced ["Processing" filename]
+        print ["Current file number:" cnt: me + 1]
+        print ["Processing" filename]
         ; nhi: uppercase copy/part filename 7
         current-doc: _
         ; see if it matches the current filename format
         if parse? filename filename-rule [
-            print spaced ["Filename passed rule" filename]
+            print ["Filename passed rule" filename]
             nhi: letter-nhi: _
             parse filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
             ; GChiu, Elasir
@@ -110,8 +110,8 @@ for-each record records [; records contains all id, filenames from files where f
                 dump ldate
                 parse ldate [copy year 4 digit copy month 2 digit copy day 2 digit]
                 ldate: to date! unspaced [day "-" month "-" year]
-                print spaced ["clinician id is" current-doc]
-                print spaced ["clinic letter date is" ldate]
+                print ["clinician id is" current-doc]
+                print ["clinic letter date is" ldate]
                 longdate: unspaced [to integer! day " " pick months to integer! month " " year]
                 dump longdate
 
@@ -418,7 +418,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'page-2-medications [
-                                        print spaced ["In mode: " mode]
+                                        print ["In mode: " mode]
                                         ; ?? line
                                         case [
                                             find/part line "NHI:" 4 [
@@ -478,15 +478,15 @@ for-each record records [; records contains all id, filenames from files where f
 
                                     'finish [
                                         print ":::::::::::::::::::::::::::Finished processing this letter 460"
-                                        print spaced ["Medications:" form length-of medications]
-                                        print spaced ["Diagnoses:" form length-of diagnoses]
+                                        print ["Medications:" form length-of medications]
+                                        print ["Diagnoses:" form length-of diagnoses]
                                         dump medications
                                         for-each medication medications [
                                             print medication
                                         ]
                                         dump diagnoses
                                         for-each [diagnosis detail] diagnoses [
-                                            print spaced ["dx:" diagnosis "detail:" detail]
+                                            print ["dx:" diagnosis "detail:" detail]
                                         ]
                                         dump diagnosis-detail
                                         dump dmards
@@ -678,7 +678,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             ]
                                         ]
                                         'page-2-medications [
-                                            print spaced ["In mode: " mode]
+                                            print ["In mode: " mode]
                                             ; ?? line
                                             if find/part line "NHI:" 4 [
                                                 mode: 'medication ;'
@@ -1028,14 +1028,14 @@ for-each record records [; records contains all id, filenames from files where f
                                         dump drugname
                                         print form length-of drugname
                                         dump dosing
-                                        ;print spaced ["Dosing length:" form length-of dosing]
+                                        ;print ["Dosing length:" form length-of dosing]
                                         ;    if not blank? dosing [
                                         ;        dosing: copy/part dosing 120
                                         ;    ]
                                         ;trap [
                                         ;    drugname: copy/part drugname 120
                                         ;]
-                                        ;print spaced ["Dosing length after truncation:" form length-of dosing]
+                                        ;print ["Dosing length after truncation:" form length-of dosing]
 
                                         print "Inserting into medications 1005"
                                         sql-execute [
@@ -1105,10 +1105,10 @@ for-each record records [; records contains all id, filenames from files where f
                 print "this clinician not found, skipping letter"
             ]
         ] else [
-            print spaced ["Letter of filename" join dir filename "doesn't meet pattern match required"]
+            print ["Letter of filename" join dir filename "doesn't meet pattern match required"]
         ]
     ] else [
-        print spaced ["Letter of filename" filename "missing from directory" dir]
+        print ["Letter of filename" filename "missing from directory" dir]
         missing-files: me + 1
     ]
 ] ; end of processing all the records in files table

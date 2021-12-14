@@ -32,7 +32,7 @@ find-table: func [tablename [text!] /silent] [
     ]
     for-each record copy port [
         if tablename = trim record.1 [
-            print spaced ["found" tablename]
+            print ["found" tablename]
             return true
         ]
     ]
@@ -80,9 +80,9 @@ if interactive? [
 ; check for successful deletion
 for-each table ['patients 'nhilookup 'files 'clinicians 'fps 'letters 'medications 'diagnoses 'gpcentre 'vaccinations 'notifications] [
     if find-table/silent form table [
-        print spaced ["table" table "exists!"]
+        print ["table" table "exists!"]
     ] else [
-        print spaced ["table" table "deleted!"]
+        print ["table" table "deleted!"]
     ]
 ]
 

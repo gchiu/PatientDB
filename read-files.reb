@@ -51,7 +51,7 @@ for-each file read dir [
     ; if not, then add it
     ffile: form file
     if parse? ffile filename-rule [
-        print spaced ["Checking" ffile]
+        print ["Checking" ffile]
         if e: error? trap [
             sql-execute [SELECT * FROM files WHERE filename = @ffile]
         ][
@@ -60,21 +60,21 @@ for-each file read dir [
             continue
         ]
         if empty? copy port [
-            print spaced ["Adding" ffile]
+            print ["Adding" ffile]
             dump ffile
             if e: error? trap [
                 sql-execute [
                     INSERT INTO files (filename) VALUES (@ffile)
                 ]
-                print spaced ["Added" ffile]
+                print ["Added" ffile]
             ][
                 print ":::::::::::::: sql error:::::::::::::::::"
                 cmd: [INSERT INTO files (filename) values (@ffile)]
-                print spaced ["try" mold cmd]
+                print ["try" mold cmd]
                 sql-execute cmd
             ]
         ]
     ] else [
-        print spaced [file "doesn't match pattern"]
+        print [file "doesn't match pattern"]
     ]
 ]

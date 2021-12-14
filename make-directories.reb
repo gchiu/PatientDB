@@ -16,7 +16,7 @@ for-each year years [
     for-each month months [
         month-directory: join year-directory month
         if not exists? month-directory [
-            print spaced ["making" month-directory]
+            print ["making" month-directory]
             mkdir/deep month-directory
         ]
     ]
