@@ -64,15 +64,15 @@ show-consults: func [ id
             either record/2 = "F" [append olddata record/1] [append rxdata record/1]
         ]
         dbid: id
-        lo: layout [across 
-            label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
-            label black "DOB:" dobfld: field dob 80 
+        lo: layout [across
+            label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname
+            label black "DOB:" dobfld: field dob 80
             label black "DBID:" dbifld: field dbid 10
             label black "NHI:" nhilabel: field nhiid 80 return
             label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
             dates: text-list 120x650 data dates [
-                sdate: first dates/picked 
-                txt: first next next find consults sdate 
+                sdate: first dates/picked
+                txt: first next next find consults sdate
                 letter/text: txt show letter
                 clinician: select consults sdate
                 insert port [{select surname from clinicians where id = (?)} clinician]
@@ -96,4 +96,3 @@ show-consults: func [ id
         ]
         view lo
 ]
-

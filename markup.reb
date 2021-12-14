@@ -142,7 +142,7 @@ xml: make object! [
     ]
   ]
 
-  !error: [x: here (Error x)] 
+  !error: [x: here (Error x)]
 
   !content: [
     while [ !tag | !text]
@@ -186,7 +186,7 @@ tml: make object! [
     ] else [append Text-buf txt]
   ]
 
-  !error: [x: here (Error x)] 
+  !error: [x: here (Error x)]
   !hspace: charset " ^-"
   !space: charset " ^-^/"
   !nchar: charset [#"a" - #"z" #"A" - #"Z" #"0" - #"9" "-_.#"]
@@ -209,7 +209,7 @@ tml: make object! [
           append buf-a as text! trim value )
       | ( append buf-a as issue! as text! name
           append buf-a true )
-      ] 
+      ]
     ]
     thru "}"
   ]
@@ -218,7 +218,7 @@ tml: make object! [
     (x: unspaced ["<" x "]"])
     copy txt to x, x
   ]
-     
+
   load: func [
     "Convert TML text to rebol code"
     tml [file! binary! text!] "TML text"
@@ -267,7 +267,7 @@ tml: make object! [
           [ copy txt to "]!" "]!" (Comm txt)
           | !error
           ]
-        | "!" (append Text-buf "!") 
+        | "!" (append Text-buf "!")
         | copy txt [to !stop-char | to end]
           (append Text-buf txt)
         | end (Flush-text)

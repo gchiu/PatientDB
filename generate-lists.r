@@ -94,7 +94,7 @@ MTX-LEF: unique intersect leflunomide methotrexate
 
 mtx-lef-patients: copy []
 
-; now get the people 
+; now get the people
 foreach record MTX-LEF [
     probe record
     insert port [{select fname, surname, street, street2, town from patients where nhi =(?)} record]
@@ -176,13 +176,13 @@ show-consults: func [ id
             append consults record ; cdate clinicians dictation
             append dates record/1
         ]
-        lo: layout [across 
-            label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname 
+        lo: layout [across
+            label black "FirstName:" fnamefld: field fname label black "Surname:" surnamefld: field surname
             label black "DOB:" dobfld: field dob 80 label black "NHI:" nhilabel: field nhiid 80 return
             label black "Clinic Date:" clindatefld: field 80 label black "Clinician:" clin: field "" return
             dates: text-list 120x650 data dates [
-                sdate: first dates/picked 
-                txt: first next next find consults sdate 
+                sdate: first dates/picked
+                txt: first next next find consults sdate
                 letter/text: txt show letter
                 clinician: select consults sdate
                 insert port [{select surname from clinicians where id = (?)} clinician]
