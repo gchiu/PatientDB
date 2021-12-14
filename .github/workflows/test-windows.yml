@@ -233,15 +233,15 @@ jobs:
     # The tests are designed to call QUIT and return 1 status on failure, with
     # 0 returned on success.
 
-    # For starters, this is a basic insert and retrieve test of Rebol values.
-    # The goal is to store Rebol values into column types that can hold them,
-    # and then read the same value back out after writing it.
+    # As a good sanity check, make sure the Firebird database is running and
+    # that basic ODBC insert and removal hasn't atrophied.
     #
     # This runs against the DSNs of the Firebird database created above.
     #
     - name: ODBC MySQL Insert And Retrieve Test
       run: |
-        r3 odbc-test.reb rebol-firebird --firebird --show-sql
+        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb \
+            rebol-firebird --firebird --show-sql --leave-connected
 
     - name: create directories
       run: |
@@ -258,7 +258,3 @@ jobs:
     - name: test data results from database
       run: |
         r3 check.reb
-
-    - name: ODBC Test Without Closing Connection
-      run: |
-        r3 odbc-test.reb rebol-firebird --firebird --leave-connected
