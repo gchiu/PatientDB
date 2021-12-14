@@ -258,3 +258,39 @@ jobs:
     - name: test data results from database
       run: |
         r3 check.reb
+
+    # Ren-C project participants are asked to use the VSCode settings that
+    # keep files in canonized condition.
+    #
+    - name: make sure files have no tabs or end of line whitespace
+      uses: metaeducation/ren-c-action@release
+      with:
+        checked: true
+        script: |
+          result: 0
+          for-each file read %./ [
+              uparse file [thru ".reb" | thru ".r"] else [continue]
+              text: as text! read file
+              collect* [case/all [
+                  find text tab [
+                      keep "contains TABS, the horror!"
+                  ]
+                  find text (join space newline) [
+                      keep "has spaces at end of lines"
+                  ]
+                  find text cr [
+                      keep "has carriage return characters in it"
+                  ]
+                  newline <> last text [
+                      keep "has no terminal newline"
+                  ]
+                  newline = first back back tail text [
+                      keep "has extra newlines at end of file"
+                  ]
+              ]] then problems -> [
+                  preface: spaced [newline "File" mold file "=>" space]
+                  print delimit/head preface problems
+                  result: 1
+              ]
+          ]
+          quit result
