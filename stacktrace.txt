@@ -1,145 +1,166 @@
+Microsoft Windows [Version 10.0.19043.1348]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\anon_>d:
+
+D:\>r3 query.reb
+Opening dsn: patients
+entering fetch all
+** SQL: {SELECT fname, surname, dob, gpname, gpcentname, phone, mobile, street
+FROM patients where nhi = ?}
 ** PARAMETERS: ['7]
-C Source File D:\a\ren-c\ren-c\src\include\datatypes/sys-char.h, Line 199, Pointer 00001223942319A8
+dbid: 7
+** SQL: {SELECT name, dosing
+FROM medications
+WHERE nhi = ? and active = 'F'}
+** PARAMETERS: ['7]
+** SQL: {SELECT name, dosing
+FROM medications
+WHERE nhi = ? and active = 'T'}
+** PARAMETERS: ['7]
+** SQL: "SELECT diagnosis^/FROM diagnoses^/WHERE nhi = ?"
+** PARAMETERS: ['7]
+C Source File D:\a\ren-c\ren-c\src\include\datatypes/sys-char.h, Line 199, Pointer 0000121A39BC19A8
 At evaluator tick: 541418
 managed series was likely created during evaluator tick: 1
 =================================================================
-==30576==ERROR: AddressSanitizer: heap-use-after-free on address 0x11a78e3a0190 at pc 0x7ff6239bda8a bp 0x0042225d6c20 sp 0x0042225d6c28
-READ of size 8 at 0x11a78e3a0190 thread T0
-    #0 0x7ff6239bda89 in Panic_Series_Debug+0x2c9 (D:\r3.exe+0x1403fda89)
-    #1 0x7ff6238665e6 in Panic_Core+0x496 (D:\r3.exe+0x1402a65e6)
-    #2 0x7ff623b3b80a in Shutdown_CRC+0x5f3a (D:\r3.exe+0x14057b80a)
-    #3 0x7ff623b33be6 in Hash_UTF8_Caseless+0x106 (D:\r3.exe+0x140573be6)
-    #4 0x7ff623b3474b in Hash_Value+0x6bb (D:\r3.exe+0x14057474b)
-    #5 0x7ff623c49956 in Find_Key_Hashed+0x66 (D:\r3.exe+0x140689956)
-    #6 0x7ff623af919f in Make_Set_Operation_Series+0xa8f (D:\r3.exe+0x14053919f)
-    #7 0x7ff623921e60 in Series_Common_Action_Maybe_Unhandled+0x1c30 (D:\r3.exe+0x140361e60)
-    #8 0x7ff623bac6e8 in T_Array+0xcb8 (D:\r3.exe+0x1405ec6e8)
-    #9 0x7ff623693535 in Startup_Generics+0xd495 (D:\r3.exe+0x1400d3535)
-    #10 0x7ff623686045 in Generic_Dispatcher+0x225 (D:\r3.exe+0x1400c6045)
-    #11 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #12 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #13 0x7ff6237e3daa in Eval_Maybe_Stale_Throws+0x287ea (D:\r3.exe+0x140223daa)
-    #14 0x7ff6237c0309 in Eval_Maybe_Stale_Throws+0x4d49 (D:\r3.exe+0x140200309)
-    #15 0x7ff6239f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
-    #16 0x7ff6239f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
-    #17 0x7ff6239f8cb8 in Pop_Stack_Values_Core+0x31b48 (D:\r3.exe+0x140438cb8)
-    #18 0x7ff6239d73da in Pop_Stack_Values_Core+0x1026a (D:\r3.exe+0x1404173da)
-    #19 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #20 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #21 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #22 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #23 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #24 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #25 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #26 0x7ff623a59a55 in Do_Frame_Maybe_Stale_Throws+0x21375 (D:\r3.exe+0x140499a55)
-    #27 0x7ff623a3380c in Try_As_String+0x2860c (D:\r3.exe+0x14047380c)
-    #28 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #29 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #30 0x7ff62380b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
-    #31 0x7ff62380c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
-    #32 0x7ff6237e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
-    #33 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #34 0x7ff6239f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
-    #35 0x7ff6239f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
-    #36 0x7ff6239dd05f in Pop_Stack_Values_Core+0x15eef (D:\r3.exe+0x14041d05f)
-    #37 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #38 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #39 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #40 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #41 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #42 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #43 0x7ff623a38560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
-    #44 0x7ff623a3899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
-    #45 0x7ff6237c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
-    #46 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #47 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #48 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #49 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #50 0x7ff623a38560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
-    #51 0x7ff623a3899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
-    #52 0x7ff6237c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
-    #53 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #54 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #55 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #56 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #57 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #58 0x7ff6235e5e87 in Shutdown_Api+0x19e87 (D:\r3.exe+0x140025e87)
-    #59 0x7ff6235c6a5c in RL_rebRunMaybeStaleThrows+0x5c (D:\r3.exe+0x140006a5c)
-    #60 0x7ff6235c6b86 in RL_rebRunThrows+0x106 (D:\r3.exe+0x140006b86)
-    #61 0x7ff623a5a631 in Do_Frame_Maybe_Stale_Throws+0x21f51 (D:\r3.exe+0x14049a631)
-    #62 0x7ff623a340df in Try_As_String+0x28edf (D:\r3.exe+0x1404740df)
-    #63 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #64 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #65 0x7ff6237e33e5 in Eval_Maybe_Stale_Throws+0x27e25 (D:\r3.exe+0x1402233e5)
-    #66 0x7ff6237befe0 in Eval_Maybe_Stale_Throws+0x3a20 (D:\r3.exe+0x1401fefe0)
-    #67 0x7ff62380b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
-    #68 0x7ff62380c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
-    #69 0x7ff6237e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
-    #70 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #71 0x7ff6235e60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
-    #72 0x7ff6235e657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
-    #73 0x7ff6235c6e78 in RL_rebValueInterruptible+0x58 (D:\r3.exe+0x140006e78)
-    #74 0x7ff623dd19fe in Process_Group_For_Parse+0x7af6e (D:\r3.exe+0x1408119fe)
-    #75 0x7ff623dd1869 in Process_Group_For_Parse+0x7add9 (D:\r3.exe+0x140811869)
-    #76 0x7ff6235c99ee in RL_rebRescueWith+0x2ae (D:\r3.exe+0x1400099ee)
-    #77 0x7ff6235c972e in RL_rebRescue+0x1e (D:\r3.exe+0x14000972e)
-    #78 0x7ff623dd014c in Process_Group_For_Parse+0x796bc (D:\r3.exe+0x14081014c)
-    #79 0x7ff623dd1564 in Process_Group_For_Parse+0x7aad4 (D:\r3.exe+0x140811564)
-    #80 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #81 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #82 0x7ff6235e60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
-    #83 0x7ff6235e657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
-    #84 0x7ff6235c6d58 in RL_rebValue+0x58 (D:\r3.exe+0x140006d58)
-    #85 0x7ff6240f66ce in Process_Group_For_Parse+0x39fc3e (D:\r3.exe+0x140b366ce)
-    #86 0x7ff6240f5512 in Process_Group_For_Parse+0x39ea82 (D:\r3.exe+0x140b35512)
-    #87 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
+==34028==ERROR: AddressSanitizer: heap-use-after-free on address 0x119e33ea0190 at pc 0x7ff6583bda8a bp 0x008f4bbd7100 sp 0x008f4bbd7108
+READ of size 8 at 0x119e33ea0190 thread T0
+    #0 0x7ff6583bda89 in Panic_Series_Debug+0x2c9 (D:\r3.exe+0x1403fda89)
+    #1 0x7ff6582665e6 in Panic_Core+0x496 (D:\r3.exe+0x1402a65e6)
+    #2 0x7ff65853b80a in Shutdown_CRC+0x5f3a (D:\r3.exe+0x14057b80a)
+    #3 0x7ff658533be6 in Hash_UTF8_Caseless+0x106 (D:\r3.exe+0x140573be6)
+    #4 0x7ff65853474b in Hash_Value+0x6bb (D:\r3.exe+0x14057474b)
+    #5 0x7ff658649956 in Find_Key_Hashed+0x66 (D:\r3.exe+0x140689956)
+    #6 0x7ff6584f919f in Make_Set_Operation_Series+0xa8f (D:\r3.exe+0x14053919f)
+    #7 0x7ff658321e60 in Series_Common_Action_Maybe_Unhandled+0x1c30 (D:\r3.exe+0x140361e60)
+    #8 0x7ff6585ac6e8 in T_Array+0xcb8 (D:\r3.exe+0x1405ec6e8)
+    #9 0x7ff658093535 in Startup_Generics+0xd495 (D:\r3.exe+0x1400d3535)
+    #10 0x7ff658086045 in Generic_Dispatcher+0x225 (D:\r3.exe+0x1400c6045)
+    #11 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #12 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #13 0x7ff6581e3daa in Eval_Maybe_Stale_Throws+0x287ea (D:\r3.exe+0x140223daa)
+    #14 0x7ff6581c0309 in Eval_Maybe_Stale_Throws+0x4d49 (D:\r3.exe+0x140200309)
+    #15 0x7ff6583f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
+    #16 0x7ff6583f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
+    #17 0x7ff6583f8cb8 in Pop_Stack_Values_Core+0x31b48 (D:\r3.exe+0x140438cb8)
+    #18 0x7ff6583d73da in Pop_Stack_Values_Core+0x1026a (D:\r3.exe+0x1404173da)
+    #19 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #20 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #21 0x7ff658083d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
+    #22 0x7ff658068c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
+    #23 0x7ff65806968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
+    #24 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #25 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #26 0x7ff658459a55 in Do_Frame_Maybe_Stale_Throws+0x21375 (D:\r3.exe+0x140499a55)
+    #27 0x7ff65843380c in Try_As_String+0x2860c (D:\r3.exe+0x14047380c)
+    #28 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #29 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #30 0x7ff65820b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
+    #31 0x7ff65820c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
+    #32 0x7ff6581e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
+    #33 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #34 0x7ff6583f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
+    #35 0x7ff6583f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
+    #36 0x7ff6583dd05f in Pop_Stack_Values_Core+0x15eef (D:\r3.exe+0x14041d05f)
+    #37 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #38 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #39 0x7ff658083d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
+    #40 0x7ff658068c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
+    #41 0x7ff65806968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
+    #42 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #43 0x7ff658438560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
+    #44 0x7ff65843899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
+    #45 0x7ff6581c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
+    #46 0x7ff658083d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
+    #47 0x7ff658068c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
+    #48 0x7ff65806968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
+    #49 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #50 0x7ff658438560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
+    #51 0x7ff65843899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
+    #52 0x7ff6581c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
+    #53 0x7ff658083d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
+    #54 0x7ff658068c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
+    #55 0x7ff65806968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
+    #56 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #57 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #58 0x7ff657fe5e87 in Shutdown_Api+0x19e87 (D:\r3.exe+0x140025e87)
+    #59 0x7ff657fc6a5c in RL_rebRunMaybeStaleThrows+0x5c (D:\r3.exe+0x140006a5c)
+    #60 0x7ff657fc6b86 in RL_rebRunThrows+0x106 (D:\r3.exe+0x140006b86)
+    #61 0x7ff65845a631 in Do_Frame_Maybe_Stale_Throws+0x21f51 (D:\r3.exe+0x14049a631)
+    #62 0x7ff6584340df in Try_As_String+0x28edf (D:\r3.exe+0x1404740df)
+    #63 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #64 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #65 0x7ff6581e33e5 in Eval_Maybe_Stale_Throws+0x27e25 (D:\r3.exe+0x1402233e5)
+    #66 0x7ff6581befe0 in Eval_Maybe_Stale_Throws+0x3a20 (D:\r3.exe+0x1401fefe0)
+    #67 0x7ff65820b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
+    #68 0x7ff65820c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
+    #69 0x7ff6581e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
+    #70 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #71 0x7ff657fe60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
+    #72 0x7ff657fe657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
+    #73 0x7ff657fc6e78 in RL_rebValueInterruptible+0x58 (D:\r3.exe+0x140006e78)
+    #74 0x7ff6587d19fe in Process_Group_For_Parse+0x7af6e (D:\r3.exe+0x1408119fe)
+    #75 0x7ff6587d1869 in Process_Group_For_Parse+0x7add9 (D:\r3.exe+0x140811869)
+    #76 0x7ff657fc99ee in RL_rebRescueWith+0x2ae (D:\r3.exe+0x1400099ee)
+    #77 0x7ff657fc972e in RL_rebRescue+0x1e (D:\r3.exe+0x14000972e)
+    #78 0x7ff6587d014c in Process_Group_For_Parse+0x796bc (D:\r3.exe+0x14081014c)
+    #79 0x7ff6587d1564 in Process_Group_For_Parse+0x7aad4 (D:\r3.exe+0x140811564)
+    #80 0x7ff6581eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
+    #81 0x7ff6581bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
+    #82 0x7ff657fe60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
+    #83 0x7ff657fe657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
+    #84 0x7ff657fc6d58 in RL_rebValue+0x58 (D:\r3.exe+0x140006d58)
+    #85 0x7ff658af66ce in Process_Group_For_Parse+0x39fc3e (D:\r3.exe+0x140b366ce)
+    #86 0x7ff658af5512 in Process_Group_For_Parse+0x39ea82 (D:\r3.exe+0x140b35512)
+    #87 0x7ff658b3ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
     #88 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
     #89 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
 
-0x11a78e3a0190 is located 0 bytes inside of 8-byte region [0x11a78e3a0190,0x11a78e3a0198)
+0x119e33ea0190 is located 0 bytes inside of 8-byte region [0x119e33ea0190,0x119e33ea0198)
 freed by thread T0 here:
-    #0 0x7ff6241219d1 in free+0x101 (D:\r3.exe+0x140b619d1)
-    #1 0x7ff6235f126b in Shutdown_Core+0x50cb (D:\r3.exe+0x14003126b)
-    #2 0x7ff6235f4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
-    #3 0x7ff6235f4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
-    #4 0x7ff6235f5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
-    #5 0x7ff623605062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
-    #6 0x7ff6235eb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
-    #7 0x7ff6235c4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
-    #8 0x7ff6240f4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
-    #9 0x7ff6240f4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
-    #10 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
+    #0 0x7ff658b219d1 in free+0x101 (D:\r3.exe+0x140b619d1)
+    #1 0x7ff657ff126b in Shutdown_Core+0x50cb (D:\r3.exe+0x14003126b)
+    #2 0x7ff657ff4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
+    #3 0x7ff657ff4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
+    #4 0x7ff657ff5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
+    #5 0x7ff658005062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
+    #6 0x7ff657feb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
+    #7 0x7ff657fc4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
+    #8 0x7ff658af4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
+    #9 0x7ff658af4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
+    #10 0x7ff658b3ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
     #11 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
     #12 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
 
 previously allocated by thread T0 here:
-    #0 0x7ff624121b11 in malloc+0x101 (D:\r3.exe+0x140b61b11)
-    #1 0x7ff6235f11a8 in Shutdown_Core+0x5008 (D:\r3.exe+0x1400311a8)
-    #2 0x7ff6235f4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
-    #3 0x7ff6235f4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
-    #4 0x7ff6235f5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
-    #5 0x7ff623605062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
-    #6 0x7ff6235eb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
-    #7 0x7ff6235c4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
-    #8 0x7ff6240f4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
-    #9 0x7ff6240f4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
-    #10 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
+    #0 0x7ff658b21b11 in malloc+0x101 (D:\r3.exe+0x140b61b11)
+    #1 0x7ff657ff11a8 in Shutdown_Core+0x5008 (D:\r3.exe+0x1400311a8)
+    #2 0x7ff657ff4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
+    #3 0x7ff657ff4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
+    #4 0x7ff657ff5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
+    #5 0x7ff658005062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
+    #6 0x7ff657feb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
+    #7 0x7ff657fc4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
+    #8 0x7ff658af4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
+    #9 0x7ff658af4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
+    #10 0x7ff658b3ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
     #11 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
     #12 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
 
 SUMMARY: AddressSanitizer: heap-use-after-free (D:\r3.exe+0x1403fda89) in Panic_Series_Debug+0x2c9
 Shadow bytes around the buggy address:
-  0x03d87fff3fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x03d87fff3ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x03d87fff4000: fa fa fd fd fa fa 00 05 fa fa 00 06 fa fa 00 04
-  0x03d87fff4010: fa fa 00 07 fa fa 00 07 fa fa 00 04 fa fa fd fa
-  0x03d87fff4020: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-=>0x03d87fff4030: fa fa[fd]fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x03d87fff4040: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x03d87fff4050: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x03d87fff4060: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x03d87fff4070: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x03d87fff4080: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa653fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x03cdfa653ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x03cdfa654000: fa fa fd fd fa fa 00 05 fa fa 00 06 fa fa 00 04
+  0x03cdfa654010: fa fa 00 07 fa fa 00 07 fa fa 00 04 fa fa fd fa
+  0x03cdfa654020: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+=>0x03cdfa654030: fa fa[fd]fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa654040: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa654050: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa654060: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa654070: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
+  0x03cdfa654080: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
 Shadow byte legend (one shadow byte represents 8 application bytes):
   Addressable:           00
   Partially addressable: 01 02 03 04 05 06 07
@@ -160,214 +181,6 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   Left alloca redzone:     ca
   Right alloca redzone:    cb
   Shadow gap:              cc
-==30576==ABORTING
-
-D:\>r3 query.reb > debug.txt
-managed series was likely created during evaluator tick: 1
-=================================================================
-==29632==ERROR: AddressSanitizer: heap-use-after-free on address 0x122430820190 at pc 0x7ff6239bda8a bp 0x004bfb3d6e30 sp 0x004bfb3d6e38
-READ of size 8 at 0x122430820190 thread T0
-    #0 0x7ff6239bda89 in Panic_Series_Debug+0x2c9 (D:\r3.exe+0x1403fda89)
-    #1 0x7ff6238665e6 in Panic_Core+0x496 (D:\r3.exe+0x1402a65e6)
-    #2 0x7ff623b3b80a in Shutdown_CRC+0x5f3a (D:\r3.exe+0x14057b80a)
-    #3 0x7ff623b33be6 in Hash_UTF8_Caseless+0x106 (D:\r3.exe+0x140573be6)
-    #4 0x7ff623b3474b in Hash_Value+0x6bb (D:\r3.exe+0x14057474b)
-    #5 0x7ff623c49956 in Find_Key_Hashed+0x66 (D:\r3.exe+0x140689956)
-    #6 0x7ff623af919f in Make_Set_Operation_Series+0xa8f (D:\r3.exe+0x14053919f)
-    #7 0x7ff623921e60 in Series_Common_Action_Maybe_Unhandled+0x1c30 (D:\r3.exe+0x140361e60)
-    #8 0x7ff623bac6e8 in T_Array+0xcb8 (D:\r3.exe+0x1405ec6e8)
-    #9 0x7ff623693535 in Startup_Generics+0xd495 (D:\r3.exe+0x1400d3535)
-    #10 0x7ff623686045 in Generic_Dispatcher+0x225 (D:\r3.exe+0x1400c6045)
-    #11 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #12 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #13 0x7ff6237e3daa in Eval_Maybe_Stale_Throws+0x287ea (D:\r3.exe+0x140223daa)
-    #14 0x7ff6237c0309 in Eval_Maybe_Stale_Throws+0x4d49 (D:\r3.exe+0x140200309)
-    #15 0x7ff6239f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
-    #16 0x7ff6239f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
-    #17 0x7ff6239f8cb8 in Pop_Stack_Values_Core+0x31b48 (D:\r3.exe+0x140438cb8)
-    #18 0x7ff6239d73da in Pop_Stack_Values_Core+0x1026a (D:\r3.exe+0x1404173da)
-    #19 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #20 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #21 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #22 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #23 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #24 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #25 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #26 0x7ff623a59a55 in Do_Frame_Maybe_Stale_Throws+0x21375 (D:\r3.exe+0x140499a55)
-    #27 0x7ff623a3380c in Try_As_String+0x2860c (D:\r3.exe+0x14047380c)
-    #28 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #29 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #30 0x7ff62380b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
-    #31 0x7ff62380c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
-    #32 0x7ff6237e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
-    #33 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #34 0x7ff6239f85e5 in Pop_Stack_Values_Core+0x31475 (D:\r3.exe+0x1404385e5)
-    #35 0x7ff6239f88d3 in Pop_Stack_Values_Core+0x31763 (D:\r3.exe+0x1404388d3)
-    #36 0x7ff6239dd05f in Pop_Stack_Values_Core+0x15eef (D:\r3.exe+0x14041d05f)
-    #37 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #38 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #39 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #40 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #41 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #42 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #43 0x7ff623a38560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
-    #44 0x7ff623a3899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
-    #45 0x7ff6237c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
-    #46 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #47 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #48 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #49 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #50 0x7ff623a38560 in Do_Frame_Ctx_Throws+0x2a0 (D:\r3.exe+0x140478560)
-    #51 0x7ff623a3899f in Do_Frame_Maybe_Stale_Throws+0x2bf (D:\r3.exe+0x14047899f)
-    #52 0x7ff6237c1edb in Eval_Maybe_Stale_Throws+0x691b (D:\r3.exe+0x140201edb)
-    #53 0x7ff623683d25 in Init_Thrown_Unwind_Value+0x18b15 (D:\r3.exe+0x1400c3d25)
-    #54 0x7ff623668c01 in Interpreted_Dispatch_Details_1_Throws+0xa81 (D:\r3.exe+0x1400a8c01)
-    #55 0x7ff62366968b in Returner_Dispatcher+0xbb (D:\r3.exe+0x1400a968b)
-    #56 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #57 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #58 0x7ff6235e5e87 in Shutdown_Api+0x19e87 (D:\r3.exe+0x140025e87)
-    #59 0x7ff6235c6a5c in RL_rebRunMaybeStaleThrows+0x5c (D:\r3.exe+0x140006a5c)
-    #60 0x7ff6235c6b86 in RL_rebRunThrows+0x106 (D:\r3.exe+0x140006b86)
-    #61 0x7ff623a5a631 in Do_Frame_Maybe_Stale_Throws+0x21f51 (D:\r3.exe+0x14049a631)
-    #62 0x7ff623a340df in Try_As_String+0x28edf (D:\r3.exe+0x1404740df)
-    #63 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #64 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #65 0x7ff6237e33e5 in Eval_Maybe_Stale_Throws+0x27e25 (D:\r3.exe+0x1402233e5)
-    #66 0x7ff6237befe0 in Eval_Maybe_Stale_Throws+0x3a20 (D:\r3.exe+0x1401fefe0)
-    #67 0x7ff62380b1ae in Drop_Action+0x1e53e (D:\r3.exe+0x14024b1ae)
-    #68 0x7ff62380c41d in Drop_Action+0x1f7ad (D:\r3.exe+0x14024c41d)
-    #69 0x7ff6237e857b in Process_Action_Maybe_Stale_Throws+0x1b5b (D:\r3.exe+0x14022857b)
-    #70 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #71 0x7ff6235e60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
-    #72 0x7ff6235e657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
-    #73 0x7ff6235c6e78 in RL_rebValueInterruptible+0x58 (D:\r3.exe+0x140006e78)
-    #74 0x7ff623dd19fe in Process_Group_For_Parse+0x7af6e (D:\r3.exe+0x1408119fe)
-    #75 0x7ff623dd1869 in Process_Group_For_Parse+0x7add9 (D:\r3.exe+0x140811869)
-    #76 0x7ff6235c99ee in RL_rebRescueWith+0x2ae (D:\r3.exe+0x1400099ee)
-    #77 0x7ff6235c972e in RL_rebRescue+0x1e (D:\r3.exe+0x14000972e)
-    #78 0x7ff623dd014c in Process_Group_For_Parse+0x796bc (D:\r3.exe+0x14081014c)
-    #79 0x7ff623dd1564 in Process_Group_For_Parse+0x7aad4 (D:\r3.exe+0x140811564)
-    #80 0x7ff6237eab8d in Process_Action_Maybe_Stale_Throws+0x416d (D:\r3.exe+0x14022ab8d)
-    #81 0x7ff6237bdb09 in Eval_Maybe_Stale_Throws+0x2549 (D:\r3.exe+0x1401fdb09)
-    #82 0x7ff6235e60c5 in Shutdown_Api+0x1a0c5 (D:\r3.exe+0x1400260c5)
-    #83 0x7ff6235e657b in Shutdown_Api+0x1a57b (D:\r3.exe+0x14002657b)
-    #84 0x7ff6235c6d58 in RL_rebValue+0x58 (D:\r3.exe+0x140006d58)
-    #85 0x7ff6240f66ce in Process_Group_For_Parse+0x39fc3e (D:\r3.exe+0x140b366ce)
-    #86 0x7ff6240f5512 in Process_Group_For_Parse+0x39ea82 (D:\r3.exe+0x140b35512)
-    #87 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
-    #88 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
-    #89 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
-
-0x122430820190 is located 0 bytes inside of 8-byte region [0x122430820190,0x122430820198)
-freed by thread T0 here:
-    #0 0x7ff6241219d1 in free+0x101 (D:\r3.exe+0x140b619d1)
-    #1 0x7ff6235f126b in Shutdown_Core+0x50cb (D:\r3.exe+0x14003126b)
-    #2 0x7ff6235f4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
-    #3 0x7ff6235f4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
-    #4 0x7ff6235f5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
-    #5 0x7ff623605062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
-    #6 0x7ff6235eb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
-    #7 0x7ff6235c4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
-    #8 0x7ff6240f4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
-    #9 0x7ff6240f4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
-    #10 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
-    #11 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
-    #12 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
-
-previously allocated by thread T0 here:
-    #0 0x7ff624121b11 in malloc+0x101 (D:\r3.exe+0x140b61b11)
-    #1 0x7ff6235f11a8 in Shutdown_Core+0x5008 (D:\r3.exe+0x1400311a8)
-    #2 0x7ff6235f4742 in Shutdown_Core+0x85a2 (D:\r3.exe+0x140034742)
-    #3 0x7ff6235f4fd7 in Shutdown_Core+0x8e37 (D:\r3.exe+0x140034fd7)
-    #4 0x7ff6235f5d3b in Shutdown_Core+0x9b9b (D:\r3.exe+0x140035d3b)
-    #5 0x7ff623605062 in Shutdown_Core+0x18ec2 (D:\r3.exe+0x140045062)
-    #6 0x7ff6235eb727 in Startup_Core+0x357 (D:\r3.exe+0x14002b727)
-    #7 0x7ff6235c4a18 in RL_rebStartup+0x8 (D:\r3.exe+0x140004a18)
-    #8 0x7ff6240f4b18 in Process_Group_For_Parse+0x39e088 (D:\r3.exe+0x140b34b18)
-    #9 0x7ff6240f4dc2 in Process_Group_For_Parse+0x39e332 (D:\r3.exe+0x140b34dc2)
-    #10 0x7ff62413ee07 in _asan_new_nothrow+0x1617 (D:\r3.exe+0x140b7ee07)
-    #11 0x7ffdb0627033 in BaseThreadInitThunk+0x13 (C:\WINDOWS\System32\KERNEL32.DLL+0x180017033)
-    #12 0x7ffdb23e2650 in RtlUserThreadStart+0x20 (C:\WINDOWS\SYSTEM32\ntdll.dll+0x180052650)
-
-SUMMARY: AddressSanitizer: heap-use-after-free (D:\r3.exe+0x1403fda89) in Panic_Series_Debug+0x2c9
-Shadow bytes around the buggy address:
-  0x0464b6903fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x0464b6903ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x0464b6904000: fa fa fd fd fa fa 00 05 fa fa 00 06 fa fa 00 04
-  0x0464b6904010: fa fa 00 07 fa fa 00 07 fa fa 00 04 fa fa fd fa
-  0x0464b6904020: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-=>0x0464b6904030: fa fa[fd]fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x0464b6904040: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x0464b6904050: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x0464b6904060: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x0464b6904070: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-  0x0464b6904080: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa
-Shadow byte legend (one shadow byte represents 8 application bytes):
-  Addressable:           00
-  Partially addressable: 01 02 03 04 05 06 07
-  Heap left redzone:       fa
-  Freed heap region:       fd
-  Stack left redzone:      f1
-  Stack mid redzone:       f2
-  Stack right redzone:     f3
-  Stack after return:      f5
-  Stack use after scope:   f8
-  Global redzone:          f9
-  Global init order:       f6
-  Poisoned by user:        f7
-  Container overflow:      fc
-  Array cookie:            ac
-  Intra object redzone:    bb
-  ASan internal:           fe
-  Left alloca redzone:     ca
-  Right alloca redzone:    cb
-  Shadow gap:              cc
-==29632==ABORTING
-
-D:\>debug.txt
+==34028==ABORTING
 
 D:\>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
