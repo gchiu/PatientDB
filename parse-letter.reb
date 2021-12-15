@@ -1028,16 +1028,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         dump drugname
                                         print form length-of drugname
                                         dump dosing
-                                        ;print ["Dosing length:" form length-of dosing]
-                                        ;    if not blank? dosing [
-                                        ;        dosing: copy/part dosing 120
-                                        ;    ]
-                                        ;trap [
-                                        ;    drugname: copy/part drugname 120
-                                        ;]
-                                        ;print ["Dosing length after truncation:" form length-of dosing]
-
-                                        print "Inserting into medications 1005"
+                                        print "Inserting into medications 1031"
                                         sql-execute [
                                             INSERT INTO medications (
                                                 nhi, letter, name, dosing, active

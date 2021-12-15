@@ -513,12 +513,28 @@ fetch-all: func [dbid nhi
         street: rec.8
         medications: diagnoses: dmards: consults: dates: _
       ]
+      ; lets get dmards which are inactive drugs
+      dmards: copy []
+      dump dbid
+      sql-execute [
+        SELECT name, dosing
+        FROM medications
+        WHERE nhi = @dbid and active = {'F'} 
+      ]
+      rec: copy port
+      if not empty? rec [
+        for-each r rec [
+          append dmards r.1
+        ]
+      ]
+
       ; now let us get the number of medications
+
       medications: copy []
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE active = {'T'} and nhi = @dbid
+        WHERE nhi = @dbid and active = {'T'}
       ]
       rec: copy port
       if not empty? rec [
@@ -538,20 +554,6 @@ fetch-all: func [dbid nhi
       if not empty? rec [
         for-each r rec [
           append diagnoses r.1
-        ]
-      ]
-
-      dmards: copy []
-      dump dbid
-      sql-execute [
-        SELECT name, dosing
-        FROM medications
-        WHERE active = {'F'} and nhi = @dbid
-      ]
-      rec: copy port
-      if not empty? rec [
-        for-each r rec [
-          append dmards r.1
         ]
       ]
 
