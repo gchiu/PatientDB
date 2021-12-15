@@ -5,25 +5,14 @@ Rebol [
 
 dsn: "rebol-firebird;UID=test;PWD=test-password"
 
-;  dsn: "test"
+; dsn: "test"
 ; dsn: "patients"
 
 digit: charset [#"0" - #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 
 print ["Opening dsn:" dsn]
-; dbase: open join odbc:// dsn
-
-dbase: open [
-    scheme: 'odbc
-    user: '
-    pass: ~no-user~
-    host: "rebol-firebird;UID=test;PWD=test-password"
-    port-id: '
-    path: '
-    tag: '
-    ref: odbc://rebol-firebird;UID=test;PWD=test-password
-]
+dbase: open join odbc:// dsn
 
 port: odbc-statement-of dbase
 show-sql?: true

@@ -1,6 +1,6 @@
 rebol []
 
-import %patientdb/sql.reb
+import %sql.reb
 
 fetch-all: func [dbid nhi
   <local> rec
@@ -94,4 +94,4 @@ fetch-all: func [dbid nhi
     ]
 ]
 
-fetch-all 7 "DLV5219"
+fetch-all 2 "VLE4321"
