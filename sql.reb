@@ -6,7 +6,7 @@ Rebol [
 dsn: "rebol-firebird;UID=test;PWD=test-password"
 
 ;  dsn: "test"
-dsn: "patients"
+; dsn: "patients"
 
 digit: charset [#"0" - #"9"]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
@@ -18,11 +18,11 @@ dbase: open [
     scheme: 'odbc
     user: '
     pass: ~no-user~
-    host: "patients" ; "rebol-firebird;UID=test;PWD=test-password"
+    host: "rebol-firebird;UID=test;PWD=test-password"
     port-id: '
     path: '
     tag: '
-    ref: odbc://patients ; odbc://rebol-firebird;UID=test;PWD=test-password
+    ref: odbc://rebol-firebird;UID=test;PWD=test-password
 ]
 
 port: odbc-statement-of dbase

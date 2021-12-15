@@ -259,6 +259,10 @@ jobs:
       run: |
         r3 check.reb
 
+    - name: run database queries as in web server
+      run: |
+        r3 query.reb
+
     # Ren-C project participants are asked to use the VSCode settings that
     # keep files in canonized condition.
     #
