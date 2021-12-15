@@ -94,4 +94,6 @@ fetch-all: func [dbid nhi
     ]
 ]
 
-fetch-all 2 "VLE4321"
+import <json>
+
+probe to-json fetch-all 2 "VLE4321"
