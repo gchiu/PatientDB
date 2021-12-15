@@ -94,9 +94,9 @@ fetch-all: func [dbid nhi
     ]
 ]
 
-system.options.redbol-paths: true
+; system.options.redbol-paths: true
 
-import <json>
+; import <json>
 
-probe to-json fetch-all 2 "VLE4321"
+probe fetch-all 2 "VLE4321"
 
