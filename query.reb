@@ -88,7 +88,7 @@ fetch-all: func [dbid nhi
 
       patient-o.dates: dates
       patient-o.consults: consults
-      return mold patient-o
+      return patient-o
     ] else [
       return {-ERR patient not found}
     ]
@@ -96,7 +96,13 @@ fetch-all: func [dbid nhi
 
 ; system.options.redbol-paths: true
 
-import <json>
+print "importing json"
+import %json.reb
+print "finished the import"
 
-probe to-json fetch-all 2 "VLE4321"
+result: fetch-all 2 "VLE4321"
+print "got the data"
+probe result
+
+probe to-json result
 

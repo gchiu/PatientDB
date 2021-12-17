@@ -99,8 +99,6 @@ sys.make-scheme [
 
     init: function [server [port!]] [
         spec: server.spec
-        probe mold spec
-
         case [
             url? spec.ref []
             block? spec.actions []

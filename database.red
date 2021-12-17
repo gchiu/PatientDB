@@ -110,7 +110,18 @@ lay: layout [
                         label "Surname" 50 surnamefld: field 110
                         label "DOB" 30 dobfld: field 80
                         label "Age" 30 agefld: field 25
-                        label "DBID" 30 dbidfld: field 40
+                        label "DBID" 30 dbidfld: field 40 [
+                            if error? err: try [
+                                view-load-json result: read rejoin [webroot "patients/" dbidfld/text "/all/"]
+                            ][
+                                attempt [
+                                    result: load-json read rejoin [webroot "patients/" nhifld/text "/"]
+                                    if integer? select result "id:" [
+                                        view-load-json result: read rejoin [webroot "patients/" select result "id:" "/all/"]
+                                    ]
+                                ]
+                            ]
+                        ]
                         label "NHI" 30 nhifld: field "DLV5219" 60 on-enter [
                             if not empty? face/text [get-patient face/text]
                         ]
@@ -168,13 +179,13 @@ lay: layout [
             ]
         ]
         "History" [
-            panel 240x700 [
+            panel 540x700 [
                 across
                 text bold "Patients" patientck: check false 10 [
                     patientbox/visible?: not face/data
                 ]
                 return
-                pattl: text-list 200x650 data history [
+                pattl: text-list 200x650 data history on-change [
                     p: pick history face/selected
                     clear-fields
                     nhi: copy/part p find p " "
@@ -184,6 +195,31 @@ lay: layout [
                     clear consultation/text
                     show-consult 1
                     show-demogs hideck/data
+                ]
+                panel 200x700 [
+                    text bold "Search History" return
+                    searchfld: field 150 "" on-enter [
+                        if empty? searchfld/text [return]
+                        results: copy []
+                        foreach rec pattl/data [
+                            if find rec searchfld/text [
+                                    append results rec
+                            ]
+                        ] 
+                        resulttl/data: copy results
+                    ] return
+                    text bold "Results" return
+                    resulttl: text-list 220x500 on-change [
+                        p: pick face/data face/selected
+                        clear-fields
+                        nhi: copy/part p find p " "
+                        nhifld/text: copy nhi
+                        show nhifld
+                        get-patient nhi
+                        clear consultation/text
+                        show-consult 1
+                        show-demogs hideck/data
+                    ]
                 ]
                 at 85x50 patientbox: box 100x650 gray
             ]
@@ -394,5 +430,30 @@ display-data: func [face
         ]
     ]
 ]
+
+view-load-json: func [json
+    /local dob age
+][
+    set 'patient-o load-json json
+    if map? patient-o [
+        surnamefld/text: patient-o/surname
+        fnamefld/text: patient-o/fname
+        dob: load patient-o/dob
+        dobfld/text: form dob
+        gpfld/text: patient-o/gpname
+        gpcentfld/text: patient-o/gpcentname
+        dbidfld/text: form patient-o/dbid
+        nhifld/text: patient-o/nhi
+        age: now/date - dob
+        age: age / 365.25
+        agefld/text: form to integer! age
+        rxtl/data: patient-o/medications
+        dxtl/data: patient-o/diagnoses
+        dmtl/data: patient-o/dmards
+        clindates/data: patient-o/dates
+        show-consult 1
+    ]
+]
+
 
 view lay

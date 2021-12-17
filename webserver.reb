@@ -209,7 +209,7 @@ handle-request: function [
       ] else [
         nhi: "-ERR Didn't parse the parser"
       ]
-      return reduce [200 mime.html spaced["id:" nhi]]
+      return reduce compose/deep [200 mime.json to-json ["id:" (nhi)]]
     ]
 
     parse? req.request-uri  ["/patients/" copy id some digit "/all/" end][
@@ -218,9 +218,9 @@ handle-request: function [
         sql-execute [SELECT nhi FROM NHILOOKUP WHERE id = @id]
         result: copy port
         if empty? result [
-          return spaced [{-ERR this ID of:} id {is not in use}]
+          return spaced [200 mime.text spaced [{-ERR this ID of:} id {is not in use}]]
         ] else [
-          fetch-all to integer! id result.1.1
+          return reduce [200 mime.json to-json fetch-all to integer! id result.1.1]
         ]
     ]
   ]
@@ -378,9 +378,9 @@ server: open compose [
   ]
 ]
 
+;================================== user stuff ===============================
+import <json>
 import %patientdb/sql.reb
-
-; type Script id unassigned-attach message arg1 word is attached to a context, but unassigned near *** copy  foreach ** nhi common ?? nhi id *** *** where fetch-combo-users either if handle-request else trap handler if dispatch case cycle accept wait do catch module import* do* do console file /D/webserver.reb line 355 arg1 foreach
 
 fetch-combo-users: func [drug
   <local> id drug1 drug2 common drugs drug-1 drug-2
@@ -499,12 +499,13 @@ fetch-all: func [dbid nhi
       FROM patients where nhi = @dbid
     ]
     rec: copy port
+    dump rec
     if not empty? rec [
       rec: rec.1
       patient-o: make object! compose [
         fname: (rec.1)
         surname: (rec.2)
-        dob: (rec.3)
+        dob: (unspaced [rec.3.day "-" rec.3.month "-" rec.3.year])
         gpname: rec.4
         gpcentname: (rec.5)
         dbid: (dbid)
@@ -569,16 +570,16 @@ fetch-all: func [dbid nhi
         ORDER BY cdate DESC
       ]
       for-each record copy port [
-        append/only consults record ; id cdate clinicians dictation
+        append/only consults reduce [record.1 form record.2.date record.3 record.4] ;reduce [id cdate.date clinicians dictation]
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]
-        append dates form record.2
+        append dates form record.2.date
       ]
 
       patient-o.dates: dates
       patient-o.consults: consults
-      return mold patient-o
+      return patient-o
     ] else [
-      return {-ERR patient not found}
+      return [error: {patient not found}]
     ]
 ]
 
