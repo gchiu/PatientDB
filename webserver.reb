@@ -223,6 +223,10 @@ handle-request: function [
           return reduce [200 mime.json to-json fetch-all to integer! id result.1.1]
         ]
     ]
+
+    parse? req.request-uri ["/patients/name/" copy name to "/" "/" end][
+        return reduce [200 mime.json to-json fetch-by-name name]
+    ]
   ]
 
   set 'request req  ; global
@@ -581,6 +585,34 @@ fetch-all: func [dbid nhi
     ] else [
       return [error: {patient not found}]
     ]
+]
+
+fetch-by-name: func [name
+  <local> fname surname
+][
+    if empty? name [
+      return [err: "No name given"]
+    ]
+    uppercase name
+    names: split name "+" ; means we have a first and surname
+    either 1 < length? names [
+      fname: append first names "%"
+      surname: append last names "%"
+      sql-execute [
+         select nhilookup.nhi, patients.surname, patients.fname from nhilookup, patients where
+          patients.surname like @surname and patients.fname like @fname and patients.nhi = nhilookup.id
+      ]
+    ][
+      ; only has surname
+      surname: join name "%"
+      sql-execute [
+         select nhilookup.nhi, patients.surname, patients.fname from nhilookup, patients where
+          patients.surname like @surname and patients.nhi = nhilookup.id
+      ]
+    ]
+  result: copy port
+  dump result
+  return result
 ]
 
 if verbose >= 1 [

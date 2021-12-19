@@ -178,7 +178,7 @@ lay: layout [
                 dmtl: text-list 200x120
             ]
         ]
-        "History" [
+        "History && Search" [
             panel 540x700 [
                 across
                 text bold "Patients" patientck: check false 10 [
@@ -209,7 +209,7 @@ lay: layout [
                         resulttl/data: copy results
                     ] return
                     text bold "Results" return
-                    resulttl: text-list 220x500 on-change [
+                    resulttl: text-list 220x200 on-change [
                         p: pick face/data face/selected
                         clear-fields
                         nhi: copy/part p find p " "
@@ -219,6 +219,41 @@ lay: layout [
                         clear consultation/text
                         show-consult 1
                         show-demogs hideck/data
+                    ] return
+                    box 190x7 blue return
+                    text bold "Search Database" return
+                    text bold "First Name:" 65 sfnamefld: field 100 on-enter [set-focus ssnamefld] return
+                    text bold "Surname:" 65 ssnamefld: field 100 on-enter [set-focus ssearchbtn] return
+                    ssearchbtn: button "Search" font [color: green] on-click [
+                        ; "/patients/name/"
+                        view/no-wait lo: layout [text bold "Searching now"]
+                        result: case [
+                            all [not empty? sfnamefld/text not empty? ssnamefld/text][
+                                read rejoin [webroot "patients/name/" sfnamefld/text "+" ssnamefld/text "/"]
+                            ]
+                            not empty? ssnamefld/text [
+                                read rejoin [webroot "patients/name/" ssnamefld/text "/"]
+                            ]
+                            true [
+                                none
+                            ]
+                        ]
+                        unview/only lo
+                        ; probe result
+                        if not none? result [
+                            data: copy []
+                            foreach rec load-json result [
+                                append data reform rec
+                            ]
+                            resulttl/data: copy data
+                        ]
+                    ]
+                    button "Clear" on-click [
+                        resulttl/selected: -1
+                        clear resulttl/data
+                        clear sfnamefld/text 
+                        clear ssnamefld/text 
+                        set-focus sfnamefld
                     ]
                 ]
                 at 85x50 patientbox: box 100x650 gray
