@@ -524,7 +524,7 @@ fetch-all: func [dbid nhi
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE nhi = @dbid and active = {'F'} 
+        WHERE nhi = @dbid and active = {'F'}
       ]
       rec: copy port
       if not empty? rec [
