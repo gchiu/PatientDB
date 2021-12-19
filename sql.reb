@@ -5,7 +5,7 @@ Rebol [
 
 dsn: "rebol-firebird;UID=test;PWD=test-password"
 
-; dsn: "test"
+; dsn: "tests"
 ; dsn: "patients"
 
 digit: charset [#"0" - #"9"]
