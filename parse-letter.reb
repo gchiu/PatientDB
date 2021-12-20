@@ -381,39 +381,47 @@ for-each record records [; records contains all id, filenames from files where f
                                             ;        b) RF-ve
                                             ; Anti-CCP +ve rheumatoid arthritis
                                             case [
-                                                parse? line [
-                                                    opt some whitespace "-" opt some whitespace copy dline to end | ; this is diagnosis detail
-                                                    opt some whitespace "•" opt some whitespace copy dline to end | ; so is this
-                                                    opt some whitespace some alpha "." opt some whitespace copy dline to end | ; so is this
-                                                    opt some whitespace some alpha ":" opt some whitespace copy dline to end | ; so is this
-                                                    opt some whitespace alpha ")" opt some whitespace copy dline to end ; a), b)^- ; so is this
+                                                parse? line [; diagnosis with no numbering, diagnosis can't start with a digit
+                                                    opt some whitespace uc some diagnosis-rule to end
+                                                ][
+                                                    ; diagnosis on line with no bullets/numbers
+                                                    print ["appending diagnosis" line "388"]
+                                                    if odd? length-of diagnoses [append/only diagnoses [""]]
+                                                    append diagnoses line
+                                                ]
+
+                                                parse? line [ ; numbered diagnoses
+                                                    some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
                                                 ] [
-                                                    print "got a diagnosis"
+                                                    if line [; sometimes blank after a number!
+                                                        trim/head/tail line
+                                                        ; now add the details as a block to the previous diagnosis
+                                                        if all [not empty? trim/tail diagnosis-detail not empty? diagnoses] [
+                                                            append/only diagnoses reduce [diagnosis-detail]
+                                                            diagnosis-detail: copy ""
+                                                        ] else [
+                                                            if not empty? diagnoses [append/only diagnoses copy [""]]
+                                                        ]
+                                                        ; we have dealt with any diagnosis details, so add new diagnosis
+                                                        if odd? length-of diagnoses [append/only diagnoses [""]]
+                                                        append diagnoses line
+                                                        print ["appending diagnosis" line "406"]
+                                                    ]
+                                                ]
+
+                                                parse? line [ ; these are non-numbered bullet points
+                                                    opt some whitespace ["-" | "." | ":" | ")" | "•" ] opt some whitespace copy dline to end
+                                                ] [
+                                                    print "got a diagnosis detail"
                                                     dump dline
                                                     if dline [
                                                         trim/head/tail dline
-                                                        append diagnosis-detail join dline "; "
-                                                    ]
-                                                ]
-                                                parse? line [
-                                                    ; need to trap those cases where the diagnoses are numerated and aren't bullets to the one above in which case there's no leading space
-                                                    opt some digit "." opt some whitespace copy line to end |
-                                                    some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
-                                                    copy line some diagnosis-rule to end
-                                                ] [
-                                                    ; submode: 'gotdx ;'
-                                                    if line [; sometimes blank after a number!
-                                                        trim/head/tail line
-                                                        ; now add the details as a block
-                                                        either not empty? diagnosis-detail [
-                                                            append/only diagnoses reduce [trim/tail diagnosis-detail]
-                                                            diagnosis-detail: copy ""
-                                                        ] [if not empty? diagnoses [append/only diagnoses copy [""]]]
-                                                        append diagnoses line
+                                                        if all [not empty? dline 2 < length-of dline not empty? diagnoses] [
+                                                            append diagnosis-detail join dline "; "
+                                                        ]
                                                     ]
                                                 ]
                                             ]
-                                            ; append diagnoses line
                                         ]
                                     ]
 
@@ -435,7 +443,7 @@ for-each record records [; records contains all id, filenames from files where f
 
                                     'page-2-diagnoses [
                                         if find/part line "NHI:" 4 [
-                                            mode: 'diagnoses ;'
+                                            mode: 'diagnosis ;'
                                             oldmode: 'page-2-diagnoses ;'
                                         ]
                                     ]
@@ -497,249 +505,6 @@ for-each record records [; records contains all id, filenames from files where f
                         ] ; end of loop through each line of contents
                         ;==========parser ends
 
-                        if debug [
-                            ?? mode
-                            ?? longdate
-                            ?? nhi
-                            ?? surname
-                            ?? fname
-                            ?? sname
-
-                            mode: 'date
-                            for-each line deline/lines contents [; split into lines and parse each line
-                                trim/head/tail line
-                                either empty? line [
-                                    case [
-
-                                        all [mode = 'medication not empty? medications] [
-                                            either oldmode: 'page-2-medications [] [
-                                                print "empty line, in medication mode, and not empty medications"
-                                                mode: 'page-2-medications
-                                            ]
-                                        ]
-
-                                        all [mode = 'diagnoses not empty? diagnoses] [
-                                            either oldmode = 'page-2-diagnoses [] [
-                                                mode: 'page-2-diagnoses
-                                            ]
-                                        ]
-
-                                        mode = 'name []
-
-                                        all [mode = 'dmards not empty? dmards] [print "finish at 494" mode: 'finish]
-                                    ]
-
-                                ] [; not an empty line
-
-                                    if find/part line "VITALS" 6 [
-                                        print "Found vitals - going to finish - 486"
-                                        mode: 'finish
-                                    ]
-
-                                    switch mode [
-                                        'date [
-                                            if find line longdate [
-                                                ; now we are in the header
-                                                mode: 'name ;'
-                                            ]
-                                        ]
-                                        'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
-                                            either parse? line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
-                                                ; we have surnames, and first names
-                                                parse line [copy surname to ","]
-                                                ?? surname ?? fname ?? sname
-                                                surname: uppercase surname
-                                                fname: uppercase fname
-                                                if sname [sname: uppercase sname]
-                                                mode: 'nhi ;'
-                                            ] [
-                                                print ["can't find name in line " line]
-                                                mode: 'abandon ;' maybe try alternate name parser
-                                            ]
-                                        ]
-
-                                        'nhi [; confirm nhi matches that from the filename
-                                            if parse? line ["NHI: " copy letter-nhi nhi-rule] [
-                                                either letter-nhi <> nhi [
-                                                    print "Mismatch on file NHI and Letter NHI"
-                                                    break
-                                                ] [
-                                                    mode: 'address ;'
-                                                ]
-                                            ]
-                                        ]
-
-                                        'address [; start capturing address lines and dob mixed in together, terminated by finding GP:
-                                            line: copy/part line 60 ; let us trim anything to the right
-                                            case [
-                                                parse? line ["DOB: " copy dob dob-rule] [
-                                                    replace/all dob "." "-"
-                                                    dob: to date! dob
-                                                ]
-
-                                                parse? line ["GP: " copy fp to end] [
-                                                    fpname: last parse fp none
-                                                    mode: 'fp ;' got the FP name
-                                                ]
-
-                                                parse? line [some [phone-rule | mobile-rule | space] end] []
-
-                                                find line "@" [email: copy line]
-
-                                                true [; just address lines
-                                                    ; get area code out
-                                                    rline: reverse copy line
-                                                    if parse/all rline [copy areacode areacode-rule space copy line to end] [
-                                                        areacode: reverse areacode
-                                                        line: reverse line
-                                                    ]
-                                                    append/only address line
-                                                ]
-                                            ]
-                                        ]
-
-                                        'fp [; extract fp address
-                                            print "Fp mode in switch"
-                                            case [
-                                                find/part line "Dear" 4 [
-                                                    print "end salutation mode 569"
-                                                    mode: 'end-salutation ;'
-                                                ]
-
-                                                find/part line "INTERNAL" 8 [
-                                                    ; internal referral
-                                                    mode: 'finish ;'
-                                                ]
-
-                                                true [
-                                                    if not find line fpname [
-                                                        ; if there are tabs in the line, it's from a copy to someone else
-                                                        ; eg {Kauri HealthCare^-^-^-^Whanganui Hospital} ;'
-                                                        if find line #"^-" [
-                                                            parse line [copy line to #"^-"]
-                                                        ]
-                                                        append fpaddress line
-                                                    ]
-                                                ]
-
-                                            ]
-                                        ]
-
-                                        'end-salutation [
-                                            if find/part line "Diagnos" 7 [
-                                                mode: 'diagnosis ;'
-                                            ]
-                                            if find/part line "INTERNAL" 8 [
-                                                print "internal referral"
-                                                mode: 'finish ;'
-                                            ]
-                                        ]
-
-                                        'diagnosis [
-                                            if any [find line "Page 2" find line "….2"] [
-                                                print "switching to page-2-diagnoses"
-                                                mode: 'page-2-diagnoses
-                                            ]
-                                            either find line "Medicat" [
-                                                mode: 'medication ;'
-                                                if not empty? diagnosis-detail [; catch end of list issue
-                                                    append/only diagnoses reduce [trim/tail diagnosis-detail]
-                                                    diagnosis-detail: copy ""
-                                                ]
-                                            ] [
-                                                case [
-                                                    parse? line [opt some whitespace "-" opt some whitespace copy dline to end | ; this is diagnosis detail
-                                                        opt some whitespace some alpha "." opt some whitespace copy dline to end | ; so is this
-                                                        opt some whitespace some alpha ":" opt some whitespace copy dline to end | ; so is this
-                                                        opt some whitespace alpha ")" opt some whitespace copy dline to end ; a), b)^- ; so is this
-                                                    ] [
-                                                        if dline [
-                                                            trim/head/tail dline
-                                                            append diagnosis-detail join dline "; "
-                                                        ]
-                                                    ]
-                                                    parse? line [
-                                                        some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
-                                                        copy line some diagnosis-rule to end
-                                                    ] [
-                                                        ; submode: 'gotdx ;'
-                                                        if line [; sometimes blank after a number!
-                                                            trim/head/tail line
-                                                            ; now add the details as a block
-                                                            either not empty? diagnosis-detail [
-                                                                append/only diagnoses reduce [trim/tail diagnosis-detail]
-                                                                diagnosis-detail: copy ""
-                                                            ] [if not empty? diagnoses [append/only diagnoses copy [""]]]
-                                                            append diagnoses line
-                                                        ]
-                                                    ]
-                                                ]
-                                                ; append diagnoses line
-                                            ]
-                                        ]
-                                        'page-2-medications [
-                                            print ["In mode: " mode]
-                                            ; ?? line
-                                            if find/part line "NHI:" 4 [
-                                                mode: 'medication ;'
-                                                oldmode: 'page-2-medications ;'
-                                            ]
-                                        ]
-
-                                        'page-2-diagnoses [
-                                            if find/part line "NHI:" 4 [
-                                                mode: 'diagnoses ;'
-                                                oldmode: 'page-2-diagnoses ;'
-                                            ]
-                                        ]
-
-                                        'medication [
-                                            ; medications can spill into the next page
-                                            ?? line
-                                            case [
-                                                any [find line "Page 2" find line "….2"] [
-                                                    print "switching to page-2-medications"
-                                                    mode: 'page-2-medications ;'
-                                                ]
-
-                                                any [
-                                                    find line "MARDS"
-                                                    find line "Previous Medications"
-                                                    find line "Previous Medication"
-                                                    find line "Previous DMARDS"
-                                                    find line "Previous MARDS"
-                                                    find line "DMARDS"
-                                                    find line "DMARD History"
-                                                    find line "Previous DMARD History"
-                                                ] [print "**************Found DMARD line**************"
-                                                    mode: 'dmards
-                                                ] ;'
-
-                                                true [
-                                                    append medications line
-                                                    print "added to medications"
-                                                ]
-                                            ]
-                                        ]
-
-                                        'dmards [
-                                            either any [find line "DMARD" find line "Previous" find line "Medications"] [
-                                            ] [
-                                                append dmards line
-                                            ]
-                                        ]
-
-                                        'finish [
-                                            print "Finished processing or no diagnoses/medications in this letter 677"
-                                            dump diagnoses
-                                            dump medications
-                                            break
-                                        ]
-                                    ]
-
-                                ]
-                            ]
-                        ]
                         if debug [
                             ?? address
                             ?? areacode
