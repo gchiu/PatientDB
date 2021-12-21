@@ -25,13 +25,18 @@ for-each r result [
 sql-execute {select count(*) from medications}  ; !!! how to dialect COUNT(*)?
 result: copy port
 dump result
+print ["number of medications:" result.1.1]
 if result.1.1 <> 28 [
     fail "Not enough medications"
 ]
 
 sql-execute {select count(*) from diagnoses}  ; !!! how to dialect COUNT(*)?
 result: copy port
-dump result
-if result.1.1 <> 40 [
+print ["number of diagnoses:" result.1.1]
+for-each [dx ab] diagnoses [
+    print ["Dx:" dx "Comments:" ab]
+]
+
+if result.1.1 <> 39 [
     fail "Not enough diagnoses"
 ]
