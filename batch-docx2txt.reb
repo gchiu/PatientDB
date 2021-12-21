@@ -67,5 +67,5 @@ batch-docx2txt: func [dir [file!]
     ]
 ]
 
-batch-docx2txt %/d/2021/2021/November/
+; batch-docx2txt %/d/2021/2021/November/
 batch-docx2txt %/d/2021/2021/December/
