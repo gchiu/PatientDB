@@ -33,9 +33,6 @@ if result.1.1 <> 36 [
 sql-execute {select count(*) from diagnoses}  ; !!! how to dialect COUNT(*)?
 result: copy port
 print ["number of diagnoses:" result.1.1]
-for-each [dx ab] diagnoses [
-    print ["Dx:" dx "Comments:" ab]
-]
 
 if result.1.1 <> 44 [
     fail "Not enough diagnoses"
