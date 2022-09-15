@@ -71,7 +71,7 @@ load-json: use [
 
         func [val [text!]][
             all [
-                did parse3 val [word1 while word+]
+                did parse3 val [word1 opt some word+]
                 to word! val
             ]
         ]
@@ -79,7 +79,7 @@ load-json: use [
 
     space: use [space][
         space: charset " ^-^/^M"
-        [while space]
+        [opt some space]
     ]
 
     comma: [space #"," space]
@@ -120,16 +120,16 @@ load-json: use [
 
             func [text [text! blank!]][
                 either blank? text [make text! 0][
-                    all [did parse3 text [while [to "\" escape] to <end>], text]
+                    all [did parse3 text [opt some [to "\" escape] to <end>], text]
                 ]
             ]
         ]
 
-        [#"^"" copy val [while [some ch | #"\" [#"u" 4 hx | es]]] #"^"" (val: decode val)]
+        [#"^"" copy val [opt some [some ch | #"\" [#"u" 4 hx | es]]] #"^"" (val: decode val)]
     ]
 
     block: use [list][
-        list: [space opt [value while [comma value]] space]
+        list: [space opt [value opt some [comma value]] space]
 
         [#"[" new-child list #"]" neaten.1 to-parent]
     ]
@@ -149,7 +149,7 @@ load-json: use [
                 ]
             )
         ]
-        list: [space opt [name value while [comma name value]] space]
+        list: [space opt [name value opt some [comma name value]] space]
         as-map: [(if not is-flat [here: change back here make map! pick back here 1])]
 
         [#"{" new-child list #"}" neaten.2 to-parent as-map]
@@ -159,7 +159,7 @@ load-json: use [
         initial: charset ["$_" #"a" - #"z" #"A" - #"Z"]
         ident: union initial charset [#"0" - #"9"]
 
-        [initial while ident]
+        [initial opt some ident]
     ]
 
     value: [
@@ -221,7 +221,9 @@ to-json: use [
         ]
 
         func [txt][
-            parse3 txt [while [txt: <here> some ch | skip (txt: encode txt) seek txt]]
+            parse3 txt [
+                opt some [txt: <here> some ch | skip (txt: encode txt) seek txt]
+            ]
             head txt
         ]
     ]
@@ -270,7 +272,7 @@ to-json: use [
     comma: [(if not tail? here [emit ","])]
 
     block: [
-        (emit "[") while [here: <here> value here: <here> comma] (emit "]")
+        (emit "[") opt some [here: <here> value here: <here> comma] (emit "]")
     ]
 
     block-of-pairs: [
@@ -280,8 +282,10 @@ to-json: use [
 
     object: [
         (emit "{")
-        while [
-            here: <here> [set-word! (change here to word! here.1) | any-string! | any-word!]
+        opt some [
+            here: <here> [
+                set-word! (change here to word! here.1) | any-string! | any-word!
+            ]
             (emit [{"} escape to text! here.1 {":}])
             here: <here> value here: <here> comma
         ]
