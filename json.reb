@@ -206,7 +206,9 @@ to-json: use [
     json emit emits escape emit-issue emit-date
     here lookup comma block object block-of-pairs value
 ][
-    emit: func [data][append json reduce data]
+    emit: func [data][
+        append json (non block! data else [spread reduce data])
+    ]
     emits: func [data][emit {"} emit data emit {"}]
 
     escape: use [mp ch encode][
