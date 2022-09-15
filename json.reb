@@ -69,7 +69,7 @@ load-json: use [
             #"^(f900)" - #"^(FDCF)" #"^(FDF0)" - #"^(FFFD)"
         ]
 
-        func [val [text!]][
+        lambda [val [text!]][
             all [
                 did parse3 val [word1 opt some word+]
                 to word! val
@@ -89,7 +89,7 @@ load-json: use [
         ex: [[#"e" | #"E"] opt [#"+" | #"-"] some dg]
         nm: [opt #"-" some dg opt [#"." some dg] opt ex]
 
-        as-num: func [val [text!]][
+        as-num: lambda [val [text!]][
             case [
                 didn't parse3 val [opt "-" some dg][to decimal! val]
                 error? trap [val: to integer! val][to issue! val]
@@ -213,7 +213,7 @@ to-json: use [
         mp: [#"^/" "\n" #"^M" "\r" #"^-" "\t" #"^"" "\^"" #"\" "\\" #"/" "\/"]
         ch: intersect ch: charset [#" " - #"~"] difference ch charset extract mp 2
 
-        encode: func [here][
+        encode: lambda [here][
             change/part here any [
                 select mp here.1
                 unspaced ["\u" skip tail form to-hex codepoint of here.1 -4] ; to integer!
@@ -224,7 +224,7 @@ to-json: use [
             parse3 txt [
                 opt some [txt: <here> some ch | skip (txt: encode txt) seek txt]
             ]
-            head txt
+            return head txt
         ]
     ]
 
@@ -236,7 +236,10 @@ to-json: use [
     ]
 
     emit-date: use [pad second][
-        pad: func [part length][part: to text! part head insert/dup part "0" length - length? part]
+        pad: func [part length][
+            part: to text! part
+            return head insert/dup part "0" length - length? part
+        ]
 
         the (
             emits unspaced collect [
@@ -329,8 +332,11 @@ to-json: use [
         | any-value! (emits to tag! type-of first here)
     ]
 
-    func [data][
+    lambda [data][
         json: make text! 1024
-        if did parse3 compose [(data)][here: <here>, value][json]
+        all [
+            did parse3 compose [(data)][here: <here>, value]
+            json
+        ]
     ]
 ]
