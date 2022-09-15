@@ -100,7 +100,7 @@ for-each record records [; records contains all id, filenames from files where f
         ; nhi: uppercase copy/part filename 7
         current-doc: _
         ; see if it matches the current filename format
-        if parse? filename filename-rule [
+        if did parse3 filename filename-rule [
             print ["Filename passed rule" filename]
             nhi: letter-nhi: _
             parse3 filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
@@ -218,7 +218,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
-                                        if parse? line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
+                                        if did parse3 line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
                                             ; we have surnames, and first names
                                             parse3 line [copy surname to ","]
                                             dump surname dump fname dump sname
@@ -272,7 +272,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'nhi [; confirm nhi matches that from the filename
-                                        if parse? line ["NHI:" opt some space copy letter-nhi nhi-rule] [
+                                        if did parse3 line ["NHI:" opt some space copy letter-nhi nhi-rule] [
                                             either letter-nhi <> nhi [
                                                 print "Mismatch on file NHI and Letter NHI"
                                                 mismatch-nhi: me + 1
@@ -287,18 +287,18 @@ for-each record records [; records contains all id, filenames from files where f
                                         print "In address mode of switch"
                                         line: copy/part line 60 ; let us trim anything to the right
                                         case [
-                                            parse? line ["DOB: " copy dob dob-rule] [
+                                            did parse3 line ["DOB: " copy dob dob-rule] [
                                                 replace/all dob "." "-"
                                                 dob: to date! dob
                                                 dump dob
                                             ]
 
-                                            parse? line ["GP: " copy fp to end] [
+                                            did parse3 line ["GP: " copy fp to end] [
                                                 fpname: last split fp space
                                                 mode: 'fp ;' got the FP name
                                             ]
 
-                                            parse? line [some [phone-rule | mobile-rule | space] end] [
+                                            did parse3 line [some [phone-rule | mobile-rule | space] end] [
                                                 dump phone
                                                 dump mobile
                                             ]
@@ -311,7 +311,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             true [; just address lines
                                                 ; get area code out
                                                 rline: reverse copy line
-                                                if parse? rline [copy areacode areacode-rule space copy line to end] [
+                                                if did parse3 rline [copy areacode areacode-rule space copy line to end] [
                                                     areacode: reverse areacode
                                                     line: reverse line
                                                 ]
@@ -381,7 +381,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             ;        b) RF-ve
                                             ; Anti-CCP +ve rheumatoid arthritis
                                             case [
-                                                parse? line [; diagnosis with no numbering, diagnosis can't start with a digit
+                                                did parse3 line [; diagnosis with no numbering, diagnosis can't start with a digit
                                                     opt some whitespace uc some diagnosis-rule to end
                                                 ][
                                                     ; diagnosis on line with no bullets/numbers
@@ -390,7 +390,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                     append diagnoses line
                                                 ]
 
-                                                parse? line [ ; numbered diagnoses
+                                                did parse3 line [ ; numbered diagnoses
                                                     some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
                                                 ] [
                                                     if line [; sometimes blank after a number!
@@ -409,7 +409,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                     ]
                                                 ]
 
-                                                parse? line [ ; these are non-numbered bullet points
+                                                did parse3 line [ ; these are non-numbered bullet points
                                                     opt some whitespace ["-" | "." | ":" | ")" | "•" ] opt some whitespace copy dline to end
                                                 ] [
                                                     print "got a diagnosis detail"
@@ -737,7 +737,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             ]
                                         ]
                                         attempt [trim/tail drug]
-                                        if parse? drug [not-drug-rule to end][
+                                        if did parse3 drug [not-drug-rule to end][
                                             ; not a drug, probably a comment, so skip to next drug
                                             print "Not a drug probably so lets continue"
                                             continue

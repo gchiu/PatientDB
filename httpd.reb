@@ -102,7 +102,7 @@ sys.make-scheme [
         case [
             url? spec.ref []
             block? spec.actions []
-            parse? spec.ref [
+            did parse3 spec.ref [
                 set-word! lit-word!
                 integer! block!
             ][

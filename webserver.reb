@@ -130,7 +130,7 @@ html-list-dir: function [
   for-each i list [
     is-rebol-file: did all [
       not dir? i
-      parse? i [thru ".reb"]
+      did parse3 i [thru ".reb"]
     ]
     append data unspaced [
       {<a }
@@ -187,7 +187,7 @@ handle-request: function [
   ;==============handle get requests============================;
   case [
     ; drug names and combinations
-    parse? req.request-uri ["/drug/" copy drugname to "/" to end][
+    did parse3 req.request-uri ["/drug/" copy drugname to "/" to end][
       ; res: spaced ["drug request for users of" drugname]
       res: if find drugname "+" [
         fetch-combo-users drugname
@@ -197,8 +197,8 @@ handle-request: function [
       return reduce [200 mime.html res]
     ]
     ; patient demographics
-    parse? req.request-uri ["/patients/nhi/" copy nhi to "/" to end][
-      if parse? nhi [3 alpha 4 digit][
+    did parse3 req.request-uri ["/patients/nhi/" copy nhi to "/" to end][
+      if did parse3 nhi [3 alpha 4 digit][
         uppercase nhi
         sql-execute [SELECT id FROM NHILOOKUP WHERE nhi = @nhi]
         if empty? result: copy port [
@@ -212,7 +212,7 @@ handle-request: function [
       return reduce compose/deep [200 mime.json to-json ["id:" (nhi)]]
     ]
 
-    parse? req.request-uri  ["/patients/" copy id some digit "/all/" end][
+    did parse3 req.request-uri  ["/patients/" copy id some digit "/all/" end][
         print "parsed fetch-all"
         id: to integer! id
         sql-execute [SELECT nhi FROM NHILOOKUP WHERE id = @id]
@@ -224,7 +224,7 @@ handle-request: function [
         ]
     ]
 
-    parse? req.request-uri ["/patients/name/" copy name to "/" "/" end][
+    did parse3 req.request-uri ["/patients/name/" copy name to "/" "/" end][
         return reduce [200 mime.json to-json fetch-by-name name]
     ]
   ]
