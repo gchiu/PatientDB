@@ -64,45 +64,14 @@ jobs:
         checked: true
 
 
-    # Rebol2 unfortunately has to be piped into something in order to see the
-    # output, otherwise it will spawn a window that won't show up in the
-    # GitHub Actions log.  Using --nowindow and doing piping with | can get
-    # the actual data.  In bash we could do `| cat`, but we can't launch a
-    # bash script with a convenient name .
-    #
-    # Instead we do a batch file.  We can't use TYPE as a substitute for piping
-    # for CAT because it doesn't take piped input.  Instead we use FIND and
-    # exclude any line that contains the word "voodoo".
-    #
-    # Note: Writing a line from cmd.exe that contains quotes like this is
-    # seemingly impossible...escaping with ^" or "" or \" just don't work.
-    # Bash may be ugly, but at least it doesn't have so many glaring holes.
-    #
-    - name: Download And Wrap Rebol2 Interpreter
-      run: |
-        curl -o rebol2-core.exe -L http://www.rebol.com/downloads/v278/rebol-core-278-3-1.exe
-        echo "rebol2-core.exe --nowindow %* | find /V \"voodoo\"" > rebol2.bat
-
-
     - name: Add Current Directory to Path
       run: |
         echo "$(pwd)" >> $GITHUB_PATH
 
 
-    # Ren-C works with stdio by default, so the output of PRINT and similar
-    # will go to the log that you view from GitHub Actions.
-    #
     - name: Demonstrate Ren-C Working
       run: |
         r3 --do "print {Hello from Ren-C}"
-
-
-    # See notes above about why Rebol2 is a batch file that does piping.
-    #
-    - name: Demonstrate Rebol2 Working
-      shell: cmd
-      run: |
-        rebol2 --do "print {Hello from Rebol2 Piping Batch Wrapper}"
 
 
   #====# FIREBIRD INSTALLATION #==============================================#
