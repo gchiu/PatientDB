@@ -32,7 +32,7 @@ batch-docx2txt: func [dir [file!]
             target: join dir replace copy file %.docx %.txt
             if not exists? target [
                 print ["converting" target]
-                if error? entrap [
+                if error? sys.util.rescue [
                     t: load-docx join dir file
                 ][
                     loop

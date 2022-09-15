@@ -52,7 +52,7 @@ for-each file read dir [
     ffile: form file
     if parse? ffile filename-rule [
         print ["Checking" ffile]
-        if e: error? trap [
+        if e: error? sys.util.rescue [
             sql-execute [SELECT * FROM files WHERE filename = @ffile]
         ][
             print ":::::::::::::: sql error:::::::::::::::::"
@@ -62,7 +62,7 @@ for-each file read dir [
         if empty? copy port [
             print ["Adding" ffile]
             dump ffile
-            if e: error? trap [
+            if e: error? sys.util.rescue [
                 sql-execute [
                     INSERT INTO files (filename) VALUES (@ffile)
                 ]

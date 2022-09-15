@@ -120,7 +120,7 @@ for-each record records [; records contains all id, filenames from files where f
                 diagnosis-detail: copy ""
 
                 ; now read the letter to parse the contents
-                if e: error? trap [
+                if e: error? sys.util.rescue [
                     contents: to text! deline read join dir filename
                 ][
                     probe e
