@@ -292,7 +292,7 @@ to-json: use [
           lookup ; resolve a GET-WORD! reference
         | any-number! (emit here.1)
         | [logic! | 'true | 'false] (emit to text! here.1)
-        | [blank! | 'none | 'blank] (emit the 'null)
+        | [blank! | 'none | 'blank] (emit the null)
         | date! emit-date
         | issue! emit-issue
         | [
@@ -300,7 +300,25 @@ to-json: use [
         ] (emits escape form here.1)
         | any-word! (emits escape form to word! here.1)
 
-        | [object! | map!] seek here (change here body-of first here) into object
+        | [object! | map!] seek here (
+            ;
+            ; !!! This was `change here body-of first here`.  BODY-OF was a
+            ; sketchy idea for objects in the first place, but in particular
+            ; with the addition of nulls.  This does a workaround to try and
+            ; keep the tests in PatientDB working--but a better theory of
+            ; JSON interoperability is needed.
+            ;
+            change here map-each [key value] (first here) [
+                spread reduce [
+                    to set-word! key
+                    case [
+                        null? :value ['_]
+                        logic? :value [either value ['true] ['false]]
+                        true [:value]
+                    ]
+                ]
+            ]
+        ) into object
         | into block-of-pairs seek here (change here copy first here) into object
         | any-array! seek here (change here copy first here) into block
 
