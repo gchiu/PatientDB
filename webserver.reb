@@ -240,7 +240,7 @@ handle-request: function [
     path: join root-dir req.target
     path-type: try exists? path
   ]
-  append req reduce ['real-path clean-path path]
+  append req spread reduce ['real-path clean-path path]
   if path-type = 'dir [
     if not access-dir [return 403]
     if req.query-string [
@@ -448,13 +448,13 @@ fetch-combo-users: func [drug
       id: r.2
       insert port [{select distinct nhi, name, dosing from medications where nhi = (?) and name like (?) and active = 'T'} id drugs-2 ]
       s: copy port
-      append r reduce [s.1.2 s.1.3]
+      append r spread reduce [s.1.2 s.1.3]
     ]
 ;}
-    append/only rec []
-    insert/only rec ["NHI" "ID"  "Surname" "FirstName" "Phone" "Mobile" "Street" "Town" "FP" "Med Centre" "ClinicDate" "Medication-1" "Dose-1" "Medication-2" "Dose-2"]
+    append rec []
+    insert rec ["NHI" "ID"  "Surname" "FirstName" "Phone" "Mobile" "Street" "Town" "FP" "Med Centre" "ClinicDate" "Medication-1" "Dose-1" "Medication-2" "Dose-2"]
     ; probe rec
-    append combos rec
+    append combos spread rec
     ; insert combos drug
 
   ; probe mold combos
@@ -481,12 +481,12 @@ fetch-drug-users: func [drug][
   ; [integer! date! string! string!]
   for-each record copy port [
     attempt [record.4: form record.4.date]
-    append/only patient-ids record
+    append patient-ids record
   ]
   ;]
   if not empty? patient-ids [
-    insert/only patient-ids ["NHI" "Surname" "FirstName" "ClinicDate" "Drug" "Dosing" "Phone" "Mobile" "Street" "Town" "FP" "MedicalCentre"]
-    ; append/only patient-ids []
+    insert patient-ids ["NHI" "Surname" "FirstName" "ClinicDate" "Drug" "Dosing" "Phone" "Mobile" "Street" "Town" "FP" "MedicalCentre"]
+    ; append patient-ids []
     probe mold patient-ids
   ] else [
     append patient-ids spaced ["Query for" drug "returned no results"]
@@ -574,7 +574,7 @@ fetch-all: func [dbid nhi
         ORDER BY cdate DESC
       ]
       for-each record copy port [
-        append/only consults reduce [record.1 form record.2.date record.3 record.4] ;reduce [id cdate.date clinicians dictation]
+        append consults reduce [record.1 form record.2.date record.3 record.4] ;reduce [id cdate.date clinicians dictation]
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]
         append dates form record.2.date
       ]

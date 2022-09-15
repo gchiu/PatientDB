@@ -344,7 +344,7 @@ sys.make-scheme [
                     (
                         name: as-text name
                         value: as-text value
-                        append headers reduce [to set-word! name value]
+                        append headers spread reduce [to set-word! name value]
                         switch name [
                             "Content-Type" [content-type: value]
                             "Content-Length" [length: content-length: value]

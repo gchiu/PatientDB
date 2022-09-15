@@ -15,7 +15,7 @@ Text-buf: make text! 8
 
 Flush-text: func [] [
   if not empty? Text-buf [
-    append Flat-buf :[
+    append Flat-buf spread :[
       'text copy Text-buf
     ]
     clear Text-buf
@@ -24,27 +24,27 @@ Flush-text: func [] [
 
 Vtag: func [buf] [
   Flush-text
-  append Flat-buf :[
+  append Flat-buf spread :[
     'vtag buf
   ]
 ]
 
 Otag: func [buf] [
   Flush-text
-  append Flat-buf :[
+  append Flat-buf spread :[
     'otag buf
   ]
 ]
 
 Ctag: func [tagname] [
   Flush-text
-  append Flat-buf :[
+  append Flat-buf spread :[
     'ctag tagname
   ]
 ]
 
 Comm: func [t] [
-  append Flat-buf :['comm t
+  append Flat-buf spread :['comm t
   ]
 ]
 
@@ -55,17 +55,17 @@ Error: func [x] [
 ]
 ; text
 Text: func [t] [
-  append Flat-buf :['text t
+  append Flat-buf spread :['text t
   ]
 ]
 ; declaration <!...>
 Decl: func [t] [
-  append Flat-buf :['decl t
+  append Flat-buf spread :['decl t
   ]
 ]
 ; processing instruction <?...>
 Proc: func [t] [
-  append Flat-buf :['proc t
+  append Flat-buf spread :['proc t
   ]
 ]
 ; comment <!--...-->
@@ -107,8 +107,8 @@ xml: make object! [
         | {'} copy y to {'} skip
         | copy y some !value-char
       ]
-      (append buf :[as issue! as text! x as text! y])
-    | (append buf :[as issue! as text! x true])
+      (append buf spread :[as issue! as text! x as text! y])
+    | (append buf spread :[as issue! as text! x true])
     ]
   ]
   !tag: ["<"

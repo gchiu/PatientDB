@@ -31,7 +31,7 @@ debug: false
 sql-execute {select id, surname from clinicians}
 clinicians: copy []
 for-each c copy port [
-    append clinicians reduce [c.2 c.1]
+    append clinicians spread reduce [c.2 c.1]
 ]
 ; Chiu 1 Elasir 2
 probe clinicians
@@ -70,7 +70,7 @@ dump cmd
 sql-execute cmd
 ; collect all the filenames
 for-each record copy port [
-    append/only records record
+    append records record
 ]
 
 print ["Number of files needed to process:" length-of records]
@@ -94,7 +94,7 @@ for-each record records [; records contains all id, filenames from files where f
     print ["processing" filename]
 
     if exists? to file! join dir filename [
-        ; append/only records record
+        ; append records record
         print ["Current file number:" cnt: me + 1]
         print ["Processing" filename]
         ; nhi: uppercase copy/part filename 7
@@ -315,7 +315,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                     areacode: reverse areacode
                                                     line: reverse line
                                                 ]
-                                                append/only address line
+                                                append address line
                                             ]
                                         ]
                                     ]
@@ -371,7 +371,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         either find/part line "Medicat" 7 [
                                             mode: 'medication ;'
                                             if not empty? diagnosis-detail [; catch end of list issue
-                                                append/only diagnoses reduce [trim/tail diagnosis-detail]
+                                                append diagnoses reduce [trim/tail diagnosis-detail]
                                                 diagnosis-detail: copy ""
                                             ]
                                         ] [
@@ -386,7 +386,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ][
                                                     ; diagnosis on line with no bullets/numbers
                                                     print ["appending diagnosis" line "388"]
-                                                    if odd? length-of diagnoses [append/only diagnoses [""]]
+                                                    if odd? length-of diagnoses [append diagnoses [""]]
                                                     append diagnoses line
                                                 ]
 
@@ -397,13 +397,13 @@ for-each record records [; records contains all id, filenames from files where f
                                                         trim/head/tail line
                                                         ; now add the details as a block to the previous diagnosis
                                                         if all [not empty? trim/tail diagnosis-detail not empty? diagnoses] [
-                                                            append/only diagnoses reduce [diagnosis-detail]
+                                                            append diagnoses reduce [diagnosis-detail]
                                                             diagnosis-detail: copy ""
                                                         ] else [
-                                                            if not empty? diagnoses [append/only diagnoses copy [""]]
+                                                            if not empty? diagnoses [append diagnoses copy [""]]
                                                         ]
                                                         ; we have dealt with any diagnosis details, so add new diagnosis
-                                                        if odd? length-of diagnoses [append/only diagnoses [""]]
+                                                        if odd? length-of diagnoses [append diagnoses [""]]
                                                         append diagnoses line
                                                         print ["appending diagnosis" line "406"]
                                                     ]
@@ -820,7 +820,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 ]
                             ]
                             ; do we have to look at the case where new diagnoses are less than existing?
-                            if odd? length-of diagnoses [append/only diagnoses [""]]
+                            if odd? length-of diagnoses [append diagnoses [""]]
                             print "Adding diagnoses now 1024"
                             for-each [diagnosis detail] diagnoses [
                                 dump diagnosis

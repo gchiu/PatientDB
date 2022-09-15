@@ -81,7 +81,7 @@ fetch-all: func [dbid nhi
         ORDER BY cdate DESC
       ]
       for-each record copy port [
-        append/only consults record ; id cdate clinicians dictation
+        append consults record ; id cdate clinicians dictation
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]
         append dates form record.2
       ]

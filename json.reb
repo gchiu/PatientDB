@@ -43,8 +43,8 @@ load-json: use [
 ][
     branch: make block! 10
 
-    emit: func [val][here: insert/only here val]
-    new-child: [(insert/only branch insert/only here here: make block! 10)]
+    emit: func [val][here: insert here val]
+    new-child: [(insert branch insert here here: make block! 10)]
     to-parent: [(here: take branch)]
     neaten: [
         (new-line/all head here true)
@@ -281,7 +281,7 @@ to-json: use [
     object: [
         (emit "{")
         while [
-            here: <here> [set-word! (change/only here to word! here.1) | any-string! | any-word!]
+            here: <here> [set-word! (change here to word! here.1) | any-string! | any-word!]
             (emit [{"} escape to text! here.1 {":}])
             here: <here> value here: <here> comma
         ]
@@ -300,9 +300,9 @@ to-json: use [
         ] (emits escape form here.1)
         | any-word! (emits escape form to word! here.1)
 
-        | [object! | map!] seek here (change/only here body-of first here) into object
-        | into block-of-pairs seek here (change/only here copy first here) into object
-        | any-array! seek here (change/only here copy first here) into block
+        | [object! | map!] seek here (change here body-of first here) into object
+        | into block-of-pairs seek here (change here copy first here) into object
+        | any-array! seek here (change here copy first here) into block
 
         | any-value! (emits to tag! type-of first here)
     ]
