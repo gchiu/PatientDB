@@ -327,7 +327,7 @@ sys.make-scheme [
         ])
     ][
         client.locals.request: make request-prototype [
-            parse raw: client.data [
+            parse3 raw: client.data [
                 method: across request-action, space
                 request-uri: across [
                     target: across request-path, opt [

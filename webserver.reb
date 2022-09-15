@@ -18,7 +18,7 @@ root-dir: %"./"
 access-dir: false
 verbose: 1
 
-uparse system.options.args [opt some [
+parse system.options.args [opt some [
   "-a", access-dir: [
       <end> (true)
     | "true" (true)
@@ -162,7 +162,7 @@ parse-query: function [query] [
   k: v: _
   query: to-text query
   i: 0
-  parse query [any [
+  parse3 query [any [
     copy k [to xchar | to end]
     [ "=" copy v [to "&" | to end]
     | (v: k k: i: i + 1)
@@ -233,7 +233,7 @@ handle-request: function [
   req.target: my dehex
   path-elements: next split req.target #"/"
   ; 'extern' url /http://ser.ver/...
-  parse req.request-uri ["//"] then [
+  parse3 req.request-uri ["//"] then [
     lib.print req.request-uri
     return reduce [200 mime.html "req.request-uri"]
   ] else [
@@ -343,7 +343,7 @@ server: open compose [
     ; https://github.com/metaeducation/rebol-server/issues/9
     ;
     trap [
-      uparse request.target [
+      parse request.target [
         "/testwrite" across thru end
       ] then testfile -> [
         write as file! testfile "TESTWRITE!"

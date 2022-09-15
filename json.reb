@@ -221,7 +221,7 @@ to-json: use [
         ]
 
         func [txt][
-            parse txt [while [txt: <here> some ch | skip (txt: encode txt) seek txt]]
+            parse3 txt [while [txt: <here> some ch | skip (txt: encode txt) seek txt]]
             head txt
         ]
     ]

@@ -151,7 +151,7 @@ xml: make object! [
 
   load: func [x] [
     clear Flat-buf
-    parse x !content
+    parse3 x !content
     return Flat-buf
   ]
 ]
@@ -227,7 +227,7 @@ tml: make object! [
     if binary? tml [tml: as text! tml]
     clear Flat-buf
     clear Text-buf
-    parse tml [
+    parse3 tml [
       opt some further
         [ copy tagname some !nchar
           opt !attributes
