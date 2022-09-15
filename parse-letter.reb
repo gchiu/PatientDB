@@ -494,7 +494,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         ]
                                         dump diagnoses
                                         for-each [diagnosis detail] diagnoses [
-                                            print ["dx:" diagnosis "detail:" detail]
+                                            print ["dx:" diagnosis "detail:" any [detail "<null>"]]
                                         ]
                                         dump diagnosis-detail
                                         dump dmards
