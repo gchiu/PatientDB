@@ -97,7 +97,7 @@ fetch-all: func [dbid nhi
 ; system.options.redbol-paths: true
 
 print "importing json"
-import %json.reb
+import @json
 print "finished the import"
 
 result: fetch-all 2 "VLE4321"
