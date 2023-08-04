@@ -50,7 +50,7 @@ filename-rule: [nhi-rule "-" some further alpha "-20" 6 digit "-" digit ".txt"] 
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
 phone-rule: [["P:" | "Ph:"] space copy phone some digit]
 mobile-rule: ["M:" space copy mobile some further digit]
-drugname-rule: [ 1 digit "-" some alpha opt space | some alpha "-" some alpha opt space | some [some alpha opt space]]
+drugname-rule: [ 1 digit "-" some alpha try space | some alpha "-" some alpha try space | some [some alpha try space]]
 not-drug-rule: complement union union alpha whitespace digit
 
 diagnosis-rule: complement charset [#"^-"]
@@ -218,7 +218,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
-                                        if did parse3 line [uc some name-rule ", " copy fname fname-rule opt [" " copy sname to end] end] [
+                                        if did parse3 line [uc some name-rule ", " copy fname fname-rule try [" " copy sname to end] end] [
                                             ; we have surnames, and first names
                                             parse3 line [copy surname to ","]
                                             dump surname dump fname dump sname
@@ -272,7 +272,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'nhi [; confirm nhi matches that from the filename
-                                        if did parse3 line ["NHI:" opt some space copy letter-nhi nhi-rule] [
+                                        if did parse3 line ["NHI:" try some space copy letter-nhi nhi-rule] [
                                             either letter-nhi <> nhi [
                                                 print "Mismatch on file NHI and Letter NHI"
                                                 mismatch-nhi: me + 1
@@ -382,7 +382,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             ; Anti-CCP +ve rheumatoid arthritis
                                             case [
                                                 did parse3 line [; diagnosis with no numbering, diagnosis can't start with a digit
-                                                    opt some whitespace uc some diagnosis-rule to end
+                                                    try some whitespace uc some diagnosis-rule to end
                                                 ][
                                                     ; diagnosis on line with no bullets/numbers
                                                     print ["appending diagnosis" line "388"]
@@ -391,7 +391,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
 
                                                 did parse3 line [ ; numbered diagnoses
-                                                    some digit "." opt some whitespace copy line to end | ; where the diagnosis starts with a digit
+                                                    some digit "." try some whitespace copy line to end | ; where the diagnosis starts with a digit
                                                 ] [
                                                     if line [; sometimes blank after a number!
                                                         trim/head/tail line
@@ -410,7 +410,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
 
                                                 did parse3 line [ ; these are non-numbered bullet points
-                                                    opt some whitespace ["-" | "." | ":" | ")" | "•" ] opt some whitespace copy dline to end
+                                                    try some whitespace ["-" | "." | ":" | ")" | "•" ] try some whitespace copy dline to end
                                                 ] [
                                                     print "got a diagnosis detail"
                                                     dump dline
