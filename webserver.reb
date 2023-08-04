@@ -53,7 +53,7 @@ delete-recur: adapt :lib.delete [
   ]
 ]
 
-import %httpd.reb
+import @httpd
 attempt [
   rem: import 'rem
   html: import 'html
@@ -383,8 +383,8 @@ server: open compose [
 ]
 
 ;================================== user stuff ===============================
-import <json>
-import %patientdb/sql.reb
+import @json
+import %sql.reb
 
 fetch-combo-users: func [drug
   <local> id drug1 drug2 common drugs drug-1 drug-2
