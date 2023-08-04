@@ -19,7 +19,7 @@ show-sql?: true
 
 sql-execute: specialize :odbc-execute [; https://forum.rebol.info/t/1234
     statement: port
-    verbose: if show-sql? [#]
+    verbose: if show-sql? [#] else [null]
 ]
 
 dump-table: func [table [word!]][
