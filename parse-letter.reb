@@ -81,7 +81,7 @@ find-clinician: func [clinician [text!]] [
             return id
         ]
     ]
-    return _
+    return null
 ]
 
 for-each record records [; records contains all id, filenames from files where flag done is false
@@ -98,11 +98,11 @@ for-each record records [; records contains all id, filenames from files where f
         print ["Current file number:" cnt: me + 1]
         print ["Processing" filename]
         ; nhi: uppercase copy/part filename 7
-        current-doc: _
+        current-doc: null
         ; see if it matches the current filename format
         if did parse3 filename filename-rule [
             print ["Filename passed rule" filename]
-            nhi: letter-nhi: _
+            nhi: letter-nhi: null
             parse3 filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
             ; GChiu, Elasir
             if integer? current-doc: find-clinician clinician [
@@ -115,7 +115,7 @@ for-each record records [; records contains all id, filenames from files where f
                 longdate: unspaced [to integer! day " " pick months to integer! month " " year]
                 dump longdate
 
-                surname: fname: sname: mobile: phone: dob: fp: email: areacode: fpname: _
+                surname: fname: sname: mobile: phone: dob: fp: email: areacode: fpname: null
                 address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
                 diagnosis-detail: copy ""
 
@@ -154,7 +154,7 @@ for-each record records [; records contains all id, filenames from files where f
                     sql-execute [SELECT id FROM letters WHERE checksum = @ck]
                     if empty? copy port [; okay not done yet so we can add it and then process it
                         print "aint done"
-                        oldmode: _
+                        oldmode: null
                         ;==============parser starts
                         mode: 'date ;  date should always be found on the first line of each letter
                         for-each line deline/lines contents [; split into lines and parse each line
@@ -249,7 +249,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
                                                 fpname: first fpblockrev
                                                 fptitle: first fpblock
-                                                fpinits: _
+                                                fpinits: null
                                                 parse3 line compose [thru (fptitle) copy fpinits to (fpname)]
                                                 if not blank? fpinits [trim fpinits]
                                                 trim fpname
@@ -742,7 +742,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             print "Not a drug probably so lets continue"
                                             continue
                                         ]
-                                        drugname: dosing: _
+                                        drugname: dosing: null
                                         parse3 drug [copy drugname drugname-rule copy dosing to end]
                                         if not blank? drugname [trim/tail drugname] else [continue]
                                         dump drugname
