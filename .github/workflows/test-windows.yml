@@ -242,7 +242,7 @@ jobs:
         script: |
           result: 0
           for-each file read %./ [
-              parse file [thru ".reb" | thru ".r"] else [continue]
+              parse file [thru [".reb" | ".r"] <end> | (continue)]
               text: as text! read file
               collect* [case/all [
                   find text tab [
