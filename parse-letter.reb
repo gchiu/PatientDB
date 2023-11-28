@@ -100,10 +100,10 @@ for-each record records [; records contains all id, filenames from files where f
         ; nhi: uppercase copy/part filename 7
         current-doc: null
         ; see if it matches the current filename format
-        if did parse3 filename filename-rule [
+        if ok? parse3 filename filename-rule [
             print ["Filename passed rule" filename]
             nhi: letter-nhi: null
-            parse3 filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to end]
+            parse3 filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to <end>]
             ; GChiu, Elasir
             if integer? current-doc: find-clinician clinician [
                 ; convert ldate to a proper date
@@ -218,9 +218,9 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
-                                        if did parse3 line [uc some name-rule ", " copy fname fname-rule try [" " copy sname to end] end] [
+                                        if ok? parse3 line [uc some name-rule ", " copy fname fname-rule try [" " copy sname to <end>] <end>] [
                                             ; we have surnames, and first names
-                                            parse3 line [copy surname to ","]
+                                            parse3 line [copy surname to "," accept (true)]
                                             dump surname dump fname dump sname
                                             surname: uppercase surname
                                             fname: uppercase fname
@@ -272,7 +272,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'nhi [; confirm nhi matches that from the filename
-                                        if did parse3 line ["NHI:" try some space copy letter-nhi nhi-rule] [
+                                        if ok? parse3 line ["NHI:" try some space copy letter-nhi nhi-rule] [
                                             either letter-nhi <> nhi [
                                                 print "Mismatch on file NHI and Letter NHI"
                                                 mismatch-nhi: me + 1
@@ -287,18 +287,18 @@ for-each record records [; records contains all id, filenames from files where f
                                         print "In address mode of switch"
                                         line: copy/part line 60 ; let us trim anything to the right
                                         case [
-                                            did parse3 line ["DOB: " copy dob dob-rule] [
+                                            ok? parse3 line ["DOB: " copy dob dob-rule] [
                                                 replace/all dob "." "-"
                                                 dob: to date! dob
                                                 dump dob
                                             ]
 
-                                            did parse3 line ["GP: " copy fp to end] [
+                                            ok? parse3 line ["GP: " copy fp to <end>] [
                                                 fpname: last split fp space
                                                 mode: 'fp ;' got the FP name
                                             ]
 
-                                            did parse3 line [some [phone-rule | mobile-rule | space] end] [
+                                            ok? parse3 line [some [phone-rule | mobile-rule | space] <end>] [
                                                 dump phone
                                                 dump mobile
                                             ]
@@ -311,7 +311,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             true [; just address lines
                                                 ; get area code out
                                                 rline: reverse copy line
-                                                if did parse3 rline [copy areacode areacode-rule space copy line to end] [
+                                                if ok? parse3 rline [copy areacode areacode-rule space copy line to <end>] [
                                                     areacode: reverse areacode
                                                     line: reverse line
                                                 ]
@@ -341,7 +341,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                     ; if there are tabs in the line, it's from a copy to someone else
                                                     ; eg {Kauri HealthCare^-^-^-^Whanganui Hospital} ;'
                                                     if find line #"^-" [
-                                                        parse3 line [copy line to #"^-"]
+                                                        parse3 line [copy line to #"^-" accept (true)]
                                                     ]
                                                     append fpaddress line
                                                 ]
@@ -381,8 +381,8 @@ for-each record records [; records contains all id, filenames from files where f
                                             ;        b) RF-ve
                                             ; Anti-CCP +ve rheumatoid arthritis
                                             case [
-                                                did parse3 line [; diagnosis with no numbering, diagnosis can't start with a digit
-                                                    try some whitespace uc some diagnosis-rule to end
+                                                ok? parse3 line [; diagnosis with no numbering, diagnosis can't start with a digit
+                                                    try some whitespace uc some diagnosis-rule to <end>
                                                 ][
                                                     ; diagnosis on line with no bullets/numbers
                                                     print ["appending diagnosis" line "388"]
@@ -390,8 +390,8 @@ for-each record records [; records contains all id, filenames from files where f
                                                     append diagnoses line
                                                 ]
 
-                                                did parse3 line [ ; numbered diagnoses
-                                                    some digit "." try some whitespace copy line to end | ; where the diagnosis starts with a digit
+                                                ok? parse3 line [ ; numbered diagnoses
+                                                    some digit "." try some whitespace copy line to <end> | ; where the diagnosis starts with a digit
                                                 ] [
                                                     if line [; sometimes blank after a number!
                                                         trim/head/tail line
@@ -409,8 +409,8 @@ for-each record records [; records contains all id, filenames from files where f
                                                     ]
                                                 ]
 
-                                                did parse3 line [ ; these are non-numbered bullet points
-                                                    try some whitespace ["-" | "." | ":" | ")" | "•" ] try some whitespace copy dline to end
+                                                ok? parse3 line [ ; these are non-numbered bullet points
+                                                    try some whitespace ["-" | "." | ":" | ")" | "•" ] try some whitespace copy dline to <end>
                                                 ] [
                                                     print "got a diagnosis detail"
                                                     dump dline
@@ -556,7 +556,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 fpblock: reverse copy fpblockrev
                                 fpname: copy last fpblock
                                 fptitle: copy first fpblock
-                                parse3 fp [fptitle copy fpinits to fpname (trim/head/tail fpinits) to end]
+                                parse3 fp [fptitle copy fpinits to fpname (trim/head/tail fpinits) to <end>]
                             ]
                             ; are they already in the database
                             replace/all fpname "'" "''"
@@ -737,19 +737,19 @@ for-each record records [; records contains all id, filenames from files where f
                                             ]
                                         ]
                                         attempt [trim/tail drug]
-                                        if did parse3 drug [not-drug-rule to end][
+                                        if ok? parse3 drug [not-drug-rule to <end>][
                                             ; not a drug, probably a comment, so skip to next drug
                                             print "Not a drug probably so lets continue"
                                             continue
                                         ]
                                         drugname: dosing: null
-                                        parse3 drug [copy drugname drugname-rule copy dosing to end]
+                                        parse3 drug [copy drugname drugname-rule copy dosing to <end>]
                                         if not blank? drugname [trim/tail drugname] else [continue]
                                         dump drugname
                                         dosing: any [dosing copy ""]
                                         if empty? dosing [
                                             ; try and just use the first name as the drugname and the rest as dosing
-                                            parse3 copy drugname [copy drugname to space some space copy dosing to end]
+                                            try parse3 copy drugname [copy drugname to space some space copy dosing to <end>]
                                         ]
                                         dump drugname dump dosing
                                         if not blank? drugname [
@@ -788,7 +788,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     print "Adding DMARDS"
                                     for-each drug dmards [
                                         dump drug
-                                        parse3 drug [copy drugname drugname-rule copy dosing to end]
+                                        parse3 drug [copy drugname drugname-rule copy dosing to <end>]
                                         dosing: any [dosing copy ""]
                                         dump drugname
                                         print form length-of drugname

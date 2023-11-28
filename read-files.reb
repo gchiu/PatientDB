@@ -50,7 +50,7 @@ for-each file read dir [
     ; if the filename matches the filename-rule, then check to see if it is in the database
     ; if not, then add it
     ffile: form file
-    if did parse3 ffile filename-rule [
+    if ok? parse3 ffile filename-rule [
         print ["Checking" ffile]
         if e: error? sys.util.rescue [
             sql-execute [SELECT * FROM files WHERE filename = @ffile]
