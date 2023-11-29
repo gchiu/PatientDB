@@ -266,4 +266,4 @@ jobs:
                   result: 1
               ]
           ]
-          quit result
+          quit/with result
