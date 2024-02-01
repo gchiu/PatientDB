@@ -39,7 +39,7 @@ find-table: func [tablename [text!] /silent] [
     return false
 ]
 
-drop-table: function [tablename [text!]] [
+drop-table: func [tablename [text!]] [
     sql-execute [DROP TABLE ^tablename]  ; note: can't use @table
 ]
 
