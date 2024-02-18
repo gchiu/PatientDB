@@ -135,9 +135,9 @@ for-each [surname firstname t] staff [
     ]
 ]
 
-unset @cns
-unset @dr
-unset @staff
+unset $cns
+unset $dr
+unset $staff
 
 ; add consults
 ; id int, clinician id, date timestamp, text blob_e, checksum
