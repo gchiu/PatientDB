@@ -2,12 +2,13 @@ REBOL [
   Type: module
   Name: markup
   Exports: [xml html tml]
-  Description: {}
+  Description: --[
+  ]--
 ]
 
 Stack: make block! 8
 Push: func [x] [append Stack quote x]
-Pop: func [] [take/last Stack]
+Pop: func [] [take:last Stack]
 
 Flat-buf: make block! 8
 Text-buf: make text! 8
@@ -50,7 +51,7 @@ Comm: func [t] [
 
 Error: func [x] [
   write-stdout "ERROR @ {"
-  print [copy/part x 80 "...}"]
+  print [copy:part x 80 "...}"]
   quit 1
 ]
 ; text

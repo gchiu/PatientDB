@@ -1,6 +1,12 @@
 #!/usr/bin/r3
-REBOL [Name: webserver]
--help: does [lib.print {
+Rebol [
+  name: webserver
+]
+
+; Old definition of OK? used here... review
+ok?: cascade [error?/ not/]
+
+-help: does [lib.print --[
 USAGE: r3 webserver.reb [OPTIONS]
 OPTIONS:
   -h, -help, --help : this help
@@ -10,33 +16,33 @@ OPTIONS:
   OTHER   : web root [system/options/path]
   -a name : access-dir via name.*
 EXAMPLE: 8080 /my/web/root -q -a index
-}]
+]--]
 
 ;; INIT
 port: 8888
 root-dir: %"./"
-access-dir: false
+access-dir: null
 verbose: 1
 
 parse system.options.args [opt some [
   "-a", access-dir: [
-      <end> (true)
-    | "true" (true)
-    | "false" (false)
-    | to-file/ <any>
+      <end> (okay)
+    | "true" (okay)
+    | "false" (null)
+    | /to-file one
   ]
   |
-  ["-h" | "-help" | "--help" || (-help, quit)]
+  ["-h" | "-help" | "--help" || (-help, quit 0)]
   |
   verbose: ["-q" (0) | "-v" (2)]
   |
-  bad: into text! ["-" across to <end>] (
-    fail ["Unknown command line switch:" bad]
+  let bad: subparse text! ["-" across to <end>] (
+    panic ["Unknown command line switch:" bad]
   )
   |
   port: into text! [integer!]
   |
-  root-dir: to-file/ <any>
+  root-dir: /to-file <any>
 ]]
 
 ;; LIBS
@@ -46,7 +52,7 @@ delete-recur: adapt :lib.delete [
     if not exists? port [return null]
     if 'dir = exists? port [
       port: dirize port
-      for-each x read port [
+      for-each 'x read port [
           delete-recur %% (port).(x)
       ]
     ]
@@ -109,7 +115,7 @@ html-list-dir: function [
   if trap [list: read dir] [return _]
   ;;for-next list [if 'dir = exists? join dir list.1 [append list.1 %/]]
   ;; ^-- workaround for #838
-  sort/compare list func [x y] [
+  sort:compare list func [x y] [
     case [
       all [dir? x not dir? y] [true]
       all [not dir? x dir? y] [false]
@@ -118,7 +124,7 @@ html-list-dir: function [
     ]
   ]
   if dir != %/ [insert list %../]
-  data: copy {<head>
+  data: copy --[<head>
     <meta name="viewport" content="initial-scale=1.0" />
     <style> a {text-decoration: none}
     body {font-family: monospace}
@@ -126,26 +132,26 @@ html-list-dir: function [
     </style>
   </head>
   [>]: Navigate [V]: View [E]: Exec <hr/>
-  }
-  for-each i list [
+  ]--
+  for-each 'i list [
     is-rebol-file: did all [
       not dir? i
       ok? parse3 i [thru ".reb"]
     ]
     append data unspaced [
-      {<a }
+      --[<a ]--
       if dir? i [{class="b" }]
-      {href="} i
-      {?">[}
+      --[href="]-- i
+      --[?">[]--
       case [
         is-rebol-file [{E}]
         dir? i [{>}]
       ] else [{V}]
-      {]</a> }
-      {<a }
-      if dir? i [{class="b" }]
-      {href="} i
-      {">}
+      --[]</a> ]--
+      --[<a ]--
+      if dir? i [--[class="b" ]--]
+      --[href="]-- i
+      --[">]--
       i
       </a> <br/>
     ]
@@ -200,7 +206,7 @@ handle-request: function [
     ok? parse3 req.request-uri ["/patients/nhi/" copy nhi to "/" to end][
       if ok? parse3 nhi [3 alpha 4 digit][
         uppercase nhi
-        sql-execute [SELECT id FROM NHILOOKUP WHERE nhi = @nhi]
+        sql-execute [SELECT id FROM NHILOOKUP WHERE nhi = $nhi]
         if empty? result: copy port [
             nhi: "Not found"
         ] else [
@@ -209,16 +215,16 @@ handle-request: function [
       ] else [
         nhi: "-ERR Didn't parse the parser"
       ]
-      return reduce compose/deep [200 mime.json to-json ["id:" (nhi)]]
+      return reduce compose:deep [200 mime.json to-json ["id:" (nhi)]]
     ]
 
     ok? parse3 req.request-uri  ["/patients/" copy id some digit "/all/" end][
         print "parsed fetch-all"
         id: to integer! id
-        sql-execute [SELECT nhi FROM NHILOOKUP WHERE id = @id]
+        sql-execute [SELECT nhi FROM NHILOOKUP WHERE id = $id]
         result: copy port
         if empty? result [
-          return spaced [200 mime.text spaced [{-ERR this ID of:} id {is not in use}]]
+          return spaced [200 mime.text spaced ["-ERR this ID of:" id "is not in use"]]
         ] else [
           return reduce [200 mime.json to-json fetch-all to integer! id result.1.1]
         ]
@@ -250,7 +256,7 @@ handle-request: function [
       return 500
     ]
     if file? access-dir [
-      for-each ext [%.reb %.rem %.html %.htm] [
+      for-each 'ext [%.reb %.rem %.html %.htm] [
         dir-index: join access-dir ext
         if 'file = try exists? join path dir-index [
           if ext = %.reb [append dir-index "?"]
@@ -263,7 +269,7 @@ handle-request: function [
   if path-type = 'file [
     pos: try find-last last path-elements
       "."
-    file-ext: (if pos [copy next pos] else [_])
+    file-ext: if pos [copy next pos]
     mimetype: try attempt [ext-map.(file-ext)]
     if trap [data: read path] [return 403]
     if all [
@@ -271,10 +277,10 @@ handle-request: function [
         mimetype = 'rem
         all [
           mimetype = 'html
-          "REBOL" = uppercase to-text copy/part data 5
+          "REBOL" = uppercase to-text copy:part data 5
         ]
       ]
-      action? :rem-to-html
+      action? rem-to-html/
       any [
         not req.query-string
         not empty? req.query-string
@@ -319,8 +325,8 @@ handle-request: function [
 
 redirect-response: function [target] [
   reduce [200 mime.html unspaced [
-    {<html><head><meta http-equiv="Refresh" content="0; url=}
-    target {" /></head></html>}
+    -[<html><head><meta http-equiv="Refresh" content="0; url=]-
+    target -[" /></head></html>]-
   ]]
 ]
 
@@ -342,9 +348,9 @@ server: open compose [
     ;
     ; https://github.com/metaeducation/rebol-server/issues/9
     ;
-    trap [
+    sys.util/recover [
       parse request.target [
-        "/testwrite" across thru end
+        "/testwrite" across thru <end>
       ] then testfile -> [
         write as file! testfile "TESTWRITE!"
         res: reduce [
@@ -367,9 +373,9 @@ server: open compose [
       response.status: res
       response.type: "text/html"
       response.content: unspaced [
-        <h2> res space select status-codes res </h2>
-        <b> request.method space request.request-uri </b>
-        <br> <pre> mold request </pre>
+        '<h2> res space select status-codes res '</h2>
+        '<b> request.method space request.request-uri '</b>
+        '<br> '<pre> mold request '</pre>
       ]
     ] else [
       response.status: res.1
@@ -393,15 +399,15 @@ fetch-combo-users: func [drug
   append drugs.1 "%" drugs-1: drugs.1
   append drugs.2 "%" drugs-2: drugs.2
 
-;comment {
+;comment --[
   insert port [
-    {select nhi from medications where name like (?) and active = 'T'} drugs.1
+    -[select nhi from medications where name like (?) and active = 'T']- drugs.1
   ]
 
   drug1: copy port
 
   insert port [
-    {select nhi from medications where name like (?) and active = 'T'} drugs.2
+    -[select nhi from medications where name like (?) and active = 'T']- drugs.2
   ]
 
   drug2: copy port
@@ -410,7 +416,7 @@ fetch-combo-users: func [drug
   ; probe common
 
   combos: copy []
-;}
+;]--
 
   ; get the patients on drug-1 eg. MTX
     ; id: common.1.1
@@ -422,17 +428,17 @@ fetch-combo-users: func [drug
       FROM medications, nhilookup, patients
       WHERE nhilookup.id = medications.nhi
         AND patients.nhi = medications.nhi
-        AND medications.name like @drugs-1
-        AND medications.active = 'T'
+        AND medications.name like $drugs-1
+        AND medications.active = -['T']-
         AND patients.nhi in (
           SELECT DISTINCT nhi
           FROM medications
-          WHERE active = @("T") AND name LIKE @drugs-2
+          WHERE active = $("T") AND name LIKE $drugs-2
         )
     ]
     rec: copy port
-    for-each r rec [
-        d: r.11
+    for-each 'r rec [
+        let d: r.11
         if date? d [
           r.11: form d.date
         ]
@@ -442,12 +448,12 @@ fetch-combo-users: func [drug
     ;print "number of results"
     ;probe length? rec
     ;probe rec
-    for-each r rec [
+    for-each 'r rec [
       ; get the second drug, patient id is r.2
       ; probe r
-      id: r.2
-      insert port [{select distinct nhi, name, dosing from medications where nhi = (?) and name like (?) and active = 'T'} id drugs-2 ]
-      s: copy port
+      let id: r.2
+      insert port [--[select distinct nhi, name, dosing from medications where nhi = (?) and name like (?) and active = 'T']-- id drugs-2 ]
+      let s: copy port
       append r spread reduce [s.1.2 s.1.3]
     ]
 ;}
@@ -469,17 +475,17 @@ fetch-drug-users: func [drug][
   ;probe drug
   append drug "%"
   insert port [
-    {select distinct nhilookup.nhi, patients.surname, patients.fname, medications.letter, medications.name, medications.dosing,
+    --[select distinct nhilookup.nhi, patients.surname, patients.fname, medications.letter, medications.name, medications.dosing,
     patients.phone, patients.mobile, patients.street, patients.town, patients.gpname, patients.gpcentname
      from medications, nhilookup, patients
       where nhilookup.id = medications.nhi
       and patients.nhi = medications.nhi
       and medications.name like (?)
       and medications.active = 'T'
-    } drug
+     ]-- drug
   ]
   ; [integer! date! string! string!]
-  for-each record copy port [
+  for-each 'record copy port [
     attempt [record.4: form record.4.date]
     append patient-ids record
   ]
@@ -500,9 +506,9 @@ fetch-all: func [dbid nhi
     print "entering fetch all"
     sql-execute [
       SELECT fname, surname, dob, gpname, gpcentname, phone, mobile, street
-      FROM patients where nhi = @dbid
+      FROM patients where nhi = $dbid
     ]
-    rec: copy port
+    let rec: copy port
     dump rec
     if not empty? rec [
       rec: rec.1
@@ -516,7 +522,7 @@ fetch-all: func [dbid nhi
         nhi: (nhi)
         phone: rec.6 mobile: rec.7
         street: rec.8
-        medications: diagnoses: dmards: consults: dates: _
+        medications: diagnoses: dmards: consults: dates: null
       ]
       ; lets get dmards which are inactive drugs
       dmards: copy []
@@ -524,40 +530,40 @@ fetch-all: func [dbid nhi
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE nhi = @dbid and active = {'F'}
+        WHERE nhi = $dbid and active = -['F']-
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append dmards r.1
         ]
       ]
 
       ; now let us get the number of medications
 
-      medications: copy []
+      let medications: copy []
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE nhi = @dbid and active = {'T'}
+        WHERE nhi = $dbid and active = -['T']-
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append medications spaced [r.1 r.2]
         ]
       ]
 
       ; diagnoses
-      diagnoses: copy []
+      let diagnoses: copy []
       sql-execute [
         SELECT diagnosis
         FROM diagnoses
-        WHERE nhi = @dbid
+        WHERE nhi = $dbid
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append diagnoses r.1
         ]
       ]
@@ -566,14 +572,16 @@ fetch-all: func [dbid nhi
       patient-o.medications: unique medications
       patient-o.diagnoses: unique diagnoses
 
-      rdates: copy [] dates: copy [] consults: copy []
+      let rdates: copy []
+      let dates: copy []
+      let consults: copy []
       sql-execute [
         SELECT id, cdate, clinicians, dictation
         FROM letters
-        WHERE nhi = @dbid
+        WHERE nhi = $dbid
         ORDER BY cdate DESC
       ]
-      for-each record copy port [
+      for-each 'record copy port [
         append consults reduce [record.1 form record.2.date record.3 record.4] ;reduce [id cdate.date clinicians dictation]
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]
         append dates form record.2.date
@@ -583,7 +591,7 @@ fetch-all: func [dbid nhi
       patient-o.consults: consults
       return patient-o
     ] else [
-      return [error: {patient not found}]
+      return [error: -[patient not found]-]
     ]
 ]
 
@@ -600,14 +608,14 @@ fetch-by-name: func [name
       surname: append last names "%"
       sql-execute [
          select nhilookup.nhi, patients.surname, patients.fname from nhilookup, patients where
-          patients.surname like @surname and patients.fname like @fname and patients.nhi = nhilookup.id
+          patients.surname like $surname and patients.fname like $fname and patients.nhi = nhilookup.id
       ]
     ][
       ; only has surname
       surname: join name "%"
       sql-execute [
          select nhilookup.nhi, patients.surname, patients.fname from nhilookup, patients where
-          patients.surname like @surname and patients.nhi = nhilookup.id
+          patients.surname like $surname and patients.nhi = nhilookup.id
       ]
     ]
   result: copy port

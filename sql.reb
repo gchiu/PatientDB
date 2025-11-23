@@ -15,11 +15,11 @@ print ["Opening dsn:" dsn]
 dbase: open join odbc:// dsn
 
 port: odbc-statement-of dbase
-show-sql?: true
+show-sql?: okay
 
-sql-execute: specialize :odbc-execute [; https://forum.rebol.info/t/1234
+sql-execute: specialize odbc-execute/ [  ; https://forum.rebol.info/t/1234
     statement: port
-    verbose: if show-sql? [#] else [null]
+    verbose: if show-sql? [okay]
 ]
 
 dump-table: func [table [word!]][
@@ -28,13 +28,13 @@ dump-table: func [table [word!]][
     ;
     ; https://stackoverflow.com/q/1208442/
     ;
-    ; For the moment, the ^META parameter just injects the word directly as
-    ; a string.  At minimum this should need something like SQL-EXECUTE/UNSAFE.
+    ; For the moment, the $[table] parameter just injects the word directly as
+    ; a string...text is not allowed without using <!>
     ;
-    sql-execute [SELECT * FROM ^table]
+    sql-execute [SELECT * FROM $[table]]
 
     print ["Dumping" table]
-    for-each record copy port [
+    for-each 'record copy port [
         dump record
     ]
 ]

@@ -1,23 +1,30 @@
 Rebol [
     author: "Graham Chiu"
     date: 4-Nov-2021
-    notes: {parse the letters (file names stored in files database) to extract name, nhi, drug information, GP etc
-        30.11.2021 since this uses `pick` we have to use rebol2 and not ren-c at present. Updated to update medications
+    notes: --[
+        parse the letters (file names stored in files database) to extract
+        name, nhi, drug information, GP etc
+
+        30.11.2021 since this uses `pick` we have to use rebol2 and not ren-c
+                   at present. Updated to update medications
         06.12.2021 start the port to renc
         11.12.2021 ported to sql-execute syntax
-    }
+    ]--
 ]
 
-if any [blank? system.script.args empty? system.script.args] [
-    ; use this as the testing directory with no args
-    dir: %2021/2021/October/
-] else [
+; Old definition of OK? used here... review
+ok?: cascade [error?/ not/]
+
+; use this as the testing directory with no args
+dir: %2021/2021/October/
+
+if not any [null? system.script.args empty? system.script.args] [
     dir: dirize to file! system.script.args
     if dir = %/ [
-        fail "Can't use in current directory"
+        panic "Can't use in current directory"
     ]
     if not exists? dir [
-        fail spaced ["dir" dir "does not exist"]
+        panic spaced ["dir" dir "does not exist"]
     ]
 ]
 
@@ -25,12 +32,12 @@ print "==================================in parse-letter.reb====================
 ; get all sql and obdc needed
 import %sql.reb
 
-debug: false
+debug: null
 
 ; get all the clinicians first
-sql-execute {select id, surname from clinicians}
+sql-execute --[select id, surname from clinicians]--
 clinicians: copy []
-for-each c copy port [
+for-each 'c copy port [
     append clinicians spread reduce [c.2 c.1]
 ]
 ; Chiu 1 Elasir 2
@@ -39,18 +46,18 @@ probe clinicians
 ; space: #" "
 whitespace: charset [#" " #"^-"]
 digit: charset [#"0" - #"9"]
-areacode-rule: [4 digit]
-dob-rule: [2 digit "." 2 digit "." 4 digit]
+areacode-rule: [repeat 4 digit]
+dob-rule: [repeat 2 digit "." repeat 2 digit "." repeat 4 digit]
 alpha: charset [#"a" - #"z" #"A" - #"Z"]
 name-rule: charset [#"a" - #"z" #"A" - #"Z" #"-" #"'" #" "]
 fname-rule: [some further alpha #"-" some further alpha | some further alpha]
 uc: charset [#"A" - #"Z"]
-nhi-rule: [3 alpha 4 digit]
-filename-rule: [nhi-rule "-" some further alpha "-20" 6 digit "-" digit ".txt"] ; 2019, 2020, 2021
+nhi-rule: [repeat 3 alpha repeat 4 digit]
+filename-rule: [nhi-rule "-" some further alpha "-20" repeat 6 digit "-" digit ".txt"] ; 2019, 2020, 2021
 months: ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
-phone-rule: [["P:" | "Ph:"] space copy phone some digit]
-mobile-rule: ["M:" space copy mobile some further digit]
-drugname-rule: [ 1 digit "-" some alpha try space | some alpha "-" some alpha try space | some [some alpha try space]]
+phone-rule: [["P:" | "Ph:"] space across some digit]
+mobile-rule: ["M:" space across some further digit]
+drugname-rule: [repeat 1 digit "-" some alpha try space | some alpha "-" some alpha try space | some [some alpha try space]]
 not-drug-rule: complement union union alpha whitespace digit
 
 diagnosis-rule: complement charset [#"^-"]
@@ -65,11 +72,11 @@ mismatch-nhi: 0
 missing-files: 0
 
 ; get all the filenames where the file has not yet been processed
-cmd: {select id, filename from files where done IS FALSE}
+cmd: --[select id, filename from files where done IS FALSE]--
 dump cmd
 sql-execute cmd
 ; collect all the filenames
-for-each record copy port [
+for-each 'record copy port [
     append records record
 ]
 
@@ -84,12 +91,12 @@ find-clinician: func [clinician [text!]] [
     return null
 ]
 
-for-each record records [; records contains all id, filenames from files where flag done is false
+for-each 'record records [; records contains all id, filenames from files where flag done is false
     ?? record
-    fileid: record.1
+    let fileid: record.1
     print "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
     print ["fileid" fileid]
-    filename: record.2
+    let filename: record.2
     print ["filename" filename]
     print ["processing" filename]
 
@@ -97,32 +104,57 @@ for-each record records [; records contains all id, filenames from files where f
         ; append records record
         print ["Current file number:" cnt: me + 1]
         print ["Processing" filename]
-        ; nhi: uppercase copy/part filename 7
-        current-doc: null
+        ; nhi: uppercase copy:part filename 7
+        let current-doc: null
         ; see if it matches the current filename format
         if ok? parse3 filename filename-rule [
             print ["Filename passed rule" filename]
-            nhi: letter-nhi: null
-            parse3 filename [copy nhi nhi-rule "-" copy clinician some further alpha thru "-" copy ldate 8 digit "-" to ".txt" to <end>]
+            let nhi: null
+            let letter-nhi: null
+            let clinician: null
+            let ldate: null
+            parse3 filename [nhi: across nhi-rule "-" clinician: across some further alpha thru "-" ldate: across repeat 8 digit "-" to ".txt" to <end>]
             ; GChiu, Elasir
             if integer? current-doc: find-clinician clinician [
                 ; convert ldate to a proper date
                 dump ldate
-                parse3 ldate [copy year 4 digit copy month 2 digit copy day 2 digit]
-                ldate: to date! unspaced [day "-" month "-" year]
+                let year: null
+                let month: null
+                let day: null
+                parse3 ldate [
+                    year: across repeat 4 digit
+                    month: across repeat 2 digit
+                    day: across repeat 2 digit
+                ]
+                let ldate: make date! unspaced [day "-" month "-" year]
                 print ["clinician id is" current-doc]
                 print ["clinic letter date is" ldate]
-                longdate: unspaced [to integer! day " " pick months to integer! month " " year]
+                let longdate: unspaced [make integer! day " " pick months make integer! month " " year]
                 dump longdate
 
-                surname: fname: sname: mobile: phone: dob: fp: email: areacode: fpname: null
-                address: copy [] fpaddress: copy [] medications: copy [] diagnoses: copy [] dmards: copy []
-                diagnosis-detail: copy ""
+                let surname: null
+                let fname: null
+                let sname: null
+                let mobile: null
+                let phone: null
+                let dob: null
+                let fp: null
+                let email: null
+                let areacode: null
+                let fpname: null
+                let address: copy []
+                let fpaddress: copy []
+                let medications: copy []
+                let diagnoses: copy []
+                let dmards: copy []
+                let diagnosis-detail: copy ""
+
+                let contents
 
                 ; now read the letter to parse the contents
-                if e: error? sys.util.rescue [
+                sys.util/recover [
                     contents: to text! deline read join dir filename
-                ][
+                ] then e -> [
                     probe e
                     continue ; to next file as there's something wrong with this one
                 ]
@@ -130,18 +162,19 @@ for-each record records [; records contains all id, filenames from files where f
                     ; no way to find when the medications finish so skip this file
                     continue ; to next file
                 ]
-                has-diagnoses?: has-medications?: false
+                let has-diagnoses?: null
+                let has-medications?: null
                 if any [find contents "Diagnosis" find contents "^/Diagnos" find contents "^MDiagnos"][
-                    has-diagnoses?: true
+                    has-diagnoses?: okay
                 ]
                 if any [find contents "Medication" find contents "^/Medicat" find contents "^MMedicat"][
-                    has-medications?: true
+                    has-medications?: okay
                 ]
                 ;dump has-medications?
                 ;dump has-diagnoses?
                 ;probe contents
                 ;halt
-                ck: form checksum 'md5 contents ; we have the checksum to prevent us from processing the same file content twice
+                let ck: form checksum 'md5 contents ; we have the checksum to prevent us from processing the same file content twice
                 if find checks ck [
                     ; meaning that another file has the same contents as this one during this run
                     print "checksum duplicate!"
@@ -151,14 +184,14 @@ for-each record records [; records contains all id, filenames from files where f
                     ; now check to see if the letters database has this letter or not
                     ; letters table holds files we have already processed
                     print "Preparing to sql-execute on 154"
-                    sql-execute [SELECT id FROM letters WHERE checksum = @ck]
+                    sql-execute [SELECT id FROM letters WHERE checksum = $ck]
                     if empty? copy port [; okay not done yet so we can add it and then process it
                         print "aint done"
-                        oldmode: null
+                        let oldmode: null
                         ;==============parser starts
-                        mode: 'date ;  date should always be found on the first line of each letter
-                        for-each line deline/lines contents [; split into lines and parse each line
-                            trim/head/tail line
+                        let mode: 'date ;  date should always be found on the first line of each letter
+                        for-each 'line deline:lines contents [  ; split into lines and parse each line
+                            trim:head:tail line
                             dump line
                             dump mode
                             if empty? line [
@@ -198,7 +231,7 @@ for-each record records [; records contains all id, filenames from files where f
 
                             ] else [; not an empty line
 
-                                if find/part line "VITALS" 6 [
+                                if find:part line "VITALS" 6 [
                                     print "found vitals - going to finish 171"
                                     mode: 'finish
                                 ]
@@ -218,9 +251,9 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'name [;look for patient name next eg. XXXX, XXXX XXXX or XXX XXX, XXX XXX
-                                        if ok? parse3 line [uc some name-rule ", " copy fname fname-rule try [" " copy sname to <end>] <end>] [
+                                        if ok? parse3 line [uc some name-rule ", " fname: across fname-rule try [" " sname: across to <end>] <end>] [
                                             ; we have surnames, and first names
-                                            parse3 line [copy surname to "," accept (true)]
+                                            parse3 line [surname: across to "," accept (okay)]
                                             dump surname dump fname dump sname
                                             surname: uppercase surname
                                             fname: uppercase fname
@@ -230,15 +263,15 @@ for-each record records [; records contains all id, filenames from files where f
                                             ;print unspaced ["can't find name in line " line]
                                             ;mode: 'abandon ;' maybe try alternate name parser
                                             ; alternate format with GP as first block
-                                            if any [find/part line "Dr " 3 find/part  line "Prof " 4][
+                                            if any [find:part line "Dr " 3 find:part  line "Prof " 4][
                                                 mode: 'alternate-gp
                                                 print "In PDF mode"
                                                 ; remove anything after tabs to get rid of the ccs
                                                 if find line "^-" [
-                                                    line: copy/part line index? find line "^-"
+                                                    line: copy:part line index? find line "^-"
                                                 ]
-                                                fpblock: split line space
-                                                fpblockrev: reverse copy fpblock
+                                                let fpblock: split line space
+                                                let fpblockrev: reverse copy fpblock
                                                 if fpblockrev.2 = "der" [
                                                     append fpblockrev.2: spaced [fpblock.2 fpblockrev.1]
                                                     remove fpblockrev
@@ -250,8 +283,8 @@ for-each record records [; records contains all id, filenames from files where f
                                                 fpname: first fpblockrev
                                                 fptitle: first fpblock
                                                 fpinits: null
-                                                parse3 line compose [thru (fptitle) copy fpinits to (fpname)]
-                                                if not blank? fpinits [trim fpinits]
+                                                parse3 line compose [thru (fptitle) fpinits: across to (fpname)]
+                                                if fpinits [trim fpinits]
                                                 trim fpname
                                                 trim fptitle
                                                 dump fpname
@@ -266,13 +299,13 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'alternate-gp [; or is it a PDF format?
-                                        ; fail "Reached alternate format"
+                                        ; panic "Reached alternate format"
                                         append fpaddress line
 
                                     ]
 
                                     'nhi [; confirm nhi matches that from the filename
-                                        if ok? parse3 line ["NHI:" try some space copy letter-nhi nhi-rule] [
+                                        if ok? parse3 line ["NHI:" try some space letter-nhi: across nhi-rule] [
                                             either letter-nhi <> nhi [
                                                 print "Mismatch on file NHI and Letter NHI"
                                                 mismatch-nhi: me + 1
@@ -285,20 +318,20 @@ for-each record records [; records contains all id, filenames from files where f
 
                                     'address [; start capturing address lines and dob mixed in together, terminated by finding GP:
                                         print "In address mode of switch"
-                                        line: copy/part line 60 ; let us trim anything to the right
+                                        line: copy:part line 60 ; let us trim anything to the right
                                         case [
-                                            ok? parse3 line ["DOB: " copy dob dob-rule] [
-                                                replace/all dob "." "-"
-                                                dob: to date! dob
+                                            ok? parse3 line ["DOB: " dob: across dob-rule] [
+                                                replace dob "." "-"
+                                                dob: make date! dob
                                                 dump dob
                                             ]
 
-                                            ok? parse3 line ["GP: " copy fp to <end>] [
+                                            ok? parse3 line ["GP: " fp: across to <end>] [
                                                 fpname: last split fp space
                                                 mode: 'fp ;' got the FP name
                                             ]
 
-                                            ok? parse3 line [some [phone-rule | mobile-rule | space] <end>] [
+                                            ok? parse line [some [phone: phone-rule | mobile: mobile-rule | space] <end>] [
                                                 dump phone
                                                 dump mobile
                                             ]
@@ -308,10 +341,10 @@ for-each record records [; records contains all id, filenames from files where f
                                                 dump email
                                             ]
 
-                                            true [; just address lines
+                                            <else> [; just address lines
                                                 ; get area code out
-                                                rline: reverse copy line
-                                                if ok? parse3 rline [copy areacode areacode-rule space copy line to <end>] [
+                                                let rline: reverse copy line
+                                                if ok? parse3 rline [areacode: across areacode-rule space line: across to <end>] [
                                                     areacode: reverse areacode
                                                     line: reverse line
                                                 ]
@@ -323,25 +356,25 @@ for-each record records [; records contains all id, filenames from files where f
                                     'fp [; extract fp address
                                         print "extracting fp address  298"
                                         case [
-                                            find/part line "Diagnos" 7 [
+                                            find:part line "Diagnos" 7 [
                                                 mode: 'diagnosis
                                             ]
-                                            find/part line "Dear" 4 [
+                                            find:part line "Dear" 4 [
                                                 print "switching to end salutation 304"
                                                 mode: 'end-salutation ;'
                                             ]
 
-                                            find/part line "INTERNAL" 8 [
+                                            find:part line "INTERNAL" 8 [
                                                 ; internal referral
                                                 mode: 'finish ;'
                                             ]
 
-                                            true [
+                                            <else> [
                                                 if not find line fpname [
                                                     ; if there are tabs in the line, it's from a copy to someone else
                                                     ; eg {Kauri HealthCare^-^-^-^Whanganui Hospital} ;'
                                                     if find line #"^-" [
-                                                        parse3 line [copy line to #"^-" accept (true)]
+                                                        parse3 line [line: across to #"^-" accept (okay)]
                                                     ]
                                                     append fpaddress line
                                                 ]
@@ -351,10 +384,10 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'end-salutation [
-                                        if find/part line "Diagnos" 7 [
+                                        if find:part line "Diagnos" 7 [
                                             mode: 'diagnosis ;'
                                         ]
-                                        if find/part line "INTERNAL" 8 [
+                                        if find:part line "INTERNAL" 8 [
                                             print "internal referral"
                                             mode: 'finish ;'
                                         ]
@@ -364,17 +397,19 @@ for-each record records [; records contains all id, filenames from files where f
                                         print "diagnosis mode 325"
                                         line: detab line
                                         dump line
-                                        if any [find/part line "Page " 5 find/part line "…" 1] [
+                                        if any [find:part line "Page " 5 find:part line "…" 1] [
                                             print "switching to page-2-diagnoses"
                                             mode: 'page-2-diagnoses
                                         ]
-                                        either find/part line "Medicat" 7 [
+                                        either find:part line "Medicat" 7 [
                                             mode: 'medication ;'
                                             if not empty? diagnosis-detail [; catch end of list issue
-                                                append diagnoses reduce [trim/tail diagnosis-detail]
+                                                append diagnoses reduce [trim:tail diagnosis-detail]
                                                 diagnosis-detail: copy ""
                                             ]
                                         ] [
+                                            let dline
+
                                             ; check to see if leading number eg. 1. or -, the former to be removed and the latter indicates details
                                             ; 1.     Psoriatic Arthritis
                                             ;         a. CCP+ve
@@ -391,12 +426,12 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
 
                                                 ok? parse3 line [ ; numbered diagnoses
-                                                    some digit "." try some whitespace copy line to <end> | ; where the diagnosis starts with a digit
+                                                    some digit "." try some whitespace line: across to <end> | ; where the diagnosis starts with a digit
                                                 ] [
-                                                    if line [; sometimes blank after a number!
-                                                        trim/head/tail line
+                                                    if line [  ; sometimes blank after a number!
+                                                        trim:head:tail line
                                                         ; now add the details as a block to the previous diagnosis
-                                                        if all [not empty? trim/tail diagnosis-detail not empty? diagnoses] [
+                                                        if all [not empty? trim:tail diagnosis-detail not empty? diagnoses] [
                                                             append diagnoses reduce [diagnosis-detail]
                                                             diagnosis-detail: copy ""
                                                         ] else [
@@ -410,12 +445,12 @@ for-each record records [; records contains all id, filenames from files where f
                                                 ]
 
                                                 ok? parse3 line [ ; these are non-numbered bullet points
-                                                    try some whitespace ["-" | "." | ":" | ")" | "•" ] try some whitespace copy dline to <end>
+                                                    try some whitespace ["-" | "." | ":" | ")" | "•" ] try some whitespace dline: across to <end>
                                                 ] [
                                                     print "got a diagnosis detail"
                                                     dump dline
                                                     if dline [
-                                                        trim/head/tail dline
+                                                        trim:head:tail dline
                                                         if all [not empty? dline 2 < length-of dline not empty? diagnoses] [
                                                             append diagnosis-detail join dline "; "
                                                         ]
@@ -429,7 +464,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         print ["In mode: " mode]
                                         ; ?? line
                                         case [
-                                            find/part line "NHI:" 4 [
+                                            find:part line "NHI:" 4 [
                                                 mode: 'medication
                                                 oldmode: 'page-2-medications ;'
                                             ]
@@ -442,7 +477,7 @@ for-each record records [; records contains all id, filenames from files where f
                                     ]
 
                                     'page-2-diagnoses [
-                                        if find/part line "NHI:" 4 [
+                                        if find:part line "NHI:" 4 [
                                             mode: 'diagnosis ;'
                                             oldmode: 'page-2-diagnoses ;'
                                         ]
@@ -452,7 +487,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         ; medications can spill into the next page
                                         ; ?? line
                                         case [
-                                            any [find/part line "Page " 5 find/part line "…" 1] [
+                                            any [find:part line "Page " 5 find:part line "…" 1] [
                                                 print "switching to page-2-medications"
                                                 mode: 'page-2-medications
                                             ]
@@ -470,7 +505,7 @@ for-each record records [; records contains all id, filenames from files where f
                                                 mode: 'dmards
                                             ] ;'
 
-                                            true [
+                                            <else> [
                                                 append medications line
                                                 print "added to medications"
                                             ]
@@ -489,12 +524,12 @@ for-each record records [; records contains all id, filenames from files where f
                                         print ["Medications:" form length-of medications]
                                         print ["Diagnoses:" form length-of diagnoses]
                                         dump medications
-                                        for-each medication medications [
+                                        for-each 'medication medications [
                                             print medication
                                         ]
                                         dump diagnoses
                                         for-each [diagnosis detail] diagnoses [  ; detail is a BLOCK! (?)
-                                            print ["dx:" diagnosis "detail:" any [mold maybe detail, "<null>"]]
+                                            print ["dx:" diagnosis "detail:" any [mold opt detail, "<null>"]]
                                         ]
                                         dump diagnosis-detail
                                         dump dmards
@@ -529,57 +564,59 @@ for-each record records [; records contains all id, filenames from files where f
                         ; patient diagnoses
                         ; patient medications
 
+                        let fpid: null
+
                         ;; FP "Dr A J Greenway" "Dr C van Hutten" "Dr E Van der Merwe" Dr Van de Vyer "Dr D V Le Page" Ms J Harrington
                         if fp [
                             print "processing fp 729"
-                            fpblock: split fp space
-                            fpblockrev: reverse copy fpblock
-                            fptitle: first fpblock
+                            let fpblock: split fp space
+                            let fpblockrev: reverse copy fpblock
+                            let fptitle: first fpblock
                             dump fpblock
                             dump fptitle
                             dump fpname
-                            take/last fpblock
+                            take:last fpblock
                             remove fpblock
-                            fpinits: unspaced fpblock
+                            let fpinits: unspaced fpblock
                             dump fpinits
                             if null? fpinits [ ; no title so presumably a nurse practitoner
                                 fpinits: copy fptitle
                                 fptitle: copy ""
                             ]
                             if not all [fpname fptitle][
-                                case/all [
-                                    fpblockrev.2 = "Le" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev.1]]
-                                    fpblockrev.2 = "van" [remove/part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev.1]]
+                                case:all [
+                                    fpblockrev.2 = "Le" [remove:part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["Le " fpblockrev.1]]
+                                    fpblockrev.2 = "van" [remove:part skip fpblockrev 1 1 poke fpblockrev 1 rejoin ["van " fpblockrev.1]]
                                     all [fpblockrev.3 = "van" any [fpblockrev.2 = "der" fpblockrev.2 = "de"]] [remove/part skip fpblockrev 1 2 poke fpblockrev 1 rejoin ["Van Der " fpblockrev.1]]
                                 ]
 
                                 fpblock: reverse copy fpblockrev
                                 fpname: copy last fpblock
                                 fptitle: copy first fpblock
-                                parse3 fp [fptitle copy fpinits to fpname (trim/head/tail fpinits) to <end>]
+                                parse3 fp [fptitle fpinits: across to fpname (trim:head:tail fpinits) to <end>]
                             ]
                             ; are they already in the database
-                            replace/all fpname "'" "''"
+                            replace fpname "'" "''"
                             if all [fpname <> "unknown" 4 > length-of fptitle ][ ; avoid Health Hub - no GP
                                 sql-execute [
                                     SELECT id, fname, surname
                                     FROM fps
-                                    WHERE surname = @fpname AND fname = @fpinits
+                                    WHERE surname = $fpname AND fname = $fpinits
                                 ]
-                                result: copy port
+                                let result: copy port
                                 either not empty? result [
                                     fpid: result.1.1
                                 ] [
                                     ; not there, so insert
                                     sql-execute [
                                         INSERT INTO fps (title, fname, surname)
-                                        VALUES (@fptitle, @fpinits, @fpname)
+                                        VALUES ($fptitle, $fpinits, $fpname)
                                     ]
 
                                     sql-execute [
                                         SELECT id, fname, surname
                                         FROM fps
-                                        WHERE surname = @fpname AND fname = @fpinits
+                                        WHERE surname = $fpname AND fname = $fpinits
                                     ]
 
                                     result: copy port
@@ -588,16 +625,19 @@ for-each record records [; records contains all id, filenames from files where f
                                 ]
                             ]
                         ]
+
+                        let gpcentreid: null
+
                         ; add or get medical centre
                         ; fpaddress
                         if not empty? fpaddress [
                             print "we have a fpaddress 819"
                             dump fpaddress
                             sql-execute [
-                                SELECT id FROM gpcentre WHERE centrename = @fpaddress.1
+                                SELECT id FROM gpcentre WHERE centrename = $fpaddress.1
                             ]
 
-                            result: copy port
+                            let result: copy port
                             dump result
                             either not empty? result [
                                 gpcentreid: result.1.1  ; or result.1 ?
@@ -611,13 +651,13 @@ for-each record records [; records contains all id, filenames from files where f
 
                                 sql-execute [
                                     INSERT INTO gpcentre (centrename, street, town)
-                                    VALUES (@fpaddress.1, @fpaddress.2, @fpaddress.3)
+                                    VALUES ($fpaddress.1, $fpaddress.2, $fpaddress.3)
                                 ]
 
                                 sql-execute [
                                     SELECT id
                                     FROM gpcentre
-                                    WHERE centrename = @fpaddress.1
+                                    WHERE centrename = $fpaddress.1
                                 ]
 
                                 result: copy port
@@ -627,23 +667,25 @@ for-each record records [; records contains all id, filenames from files where f
                             ]
                         ] else [
                             print "No fpaddress 846"
-
                         ]
 
                         ; Get NHI
-                        if any [not blank? nhi nhi] [
+
+                        let nhiid: null
+                        if nhi [
                             ; we have a parsed nhi
                             uppercase nhi ;  Note NHI here is alphanumeric
                             print "Going to see if we have the patient already"
                             dump nhi
                             dump letter-nhi
-                            sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = @nhi]
-                            if not empty? result: copy port [
+                            sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = $nhi]
+                            let result: copy port
+                            if not empty? result [
                                 dump result
                                 nhiid: result.1.1
                             ] else [
-                                sql-execute [INSERT INTO NHILOOKUP (NHI) values (@nhi)]
-                                sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = @nhi]
+                                sql-execute [INSERT INTO NHILOOKUP (NHI) values ($nhi)]
+                                sql-execute [SELECT ID FROM NHILOOKUP WHERE nhi = $nhi]
                                 result: copy port
                                 dump result
                                 nhiid: result.1.1
@@ -652,20 +694,23 @@ for-each record records [; records contains all id, filenames from files where f
                             print "No NHI"
                             mode: 'abandon ;'
                         ]
-                        if any [blank? surname blank? dob] [mode: 'abandon] ;' failed to parse this letter
+                        if any [not surname, not dob] [mode: 'abandon] ;' failed to parse this letter
                         if mode <> 'abandon [;'
                             ; nhiid, fpid, fpcentreid
                             ; surname, fname, [sname], areacode, email, mobile, phone, clinician, dob
                             ; address [line1 [line2] town]
                             ; so let us see if this person is in the database of patients
                             dump nhiid
-                            sql-execute [SELECT id FROM patients WHERE nhi = @nhiid]
-                            either not empty? result: copy port [
+                            sql-execute [SELECT id FROM patients WHERE nhi = $nhiid]
+                            let result: copy port
+                            either not empty? result [
                                 print "patient already in database..."
                             ] [
                                 print "about to check patient details 818"
                                 dump dob
-                                dob: to date! dob
+                                if not date? dob [
+                                    dob: make date! dob
+                                ]
                                 areacode: to integer! areacode
                                 if 2 = length-of address [insert skip address 1 copy ""]
                                 email: any [email copy ""]
@@ -673,7 +718,7 @@ for-each record records [; records contains all id, filenames from files where f
                                 mobile: any [mobile copy ""]
                                 sname: any [sname copy ""]
                                 areacode: any [areacode "0000"]
-                                ;for-each v reduce [nhiid current-doc dob address.1 address.2 address.3 areacode email phone mobile fpid gpcentreid][
+                                ;for-each 'v reduce [nhiid current-doc dob address.1 address.2 address.3 areacode email phone mobile fpid gpcentreid][
                                 ;    ?? V
                                 ;]
                                 dump fpid
@@ -688,11 +733,11 @@ for-each record records [; records contains all id, filenames from files where f
                                         gp, gpcentre
                                     )
                                     VALUES (
-                                        @nhiid, @current-doc,
-                                        @dob, @surname, @fname, @sname,
-                                        @address.1, @address.1, @address.3, @areacode,  ; !!! Should this use @address.2?
-                                        @email, @phone, @mobile,
-                                        @fpid, @gpcentreid
+                                        $nhiid, $current-doc,
+                                        $dob, $surname, $fname, $sname,
+                                        $address.1, $address.1, $address.3, $areacode,  ; !!! Should this use $address.2?
+                                        $email, $phone, $mobile,
+                                        $fpid, $gpcentreid
                                     )
                                 ]
                             ]
@@ -700,11 +745,15 @@ for-each record records [; records contains all id, filenames from files where f
                             ; now add the medications if this list is newer than an old list
                             sql-execute [
                                 SELECT * FROM medications
-                                WHERE nhi = @nhiid
+                                WHERE nhi = $nhiid
                                 ORDER BY letter DESC
                             ]
                             ; remove all the old medications?
-                            if not empty? result: copy port [
+
+                            let lastclinic: null
+
+                            let result: copy port
+                            if not empty? result [
                                 ; we have old medications, so get the clinc date and see if it is older or newer
                                 print "Getting last clinic date"
                                 dump result
@@ -714,16 +763,19 @@ for-each record records [; records contains all id, filenames from files where f
                                 dump lastclinic
                                 if all [ldate > lastclinic not empty? medications] [
                                     ; this letter is newer, we have a new medication list, so remove all old medications
-                                    sql-execute [DELETE FROM medications WHERE nhi = @nhiid]
+                                    sql-execute [DELETE FROM medications WHERE nhi = $nhiid]
                                 ]
                             ] else [lastclinic: 1-Jan-1900]
                             dump lastclinic
                             print "adding medications if there are none, or if this is a newer clinic letter"
+
+                            let dosing: null
+
                             if any [empty? result ldate > lastclinic] [
                                 ; let us start adding medications by name and not code
                                 if not empty? medications [
                                     print "Adding medications"
-                                    for-each drug medications [
+                                    for-each 'drug medications [
                                         dump drug
                                         if 128 < length-of drug [
                                             if find "-*" drug.1 [ ; is there a bullet in front?
@@ -736,47 +788,47 @@ for-each record records [; records contains all id, filenames from files where f
                                                 break
                                             ]
                                         ]
-                                        attempt [trim/tail drug]
+                                        attempt [trim:tail drug]
                                         if ok? parse3 drug [not-drug-rule to <end>][
                                             ; not a drug, probably a comment, so skip to next drug
                                             print "Not a drug probably so lets continue"
                                             continue
                                         ]
-                                        drugname: dosing: null
-                                        parse3 drug [copy drugname drugname-rule copy dosing to <end>]
-                                        if not blank? drugname [trim/tail drugname] else [continue]
+                                        let drugname: null
+                                        parse3 drug [drugname: across drugname-rule dosing: across to <end>]
+                                        if drugname [trim:tail drugname] else [continue]
                                         dump drugname
                                         dosing: any [dosing copy ""]
                                         if empty? dosing [
                                             ; try and just use the first name as the drugname and the rest as dosing
-                                            try parse3 copy drugname [copy drugname to space some space copy dosing to <end>]
+                                            try parse3 copy drugname [drugname: across to space some space dosing: across to <end>]
                                         ]
                                         dump drugname dump dosing
-                                        if not blank? drugname [
+                                        if drugname [
                                             sql-execute [
                                                 SELECT * FROM medications
-                                                WHERE nhi = @nhiid AND name = @drugname AND active = {'T'}
+                                                WHERE nhi = $nhiid AND name = $drugname AND active = -['T']-
                                             ]
-                                            result: copy port
+                                            let result: copy port
                                             if not empty? result [
                                                 dump medications
                                                 print "Lets see what we have"
-                                                for-each record medications [
+                                                for-each 'record medications [
                                                     probe record
                                                 ]
-                                                ;fail "Adding duplicate record" - typist has the same drug twice
+                                                ; panic "Adding duplicate record" - typist has the same drug twice
                                                 continue
                                             ]
                                             ; the odbc driver should truncate for us
-                                            ;if not blank? dosing [
-                                            ;    dosing: copy/part dosing 127
+                                            ;if dosing [
+                                            ;    dosing: copy:part dosing 127
                                             ;]
                                             print "Inserting into medications 976"
                                             sql-execute [
                                                 INSERT INTO medications (
                                                     nhi, letter, name, dosing, active
                                                 ) VALUES (
-                                                    @nhiid, @ldate, @drugname, @dosing, {'T'}
+                                                    $nhiid, $ldate, $drugname, $dosing, -['T']-
                                                 )
                                             ]
                                         ] else [
@@ -786,10 +838,11 @@ for-each record records [; records contains all id, filenames from files where f
                                 ]
                                 if not empty? dmards [
                                     print "Adding DMARDS"
-                                    for-each drug dmards [
+                                    for-each 'drug dmards [
                                         dump drug
-                                        parse3 drug [copy drugname drugname-rule copy dosing to <end>]
-                                        dosing: any [dosing copy ""]
+                                        let drugname
+                                        parse3 drug [drugname: across drugname-rule dosing: across to <end>]
+                                        let dosing: any [dosing copy ""]
                                         dump drugname
                                         print form length-of drugname
                                         dump dosing
@@ -798,7 +851,7 @@ for-each record records [; records contains all id, filenames from files where f
                                             INSERT INTO medications (
                                                 nhi, letter, name, dosing, active
                                             ) VALUES (
-                                                @nhiid, @ldate, @drugname, @dosing, {'F'}
+                                                $nhiid, $ldate, $drugname, $dosing, -['F']-
                                             )
                                         ]
                                     ]
@@ -810,13 +863,13 @@ for-each record records [; records contains all id, filenames from files where f
                         ; == should we check to see if this letter is newer or older than latest?? ==
                         if not empty? diagnoses [
                             ; see how many diagnoses there are
-                            sql-execute  [{select count(*) from diagnoses where nhi = } @nhiid]
-                            result: copy port
+                            sql-execute  [-[select count(*) from diagnoses where nhi = ]- $nhiid]
+                            let result: copy port
                             if not empty? result [
                                 result: result.1.1
                                 if result <= length-of diagnoses [
                                     ;  existing diagnoses are fewer than we now have so lets delete existing
-                                    sql-execute [DELETE FROM diagnoses WHERE nhi = @nhiid]
+                                    sql-execute [DELETE FROM diagnoses WHERE nhi = $nhiid]
                                 ]
                             ]
                             ; do we have to look at the case where new diagnoses are less than existing?
@@ -829,7 +882,7 @@ for-each record records [; records contains all id, filenames from files where f
                                         INSERT INTO diagnoses (
                                             nhi, letter, diagnosis, detail
                                         ) VALUES (
-                                            @nhiid, @ldate, @diagnosis, @detail.1
+                                            $nhiid, $ldate, $diagnosis, $detail.1
                                         )
                                     ]
                             ]
@@ -837,17 +890,17 @@ for-each record records [; records contains all id, filenames from files where f
 
                         ; finished the work, now update the letters table
                         dump ldate
-                        ; replace/all contents "'" "''"
+                        ; replace contents "'" "''"
                         sql-execute [
                             INSERT INTO letters (
                                 clinicians, nhi, cdate, dictation, checksum
                             ) VALUES (
-                                @current-doc, @nhiid, @ldate, @contents, @ck
+                                $current-doc, $nhiid, $ldate, $contents, $ck
                             )
                         ]
                         print "Inserted into letters the file contents"
                         sql-execute [
-                            UPDATE files SET done = TRUE where id = @fileid
+                            UPDATE files SET done = TRUE where id = $fileid
                         ]
                         print "Updated done flag"
                         print "================================================="

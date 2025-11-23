@@ -1,6 +1,6 @@
 Rebol [
   example: "r3 path/to/docx-to-text document.docx"
-  notes: {will write the text file with the same filename but .txt extension}
+  notes: "will write the text file with the same filename but .txt extension"
 ]
 
 ; import 'markup ; maybe change to your location

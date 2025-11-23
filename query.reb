@@ -1,4 +1,4 @@
-rebol []
+Rebol []
 
 import %sql.reb
 
@@ -8,12 +8,12 @@ fetch-all: func [dbid nhi
     print "entering fetch all"
     sql-execute [
       SELECT fname, surname, dob, gpname, gpcentname, phone, mobile, street
-      FROM patients where nhi = @dbid
+      FROM patients where nhi = $dbid
     ]
     rec: copy port
     if not empty? rec [
       rec: rec.1
-      patient-o: make object! compose [
+      let patient-o: make object! compose [
         fname: (rec.1)
         surname: (rec.2)
         dob: (rec.3)
@@ -23,48 +23,48 @@ fetch-all: func [dbid nhi
         nhi: (nhi)
         phone: rec.6 mobile: rec.7
         street: rec.8
-        medications: diagnoses: dmards: consults: dates: _
+        medications: diagnoses: dmards: consults: dates: null
       ]
       ; lets get dmards which are inactive drugs
-      dmards: copy []
+      let dmards: copy []
       dump dbid
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE nhi = @dbid and active = {'F'}
+        WHERE nhi = $dbid and active = -['F']-
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append dmards r.1
         ]
       ]
 
       ; now let us get the number of medications
 
-      medications: copy []
+      let medications: copy []
       sql-execute [
         SELECT name, dosing
         FROM medications
-        WHERE nhi = @dbid and active = {'T'}
+        WHERE nhi = $dbid and active = -['T']-
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append medications spaced [r.1 r.2]
         ]
       ]
 
       ; diagnoses
-      diagnoses: copy []
+      let diagnoses: copy []
       sql-execute [
         SELECT diagnosis
         FROM diagnoses
-        WHERE nhi = @dbid
+        WHERE nhi = $dbid
       ]
       rec: copy port
       if not empty? rec [
-        for-each r rec [
+        for-each 'r rec [
           append diagnoses r.1
         ]
       ]
@@ -73,14 +73,16 @@ fetch-all: func [dbid nhi
       patient-o.medications: unique medications
       patient-o.diagnoses: unique diagnoses
 
-      rdates: copy [] dates: copy [] consults: copy []
+      let rdates: copy []
+      let dates: copy []
+      let consults: copy []
       sql-execute [
         SELECT id, cdate, clinicians, dictation
         FROM letters
-        WHERE nhi = @dbid
+        WHERE nhi = $dbid
         ORDER BY cdate DESC
       ]
-      for-each record copy port [
+      for-each 'record copy port [
         append consults record ; id cdate clinicians dictation
         ; append rdates rejoin [next form 100000 + record.1 " " record.2]
         append dates form record.2
@@ -90,7 +92,7 @@ fetch-all: func [dbid nhi
       patient-o.consults: consults
       return patient-o
     ] else [
-      return {-ERR patient not found}
+      return -[ERR patient not found]-
     ]
 ]
 

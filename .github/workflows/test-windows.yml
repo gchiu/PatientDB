@@ -33,20 +33,10 @@ jobs:
 
   #====# CHECKOUT STEPS #=====================================================#
 
-    # GitHub CI checkout on Windows auto translates LF to CR/LF in files:
-    #
-    # https://github.com/actions/checkout/issues/135
-    #
-    # However, Ren-C is taking the long view on this and prohibiting CR/LF in
-    # source by default.
-    #
-    # https://forum.rebol.info/t/newlina-non-grata/1207
-    # https://forum.rebol.info/t/1264
+    # https://github.com/metaeducation/git-disable-autocrlf-action
     #
     - name: Disable LF to CRLF Auto Translation In Git
-      run: |
-        git config --global core.autocrlf false
-        git config --global core.eol lf
+      uses: metaeducation/git-disable-autocrlf-action@v1
 
 
     # https://github.com/actions/checkout
@@ -71,7 +61,7 @@ jobs:
 
     - name: Demonstrate Ren-C Working
       run: |
-        r3 --do "print {Hello from Ren-C}"
+        r3 --do "print -[Hello from Ren-C]-"
 
 
   #====# FIREBIRD INSTALLATION #==============================================#
@@ -209,7 +199,7 @@ jobs:
     #
     - name: ODBC MySQL Insert And Retrieve Test
       run: |
-        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.reb \
+        r3 https://github.com/metaeducation/rebol-odbc/blob/master/tests/odbc-test.r \
             rebol-firebird --firebird --show-sql --leave-connected
 
     - name: create directories
@@ -241,10 +231,10 @@ jobs:
         checked: true
         script: |
           result: 0
-          for-each file read %./ [
+          for-each 'file read %./ [
               parse file [thru [".reb" | ".r"] <end> | (continue)]
-              text: as text! read file
-              collect* [case/all [
+              let text: as text! read file
+              collect* [case:all [
                   find text tab [
                       keep "contains TABS, the horror!"
                   ]
@@ -257,13 +247,13 @@ jobs:
                   newline <> last text [
                       keep "has no terminal newline"
                   ]
-                  newline = first back back tail text [
+                  newline = first back back tail of text [
                       keep "has extra newlines at end of file"
                   ]
               ]] then problems -> [
                   preface: spaced [newline "File" mold file "=>" space]
-                  print delimit/head preface problems
+                  print delimit:head preface problems
                   result: 1
               ]
           ]
-          quit/with result
+          quit result

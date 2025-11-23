@@ -1,11 +1,10 @@
 Rebol [
     file: https://github.com/gchiu/PatientDB/blob/main/batch-docx2txt.reb
-    notes: {converts all the docx in a directory to txt if not already present}
+    notes: "converts all the docx in a directory to txt if not already present"
     date: 29-Nov-2021
-    history: {
+    history: --[
         30.11.2021 trap for temporary and locked files
-
-    }
+    ]--
 ]
 
 import %markup.reb
@@ -27,7 +26,7 @@ batch-docx2txt: func [dir [file!]
         exit
     ]
     files: read dir
-    for-each file files [
+    for-each 'file files [
         if all [%.docx = suffix? file not find file "$"][ ; make sure not a temporary file which might have a lock on it
             target: join dir replace copy file %.docx %.txt
             if not exists? target [
